@@ -1,5 +1,6 @@
-package com.chat.yourway.security;
+package com.chat.yourway.config;
 
+import com.chat.yourway.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
