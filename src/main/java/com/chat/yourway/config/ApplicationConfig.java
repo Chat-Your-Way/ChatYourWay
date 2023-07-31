@@ -1,4 +1,4 @@
-package com.chat.yourway.security;
+package com.chat.yourway.config;
 
 import com.chat.yourway.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
