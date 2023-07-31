@@ -5,13 +5,18 @@ import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.dto.request.RegisterRequestDto;
 import com.chat.yourway.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 
 /**
  * {@link AuthenticationController}
@@ -37,6 +42,13 @@ public class AuthenticationController {
     @Operation(summary = "Authorization")
     public ResponseEntity<AuthResponseDto> authenticate(@RequestBody AuthRequestDto request) {
         return ResponseEntity.ok(authService.authenticate(request));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh token")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, required = true, schema = @Schema(type = "string"))
+    public ResponseEntity<AuthResponseDto> refreshToken(HttpServletRequest request) {
+        return authService.refreshToken(request);
     }
 
 }
