@@ -1,9 +1,9 @@
-package com.chat.yourway.sender;
+package com.chat.yourway.service;
 
 import com.chat.yourway.model.EmailSend;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -15,15 +15,11 @@ import java.util.Objects;
 
 @Service
 @EnableAsync
-public class EmailSender {
+@RequiredArgsConstructor
+public class EmailSenderService {
     @Value("${spring.mail.username}")
     private String emailAddressFrom;
     private final JavaMailSender javaMailSender;
-
-    @Autowired
-    public EmailSender(JavaMailSender javaMailSender) {
-        this.javaMailSender = javaMailSender;
-    }
 
     @Async
     public void sendEmail(EmailSend request) {
