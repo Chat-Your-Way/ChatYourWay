@@ -7,7 +7,7 @@ import com.chat.yourway.model.TokenType;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
-import com.chat.yourway.repository.TokenRepository;
+import com.chat.yourway.repository.TokenRedisRepository;
 import com.chat.yourway.security.JwtService;
 import com.chat.yourway.dto.request.RegisterRequestDto;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +40,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
-    private final TokenRepository tokenRepository;
+    private final TokenRedisRepository tokenRedisRepository;
 
     @Value("${security.jwt.token-type}")
     private String tokenType;
@@ -102,9 +102,9 @@ public class AuthenticationService {
             if (jwtService.isAccessTokenValid(refreshToken, contact)) {
                 var accessToken = jwtService.generateAccessToken(contact);
                 revokeAllContactTokens(contact);
-                saveContactToken(contact, accessToken);
+                saveContactToken(email, accessToken);
 
-                log.info("Refreshed access token for contact email: {}", contact.getEmail());
+                log.info("Refreshed access token for contact email: {}", email);
                 return ResponseEntity.ok(AuthResponseDto.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
@@ -115,25 +115,25 @@ public class AuthenticationService {
     }
 
     private void revokeAllContactTokens(Contact contact) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(contact.getId());
+        var validUserTokens = tokenRedisRepository.findAllByEmail(contact.getEmail());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {
             token.setExpired(true);
             token.setRevoked(true);
         });
-        tokenRepository.saveAll(validUserTokens);
+        tokenRedisRepository.saveAll(validUserTokens);
     }
 
-    private void saveContactToken(Contact contact, String jwtToken) {
+    private void saveContactToken(String email, String jwtToken) {
         var token = Token.builder()
-                .contact(contact)
+                .email(email)
                 .token(jwtToken)
                 .tokenType(TokenType.BEARER)
                 .expired(false)
                 .revoked(false)
                 .build();
-        tokenRepository.save(token);
+        tokenRedisRepository.save(token);
     }
 
 }
