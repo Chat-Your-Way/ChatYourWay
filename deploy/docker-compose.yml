@@ -12,3 +12,24 @@ services:
       - "5432:5432"
     volumes:
       - /var/docker-volumes/postgres-data:/var/lib/postgresql/data/
+
+  master:
+    container_name: redis-chat-master
+    hostname: redis-chat
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: on-failure
+    volumes:
+      - /var/docker-volumes/redis-data:/data
+    command: redis-server --requirepass admin
+
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis-chat:6379:0:admin
+    ports:
+      - "8081:8081"
