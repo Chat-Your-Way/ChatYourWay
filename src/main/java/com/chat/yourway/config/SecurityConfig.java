@@ -14,14 +14,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * {@link ApplicationConfig}
+ * {@link SecurityConfig}
  *
  * @author Dmytro Trotsenko on 7/26/23
  */
 
 @Configuration
 @RequiredArgsConstructor
-public class ApplicationConfig {
+public class SecurityConfig {
 
     private final ContactRepository contactRepository;
 
