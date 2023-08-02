@@ -40,7 +40,9 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
+    private final EmailSenderService emailSenderService;
     private final TokenRedisRepository tokenRedisRepository;
+
 
     @Value("${security.jwt.token-type}")
     private String tokenType;
