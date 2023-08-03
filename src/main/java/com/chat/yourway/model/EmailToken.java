@@ -9,8 +9,8 @@ import lombok.*;
 @Setter
 @Getter
 @Entity
-@Table(schema = "chat", name="contact_token")
-public class ContactToken {
+@Table(schema = "chat", name="email_token")
+public class EmailToken {
     @Id
     private String token;
 
