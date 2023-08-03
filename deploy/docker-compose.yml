@@ -19,7 +19,7 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
-    restart: on-failure
+    restart: always
     volumes:
       - /var/docker-volumes/redis-data:/data
     command: redis-server --requirepass admin
