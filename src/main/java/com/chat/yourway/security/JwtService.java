@@ -60,7 +60,7 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isAccessTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         final String usernameEmail = userDetails.getUsername();
         final String email = extractEmail(token);
         return email.equals(usernameEmail) && !isTokenExpired(token);
