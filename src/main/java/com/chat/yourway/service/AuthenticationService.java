@@ -59,10 +59,15 @@ public class AuthenticationService {
 
         contactRepository.save(contact);
 
+        var accessToken = jwtService.generateAccessToken(contact);
+        var refreshToken = jwtService.generateRefreshToken(contact);
+
+        saveContactToken(contact.getEmail(), accessToken);
+
         log.info("Saved registered contact to repository");
         return AuthResponseDto.builder()
-                .accessToken(jwtService.generateAccessToken(contact))
-                .refreshToken(jwtService.generateRefreshToken(contact))
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -74,10 +79,15 @@ public class AuthenticationService {
         var contact = contactRepository.findByEmail(request.getEmail())
                 .orElseThrow();
 
+        var accessToken = jwtService.generateAccessToken(contact);
+        var refreshToken = jwtService.generateRefreshToken(contact);
+
+        saveContactToken(contact.getEmail(), accessToken);
+
         log.info("Contact authenticated");
         return AuthResponseDto.builder()
-                .accessToken(jwtService.generateAccessToken(contact))
-                .refreshToken(jwtService.generateRefreshToken(contact))
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -99,7 +109,7 @@ public class AuthenticationService {
             var contact = this.contactRepository.findByEmail(email)
                     .orElseThrow();
 
-            if (jwtService.isAccessTokenValid(refreshToken, contact)) {
+            if (jwtService.isTokenValid(refreshToken, contact)) {
                 var accessToken = jwtService.generateAccessToken(contact);
                 revokeAllContactTokens(contact);
                 saveContactToken(email, accessToken);
