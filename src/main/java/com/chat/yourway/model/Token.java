@@ -24,6 +24,7 @@ public class Token {
     @Id
     @Indexed
     public String email;
+    @Indexed
     public String token;
     public TokenType tokenType;
     public boolean revoked;
