@@ -4,7 +4,7 @@ import com.chat.yourway.model.*;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
-import com.chat.yourway.repository.ContactTokenRepository;
+import com.chat.yourway.repository.EmailTokenRepository;
 import com.chat.yourway.repository.TokenRepository;
 import com.chat.yourway.security.JwtService;
 import com.chat.yourway.dto.request.RegisterRequestDto;
@@ -44,7 +44,7 @@ public class AuthenticationService {
     private final AuthenticationManager authManager;
     private final TokenRepository tokenRepository;
     private final EmailSenderService emailSenderService;
-    private final ContactTokenRepository contactTokenRepository;
+    private final EmailTokenRepository emailTokenRepository;
 
     @Value("${security.jwt.token-type}")
     private String tokenType;
@@ -65,13 +65,13 @@ public class AuthenticationService {
 
         String uuid = UUID.randomUUID().toString();
         String link = generateLink(httpRequest, uuid, EmailMessageType.VERIFY);
-        ContactToken contactToken = ContactToken.builder()
+        EmailToken emailToken = EmailToken.builder()
                 .contact(contact)
                 .token(uuid)
                 .messageType(EmailMessageType.VERIFY)
                 .build();
 
-        contactTokenRepository.save(contactToken);
+        emailTokenRepository.save(emailToken);
 
         sendVerifyEmail(contact, link);
 
