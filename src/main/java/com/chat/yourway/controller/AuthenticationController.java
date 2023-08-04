@@ -12,10 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -34,8 +31,8 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     @Operation(summary = "Registration")
-    public ResponseEntity<AuthResponseDto> register(@RequestBody RegisterRequestDto request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<AuthResponseDto> register(@RequestBody RegisterRequestDto request, HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(authService.register(request, httpRequest));
     }
 
     @PostMapping("/authenticate")
@@ -49,6 +46,12 @@ public class AuthenticationController {
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, required = true, schema = @Schema(type = "string"))
     public ResponseEntity<AuthResponseDto> refreshToken(HttpServletRequest request) {
         return authService.refreshToken(request);
+    }
+
+    @PostMapping("/activate")
+    @Operation(summary = "Activate account")
+    public void activateAccount(@RequestParam String token) {
+        authService.activateAccount(token);
     }
 
 }
