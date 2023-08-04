@@ -1,6 +1,6 @@
 package com.chat.yourway.security;
 
-import com.chat.yourway.repository.TokenRepository;
+import com.chat.yourway.repository.TokenRedisRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +34,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final TokenRepository tokenRepository;
+    private final TokenRedisRepository tokenRedisRepository;
 
     @Value("${security.jwt.token-type}")
     private String tokenType;
@@ -51,18 +51,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        final String jwt = authHeader.substring(tokenTypePrefix.length());
-        final String userEmail = jwtService.extractEmail(jwt);
+        final String jwtToken = authHeader.substring(tokenTypePrefix.length());
+        final String userEmail = jwtService.extractEmail(jwtToken);
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            var isRefreshTokenValid = tokenRepository.findByToken(jwt)
+            var isRefreshTokenValid = tokenRedisRepository.findByToken(jwtToken)
                     .map(token -> !token.isExpired() && !token.isRevoked())
                     .orElse(false);
 
-            if (jwtService.isAccessTokenValid(jwt, userDetails) && isRefreshTokenValid) {
+            if (jwtService.isTokenValid(jwtToken, userDetails) && isRefreshTokenValid) {
                 var authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);

@@ -1,18 +1,20 @@
 package com.chat.yourway.service;
 
-import com.chat.yourway.model.*;
+import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.Role;
+import com.chat.yourway.model.Token;
+import com.chat.yourway.model.TokenType;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.repository.EmailTokenRepository;
-import com.chat.yourway.repository.TokenRepository;
+import com.chat.yourway.repository.TokenRedisRepository;
 import com.chat.yourway.security.JwtService;
 import com.chat.yourway.dto.request.RegisterRequestDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,9 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.util.UUID;
-
-import static com.chat.yourway.model.EmailMessageConstant.*;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpStatus.*;
 
@@ -42,43 +41,37 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
-    private final TokenRepository tokenRepository;
     private final EmailSenderService emailSenderService;
     private final EmailTokenRepository emailTokenRepository;
+    private final TokenRedisRepository tokenRedisRepository;
+
 
     @Value("${security.jwt.token-type}")
     private String tokenType;
 
     @Transactional
-    public AuthResponseDto register(RegisterRequestDto request, HttpServletRequest httpRequest) {
+    public AuthResponseDto register(RegisterRequestDto request) {
         log.info("Started registration contact email: {}", request.getEmail());
         var contact = Contact.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .isActive(false)
+                .isActive(true)
                 .isPrivate(true)
                 .role(Role.USER)
                 .build();
 
-        contact = contactRepository.save(contact);
+        contactRepository.save(contact);
 
-        String uuid = UUID.randomUUID().toString();
-        String link = generateLink(httpRequest, uuid, EmailMessageType.VERIFY);
-        EmailToken emailToken = EmailToken.builder()
-                .contact(contact)
-                .token(uuid)
-                .messageType(EmailMessageType.VERIFY)
-                .build();
+        var accessToken = jwtService.generateAccessToken(contact);
+        var refreshToken = jwtService.generateRefreshToken(contact);
 
-        emailTokenRepository.save(emailToken);
-
-        sendVerifyEmail(contact, link);
+        saveContactToken(contact.getEmail(), accessToken);
 
         log.info("Saved registered contact to repository");
         return AuthResponseDto.builder()
-                .accessToken(jwtService.generateAccessToken(contact))
-                .refreshToken(jwtService.generateRefreshToken(contact))
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -90,10 +83,15 @@ public class AuthenticationService {
         var contact = contactRepository.findByEmail(request.getEmail())
                 .orElseThrow();
 
+        var accessToken = jwtService.generateAccessToken(contact);
+        var refreshToken = jwtService.generateRefreshToken(contact);
+
+        saveContactToken(contact.getEmail(), accessToken);
+
         log.info("Contact authenticated");
         return AuthResponseDto.builder()
-                .accessToken(jwtService.generateAccessToken(contact))
-                .refreshToken(jwtService.generateRefreshToken(contact))
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -115,12 +113,12 @@ public class AuthenticationService {
             var contact = this.contactRepository.findByEmail(email)
                     .orElseThrow();
 
-            if (jwtService.isAccessTokenValid(refreshToken, contact)) {
+            if (jwtService.isTokenValid(refreshToken, contact)) {
                 var accessToken = jwtService.generateAccessToken(contact);
                 revokeAllContactTokens(contact);
-                saveContactToken(contact, accessToken);
+                saveContactToken(email, accessToken);
 
-                log.info("Refreshed access token for contact email: {}", contact.getEmail());
+                log.info("Refreshed access token for contact email: {}", email);
                 return ResponseEntity.ok(AuthResponseDto.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
@@ -131,40 +129,25 @@ public class AuthenticationService {
     }
 
     private void revokeAllContactTokens(Contact contact) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(contact.getId());
+        var validUserTokens = tokenRedisRepository.findAllByEmail(contact.getEmail());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {
             token.setExpired(true);
             token.setRevoked(true);
         });
-        tokenRepository.saveAll(validUserTokens);
+        tokenRedisRepository.saveAll(validUserTokens);
     }
 
-    private void saveContactToken(Contact contact, String jwtToken) {
+    private void saveContactToken(String email, String jwtToken) {
         var token = Token.builder()
-                .contact(contact)
+                .email(email)
                 .token(jwtToken)
                 .tokenType(TokenType.BEARER)
                 .expired(false)
                 .revoked(false)
                 .build();
-        tokenRepository.save(token);
+        tokenRedisRepository.save(token);
     }
 
-    private String generateLink(HttpServletRequest httpRequest, String uuid, EmailMessageType emailMessageType) {
-        log.info("Generate link for verifying account");
-        return httpRequest.getHeader(HttpHeaders.REFERER) +
-                emailMessageType.getEmailType() +
-                TOKEN_PARAMETER +
-                uuid;
-    }
-
-    private void sendVerifyEmail(Contact contact, String link) {
-        String text = String.format(VERIFY_ACCOUNT_TEXT, contact.getUsername(), link);
-        EmailSend emailSend = new EmailSend(contact.getEmail(), VERIFY_ACCOUNT_SUBJECT, text);
-
-        emailSenderService.sendEmail(emailSend);
-        log.info("Email for verifying account sent");
-    }
 }
