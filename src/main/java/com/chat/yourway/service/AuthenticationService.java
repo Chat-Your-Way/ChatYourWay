@@ -142,14 +142,12 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public ResponseEntity<?> activateAccount(String token) {
+    public void activateAccount(String token) {
         EmailToken emailToken = emailTokenRepository.findById(token).orElseThrow();
-        Contact contact = contactRepository.findById(emailToken.getContact().getId()).orElseThrow();
+        Contact contact = emailToken.getContact();
 
         contact.setIsActive(true);
         emailTokenRepository.delete(emailToken);
-
-        return ResponseEntity.status(OK).build();
     }
 
     private void revokeAllContactTokens(Contact contact) {
