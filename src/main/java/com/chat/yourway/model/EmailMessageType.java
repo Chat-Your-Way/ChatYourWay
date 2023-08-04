@@ -1,7 +1,7 @@
 package com.chat.yourway.model;
 
 public enum EmailMessageType {
-    VERIFY("verify");
+    ACTIVATE("activate");
 
     private final String emailType;
 
