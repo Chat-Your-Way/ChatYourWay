@@ -5,9 +5,7 @@ import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.dto.request.RegisterRequestDto;
 import com.chat.yourway.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +36,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(authService.register(request));
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/login")
     @Operation(summary = "Authorization")
     public ResponseEntity<AuthResponseDto> authenticate(@RequestBody AuthRequestDto request) {
         return ResponseEntity.ok(authService.authenticate(request));
@@ -46,7 +44,7 @@ public class AuthenticationController {
 
     @PostMapping("/refresh")
     @Operation(summary = "Refresh token")
-    @Parameter(name = "Authorization", in = ParameterIn.HEADER, required = true, schema = @Schema(type = "string"))
+    @ApiResponse(responseCode = "401", description = "User UNAUTHORIZED")
     public ResponseEntity<AuthResponseDto> refreshToken(HttpServletRequest request) {
         return authService.refreshToken(request);
     }
