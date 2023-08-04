@@ -48,4 +48,10 @@ public class AuthenticationController {
         return authService.refreshToken(request);
     }
 
+    @PostMapping("/activate")
+    @Operation(summary = "Activate account")
+    public ResponseEntity<?> activateAccount(@RequestParam String token) {
+        return authService.activateAccount(token);
+    }
+
 }

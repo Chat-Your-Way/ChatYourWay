@@ -1,9 +1,6 @@
 package com.chat.yourway.service;
 
-import com.chat.yourway.model.Contact;
-import com.chat.yourway.model.Role;
-import com.chat.yourway.model.Token;
-import com.chat.yourway.model.TokenType;
+import com.chat.yourway.model.*;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
@@ -15,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.UUID;
+
+import static com.chat.yourway.model.EmailMessageConstant.*;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpStatus.*;
 
@@ -50,18 +51,30 @@ public class AuthenticationService {
     private String tokenType;
 
     @Transactional
-    public AuthResponseDto register(RegisterRequestDto request) {
+    public AuthResponseDto register(RegisterRequestDto request, HttpServletRequest httpRequest) {
         log.info("Started registration contact email: {}", request.getEmail());
         var contact = Contact.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .isActive(true)
+                .isActive(false)
                 .isPrivate(true)
                 .role(Role.USER)
                 .build();
 
         contactRepository.save(contact);
+
+        String uuid = UUID.randomUUID().toString();
+        String link = generateLink(httpRequest, uuid, EmailMessageType.ACTIVATE);
+        EmailToken emailToken = EmailToken.builder()
+                .contact(contact)
+                .token(uuid)
+                .messageType(EmailMessageType.ACTIVATE)
+                .build();
+
+        emailTokenRepository.save(emailToken);
+
+        sendVerifyEmail(contact, link);
 
         var accessToken = jwtService.generateAccessToken(contact);
         var refreshToken = jwtService.generateRefreshToken(contact);
@@ -128,6 +141,17 @@ public class AuthenticationService {
         return ResponseEntity.status(UNAUTHORIZED).build();
     }
 
+    @Transactional
+    public ResponseEntity<?> activateAccount(String token) {
+        EmailToken emailToken = emailTokenRepository.findById(token).orElseThrow();
+        Contact contact = contactRepository.findById(emailToken.getContact().getId()).orElseThrow();
+
+        contact.setIsActive(true);
+        emailTokenRepository.delete(emailToken);
+
+        return ResponseEntity.status(OK).build();
+    }
+
     private void revokeAllContactTokens(Contact contact) {
         var validUserTokens = tokenRedisRepository.findAllByEmail(contact.getEmail());
         if (validUserTokens.isEmpty())
@@ -148,6 +172,22 @@ public class AuthenticationService {
                 .revoked(false)
                 .build();
         tokenRedisRepository.save(token);
+    }
+
+    private String generateLink(HttpServletRequest httpRequest, String uuid, EmailMessageType emailMessageType) {
+        log.info("Generate link for verifying account");
+        return httpRequest.getHeader(HttpHeaders.REFERER) +
+                emailMessageType.getEmailType() +
+                TOKEN_PARAMETER +
+                uuid;
+    }
+
+    private void sendVerifyEmail(Contact contact, String link) {
+        String text = String.format(VERIFY_ACCOUNT_TEXT, contact.getUsername(), link);
+        EmailSend emailSend = new EmailSend(contact.getEmail(), VERIFY_ACCOUNT_SUBJECT, text);
+
+        emailSenderService.sendEmail(emailSend);
+        log.info("Email for verifying account sent");
     }
 
 }
