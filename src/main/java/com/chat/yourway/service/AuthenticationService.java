@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,10 +90,12 @@ public class AuthenticationService {
     @Transactional
     public AuthResponseDto authenticate(AuthRequestDto request) {
         log.info("Started authenticate contact email: {}", request.getEmail());
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         var contact = contactRepository.findByEmail(request.getEmail())
                 .orElseThrow();
+
+        if (!passwordEncoder.matches(request.getPassword(), contact.getPassword()))
+            throw new RuntimeException();
 
         var accessToken = jwtService.generateAccessToken(contact);
         var refreshToken = jwtService.generateRefreshToken(contact);
