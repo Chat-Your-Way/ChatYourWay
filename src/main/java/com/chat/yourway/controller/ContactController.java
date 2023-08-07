@@ -1,6 +1,6 @@
 package com.chat.yourway.controller;
 
-import com.chat.yourway.dto.request.ChangePassword;
+import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.service.ContactService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +21,7 @@ public class ContactController {
     @PatchMapping("/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Change to new password")
-    public void changePassword(@RequestBody ChangePassword request, @AuthenticationPrincipal UserDetails userDetails) {
+    public void changePassword(@RequestBody ChangePasswordDto request, @AuthenticationPrincipal UserDetails userDetails) {
         contactService.changePassword(request, userDetails);
     }
 }
