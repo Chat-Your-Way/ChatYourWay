@@ -4,12 +4,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-/**
- * {@link ApiExceptionHandler}
- *
- * @author Dmytro Trotsenko on 8/8/23
- */
-
 @ControllerAdvice
 public class ApiExceptionHandler {
 
