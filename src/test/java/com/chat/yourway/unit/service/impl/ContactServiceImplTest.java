@@ -1,9 +1,10 @@
-package com.chat.yourway.service.impl;
+package com.chat.yourway.unit.service.impl;
 
 import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.exception.NoEqualsPasswordException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.repository.ContactRepository;
+import com.chat.yourway.service.impl.ContactServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-public class ContactServiceImplUnitTest {
+public class ContactServiceImplTest {
     private Contact contact;
     @Mock
     private PasswordEncoder passwordEncoder;

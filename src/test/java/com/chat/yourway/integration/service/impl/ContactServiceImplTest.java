@@ -1,28 +1,25 @@
-package com.chat.yourway.service.impl;
+package com.chat.yourway.integration.service.impl;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.exception.NoEqualsPasswordException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.service.ContactService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class ContactServiceImplIntegrationTest {
+public class ContactServiceImplTest {
     private Contact contact;
     @Autowired
     private ContactService contactService;
