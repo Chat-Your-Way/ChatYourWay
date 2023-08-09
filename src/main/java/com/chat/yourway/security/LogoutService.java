@@ -1,58 +1,36 @@
 package com.chat.yourway.security;
 
-import com.chat.yourway.repository.TokenRedisRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
-/**
- * {@link LogoutService}
- *
- * @author Dmytro Trotsenko on 8/2/23
- */
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class LogoutService implements LogoutHandler {
 
-    private final TokenRedisRepository tokenRedisRepository;
-    @Value("${security.jwt.token-type}")
-    private String tokenType;
+  private final TokenService tokenService;
+  private final JwtService jwtService;
 
-    @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
-        final String authHeader = request.getHeader(AUTHORIZATION);
-        final String tokenTypePrefix = tokenType + " ";
+  @Override
+  public void logout(HttpServletRequest request, HttpServletResponse response,
+      Authentication auth) {
+    log.info("Started logout");
+    final String token = jwtService.extractToken(request);
 
-        log.info("Started logout by authorization header: {}", authHeader);
+    var storedToken = tokenService.findByToken(token);
 
-        if (authHeader == null || !authHeader.startsWith(tokenTypePrefix)) {
-            log.info("Logout Header invalid");
-            return;
-        }
+    storedToken.setExpired(true);
+    storedToken.setRevoked(true);
+    tokenService.saveToken(storedToken);
 
-        final String refreshToken = authHeader.substring(tokenTypePrefix.length());
+    SecurityContextHolder.clearContext();
+    log.info("Logout for contact email: {}", storedToken.email);
+  }
 
-        var storedRefreshToken = tokenRedisRepository.findByToken(refreshToken)
-                .orElse(null);
-
-        if (storedRefreshToken != null) {
-            storedRefreshToken.setExpired(true);
-            storedRefreshToken.setRevoked(true);
-            tokenRedisRepository.save(storedRefreshToken);
-            SecurityContextHolder.clearContext();
-            log.info("Logout for contact email: {}", storedRefreshToken.email);
-        } else {
-            log.info("storedRefreshToken == null");
-        }
-    }
 }
