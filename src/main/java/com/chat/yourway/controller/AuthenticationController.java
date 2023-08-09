@@ -2,22 +2,17 @@ package com.chat.yourway.controller;
 
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
-import com.chat.yourway.dto.request.RegisterRequestDto;
-import com.chat.yourway.service.AuthenticationService;
+import com.chat.yourway.dto.request.ContactRequestDto;
+import com.chat.yourway.service.ActivateAccountServiceImpl;
+import com.chat.yourway.service.AuthenticationServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-/**
- * {@link AuthenticationController}
- *
- * @author Dmytro Trotsenko on 7/26/23
- */
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,31 +20,36 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication")
 public class AuthenticationController {
 
-    private final AuthenticationService authService;
+  private final AuthenticationServiceImpl authService;
+  private final ActivateAccountServiceImpl activateAccountServiceImpl;
 
-    @PostMapping("/register")
-    @Operation(summary = "Registration")
-    public ResponseEntity<AuthResponseDto> register(@RequestBody RegisterRequestDto request, HttpServletRequest httpRequest) {
-        return ResponseEntity.ok(authService.register(request, httpRequest));
-    }
+  @PostMapping("/register")
+  @ResponseStatus(OK)
+  @Operation(summary = "Registration")
+  public AuthResponseDto register(@RequestBody ContactRequestDto request,
+      HttpServletRequest httpRequest) {
+    return authService.register(request, httpRequest);
+  }
 
-    @PostMapping("/login")
-    @Operation(summary = "Authorization")
-    public ResponseEntity<AuthResponseDto> authenticate(@RequestBody AuthRequestDto request) {
-        return ResponseEntity.ok(authService.authenticate(request));
-    }
+  @PostMapping("/login")
+  @ResponseStatus(OK)
+  @Operation(summary = "Authorization")
+  public AuthResponseDto authenticate(@RequestBody AuthRequestDto request) {
+    return authService.authenticate(request);
+  }
 
-    @PostMapping("/refresh")
-    @Operation(summary = "Refresh token")
-    @ApiResponse(responseCode = "401", description = "User UNAUTHORIZED")
-    public ResponseEntity<AuthResponseDto> refreshToken(HttpServletRequest request) {
-        return authService.refreshToken(request);
-    }
+  @PostMapping("/refresh")
+  @ResponseStatus(OK)
+  @Operation(summary = "Refresh token")
+  @ApiResponse(responseCode = "401", description = "User UNAUTHORIZED")
+  public AuthResponseDto refreshToken(HttpServletRequest request) {
+    return authService.refreshToken(request);
+  }
 
-    @PostMapping("/activate")
-    @Operation(summary = "Activate account")
-    public void activateAccount(@RequestParam String token) {
-        authService.activateAccount(token);
-    }
+  @PostMapping("/activate")
+  @Operation(summary = "Activate account")
+  public void activateAccount(@RequestParam String token) {
+    activateAccountServiceImpl.activateAccount(token);
+  }
 
 }
