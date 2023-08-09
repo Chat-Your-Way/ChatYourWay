@@ -1,4 +1,4 @@
-package com.chat.yourway.model;
+package com.chat.yourway.model.email;
 
 public enum EmailMessageType {
     ACTIVATE("activate");

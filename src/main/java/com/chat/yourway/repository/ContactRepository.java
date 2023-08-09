@@ -5,13 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-/**
- * {@link ContactRepository}
- *
- * @author Dmytro Trotsenko on 7/26/23
- */
 public interface ContactRepository extends JpaRepository<Contact, Integer> {
 
-    Optional<Contact> findByEmail(String email);
+  Optional<Contact> findByEmail(String email);
+
+  boolean existsByEmail(String email);
+
+  boolean existsByUsername(String username);
 
 }

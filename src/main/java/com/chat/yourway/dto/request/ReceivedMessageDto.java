@@ -1,17 +1,18 @@
 package com.chat.yourway.dto.request;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthRequestDto {
+public class ReceivedMessageDto {
 
-  private String email;
-  private String password;
+  private String sentFrom;
+  private String sendTo;
+
+  private String text;
+
 
 }

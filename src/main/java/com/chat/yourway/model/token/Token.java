@@ -1,33 +1,29 @@
-package com.chat.yourway.model;
+package com.chat.yourway.model.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
-/**
- * {@link Token}
- *
- * @author Dmytro Trotsenko on 7/28/23
- */
-
-@Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @RedisHash("Token")
 public class Token {
 
-    @Id
-    @Indexed
-    public String email;
-    @Indexed
-    public String token;
-    public TokenType tokenType;
-    public boolean revoked;
-    public boolean expired;
+  @Id
+  @Indexed
+  public String email;
+  @Indexed
+  public String token;
+  public TokenType tokenType;
+  public boolean revoked;
+  public boolean expired;
 
 }

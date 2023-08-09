@@ -1,4 +1,4 @@
-package com.chat.yourway.model;
+package com.chat.yourway.model.email;
 
 public class EmailMessageConstant {
     public static final String VERIFY_ACCOUNT_SUBJECT = "Verify your account";

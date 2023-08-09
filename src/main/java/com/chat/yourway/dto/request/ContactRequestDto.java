@@ -5,20 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * {@link RegisterRequestDto}
- *
- * @author Dmytro Trotsenko on 7/26/23
- */
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequestDto {
+public class ContactRequestDto {
 
-    private String username;
-    private String email;
-    private String password;
+  private String username;
+  private String email;
+  private String password;
 
 }
