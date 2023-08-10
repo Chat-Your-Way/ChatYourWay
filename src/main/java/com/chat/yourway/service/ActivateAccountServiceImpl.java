@@ -3,12 +3,11 @@ package com.chat.yourway.service;
 import static com.chat.yourway.model.email.EmailMessageConstant.TOKEN_PARAMETER;
 import static com.chat.yourway.model.email.EmailMessageConstant.VERIFY_ACCOUNT_SUBJECT;
 import static com.chat.yourway.model.email.EmailMessageConstant.VERIFY_ACCOUNT_TEXT;
-import static com.chat.yourway.model.email.EmailMessageType.*;
+import static com.chat.yourway.model.email.EmailMessageType.ACTIVATE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.chat.yourway.exception.ServiceException;
 import com.chat.yourway.model.Contact;
-import com.chat.yourway.model.email.EmailMessageType;
 import com.chat.yourway.model.email.EmailSend;
 import com.chat.yourway.model.email.EmailToken;
 import com.chat.yourway.repository.EmailTokenRepository;
@@ -26,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ActivateAccountServiceImpl implements ActivateAccountService {
 
-  private final EmailSenderServiceImpl emailSenderServiceImpl;
+  private final EmailSenderService emailSenderService;
   private final EmailTokenRepository emailTokenRepository;
 
   @Transactional
@@ -45,13 +44,13 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
   @Override
   public void sendVerifyEmail(Contact contact, HttpServletRequest httpRequest) {
     String uuid = generateUUID();
-    String link = generateLink(httpRequest, uuid, ACTIVATE);
+    String link = generateLink(httpRequest, uuid);
     saveEmailToken(contact, uuid);
 
     String text = String.format(VERIFY_ACCOUNT_TEXT, contact.getUsername(), link);
     EmailSend emailSend = new EmailSend(contact.getEmail(), VERIFY_ACCOUNT_SUBJECT, text);
 
-    emailSenderServiceImpl.sendEmail(emailSend);
+    emailSenderService.sendEmail(emailSend);
     log.info("Email for verifying account sent");
   }
 
@@ -69,11 +68,10 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
     return UUID.randomUUID().toString();
   }
 
-  private String generateLink(HttpServletRequest httpRequest, String uuid,
-      EmailMessageType emailMessageType) {
+  private String generateLink(HttpServletRequest httpRequest, String uuid) {
     log.info("Generate link for verifying account");
     return httpRequest.getHeader(HttpHeaders.REFERER) +
-        emailMessageType.getEmailType() +
+        ACTIVATE.getEmailType() +
         TOKEN_PARAMETER +
         uuid;
   }

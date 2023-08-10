@@ -4,7 +4,6 @@ import static org.springframework.http.HttpStatus.*;
 
 import com.chat.yourway.exception.ServiceException;
 import com.chat.yourway.model.email.EmailSend;
-import com.chat.yourway.service.interfaces.EmailSenderService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -20,14 +19,13 @@ import java.util.Objects;
 @Service
 @EnableAsync
 @RequiredArgsConstructor
-public class EmailSenderServiceImpl implements EmailSenderService {
+public class EmailSenderService {
 
   @Value("${spring.mail.username}")
   private String emailAddressFrom;
   private final JavaMailSender javaMailSender;
 
   @Async
-  @Override
   public void sendEmail(EmailSend request) {
       if (Objects.isNull(request)) {
           return;
