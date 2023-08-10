@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +30,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class Contact implements UserDetails {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "contact_seq_gen")
+  @SequenceGenerator(name = "contact_seq_gen", sequenceName = "chat.contact_id_seq", allocationSize = 1)
   private Integer id;
   @Column(name = "username", nullable = false, unique = true)
   private String username;
