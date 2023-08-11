@@ -1,7 +1,7 @@
 package com.chat.yourway.unit.service.impl;
 
 import com.chat.yourway.dto.request.ChangePasswordDto;
-import com.chat.yourway.exception.NoEqualsPasswordException;
+import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.service.impl.ContactServiceImpl;
@@ -29,6 +29,7 @@ public class ContactServiceImplTest {
     @Test
     @DisplayName("change password should change password when user passed correct old password")
     public void changePassword_shouldChangePassword_whenUserPassedCorrectOldPassword() {
+        // Given
         var oldPassword = "oldPassword";
         var newPassword = "newPassword";
         var contact = Contact.builder()
@@ -42,18 +43,21 @@ public class ContactServiceImplTest {
         var encodedPassword = contact.getPassword();
         var request = new ChangePasswordDto(oldPassword, newPassword);
 
+        // When
         when(passwordEncoder.matches(oldPassword, encodedPassword)).thenReturn(true);
         when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
         contactService.changePassword(request, contact);
 
+        // Then
         verify(passwordEncoder).matches(oldPassword, encodedPassword);
         verify(passwordEncoder).encode(newPassword);
         verify(contactRepository).changePasswordByUsername(encodedPassword, contact.getUsername());
     }
 
     @Test
-    @DisplayName("change password should throw password NoEqualsPasswordException when user passed incorrect old password")
-    public void changePassword_shouldThrowPasswordsNoEqualsPasswordException_whenUserPassedIncorrectOldPassword() {
+    @DisplayName("change password should throw password OldPasswordsIsNotEqualToNewException when user passed incorrect old password")
+    public void changePassword_shouldThrowOldPasswordsIsNotEqualToNewException_whenUserPassedIncorrectOldPassword() {
+        // Given
         var contact = Contact.builder()
                 .id(1)
                 .username("username12353")
@@ -67,10 +71,11 @@ public class ContactServiceImplTest {
         String encodedPassword = contact.getPassword();
         var request = new ChangePasswordDto(oldPassword, newPassword);
 
+        // When
         when(passwordEncoder.matches(oldPassword, encodedPassword)).thenReturn(false);
+        assertThrows(OldPasswordsIsNotEqualToNewException.class, () -> contactService.changePassword(request, contact));
 
-        assertThrows(NoEqualsPasswordException.class, () -> contactService.changePassword(request, contact));
-
+        // Then
         verify(passwordEncoder).matches(oldPassword, encodedPassword);
         verify(passwordEncoder, never()).encode(anyString());
         verify(contactRepository, never()).changePasswordByUsername(anyString(), anyString());
