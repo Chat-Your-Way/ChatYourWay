@@ -1,7 +1,7 @@
 package com.chat.yourway.service.impl;
 
 import com.chat.yourway.dto.request.ChangePasswordDto;
-import com.chat.yourway.exception.NoEqualsPasswordException;
+import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.service.ContactService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class ContactServiceImpl implements ContactService {
     @Transactional
     public void changePassword(ChangePasswordDto request, UserDetails userDetails) {
         if (!passwordEncoder.matches(request.getOldPassword(), userDetails.getPassword())) {
-            throw new NoEqualsPasswordException("Old password is not correct, try again.");
+            throw new OldPasswordsIsNotEqualToNewException("Old password is not correct, try again.");
         }
 
         String newEncodedPassword = passwordEncoder.encode(request.getNewPassword());

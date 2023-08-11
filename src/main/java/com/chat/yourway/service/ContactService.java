@@ -1,7 +1,7 @@
 package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.ChangePasswordDto;
-import com.chat.yourway.exception.NoEqualsPasswordException;
+import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public interface ContactService {
@@ -10,7 +10,7 @@ public interface ContactService {
      *
      * @param request      The data transfer object (DTO) containing the necessary information for password change.
      * @param userDetails The details of the user account for which the password change is requested.
-     * @throws NoEqualsPasswordException If old password does not matched to current user password.
+     * @throws OldPasswordsIsNotEqualToNewException If old password does not matched to current user password.
      */
     void changePassword(ChangePasswordDto request, UserDetails userDetails);
 }
