@@ -1,64 +1,82 @@
 package com.chat.yourway.integration.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.exception.NoEqualsPasswordException;
+import com.chat.yourway.integration.extension.PostgresExtension;
+import com.chat.yourway.integration.extension.RedisExtension;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.service.ContactService;
-import org.junit.jupiter.api.BeforeEach;
+import com.github.springtestdbunit.annotation.DatabaseSetup;
+import com.github.springtestdbunit.DbUnitTestExecutionListener;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
+import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(PostgresExtension.class)
+@ExtendWith(RedisExtension.class)
 @SpringBootTest
-@ActiveProfiles("test")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestExecutionListeners(value = {
+        TransactionalTestExecutionListener.class,
+        DirtiesContextTestExecutionListener.class,
+        DependencyInjectionTestExecutionListener.class,
+        DbUnitTestExecutionListener.class
+})
 public class ContactServiceImplTest {
-    private Contact contact;
+    private static final String USERNAME = "username12345";
+
     @Autowired
     private ContactService contactService;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private ContactRepository contactRepository;
 
-    @BeforeEach
-    public void setUp() {
-        contact = Contact.builder()
-                .username("username12353")
-                .email("user@gmail.com")
-                .password(passwordEncoder.encode("oldPassword"))
-                .isActive(true)
-                .isPrivate(true)
-                .build();
-    }
-
+    @DisplayName("should change password when user passed correct password")
     @Test
-    public void testChangePassword_Success() {
-        ChangePasswordDto request = new ChangePasswordDto("oldPassword", "newPassword");
+    @DatabaseSetup("/dataset/contacts.xml")
+    public void shouldChangePassword_whenUserPassedCorrectPassword() {
+        var oldPassword = "oldPassword";
+        var newPassword = "newPassword";
+        var request = new ChangePasswordDto(oldPassword, newPassword);
+        var contact = contactRepository.findByUsername(USERNAME).get();
 
-        contactRepository.save(contact);
         contactService.changePassword(request, contact);
 
-        Contact updatedContact = contactRepository.findByUsername(contact.getUsername())
-                .orElseGet(() -> contact);
+        var updatedContact = contactRepository.findByUsername(USERNAME);
 
-        assertTrue(passwordEncoder.matches("newPassword", updatedContact.getPassword()));
+        assertAll(
+                () -> assertThat(updatedContact)
+                        .withFailMessage("Expecting user to exist")
+                        .isPresent(),
+                () -> assertThat(updatedContact)
+                        .withFailMessage("Expecting user to have correct password")
+                        .get()
+                        .extracting(Contact::getPassword)
+                        .matches(password -> passwordEncoder.matches(newPassword, password))
+        );
     }
 
+    @DisplayName("should throw password NoEqualsPasswordException when user passed incorrect old password")
     @Test
-    public void testChangePassword_InvalidOldPassword() {
-        ChangePasswordDto request = new ChangePasswordDto("errorPassword", "newPassword");
+    @DatabaseSetup("/dataset/contacts.xml")
+    public void shouldThrowPasswordsNoEqualsPasswordException_whenUserPassedIncorrectOldPassword() {
+        var errorPassword = "errorPassword";
+        var newPassword = "newPassword";
+        var request = new ChangePasswordDto(errorPassword, newPassword);
+        var contact = contactRepository.findByUsername(USERNAME).get();
 
-        contactRepository.save(contact);
         assertThrows(NoEqualsPasswordException.class, () -> contactService.changePassword(request, contact));
     }
+
 }
