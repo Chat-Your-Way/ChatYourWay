@@ -8,6 +8,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 public class PostgresExtension implements Extension, BeforeAllCallback, AfterAllCallback {
+
     private static final PostgreSQLContainer<?> container = new PostgreSQLContainer<>(DockerImageName.parse("postgres:15.3"))
             .withEnv("TZ", "UTC");
 
@@ -21,5 +22,6 @@ public class PostgresExtension implements Extension, BeforeAllCallback, AfterAll
 
     @Override
     public void afterAll(ExtensionContext extensionContext) {
+        //should do nothing, testcontainers will shut down the container
     }
 }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.testcontainers.utility.DockerImageName;
 
 public class RedisExtension implements Extension, BeforeAllCallback, AfterAllCallback {
+
     private static final String REDIS_PASSWORD = "12345676890";
     private static final RedisContainer container = new RedisContainer(DockerImageName.parse("redis:7.0.12"));
 
@@ -22,6 +23,6 @@ public class RedisExtension implements Extension, BeforeAllCallback, AfterAllCal
 
     @Override
     public void afterAll(ExtensionContext extensionContext) {
-
+        //should do nothing, testcontainers will shut down the container
     }
 }
