@@ -1,6 +1,6 @@
 package com.chat.yourway.service;
 
-import com.chat.yourway.exception.NoEqualsPasswordException;
+import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
 import com.chat.yourway.model.*;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.dto.request.AuthRequestDto;
@@ -96,7 +96,7 @@ public class AuthenticationService {
                 .orElseThrow();
 
         if (!passwordEncoder.matches(request.getPassword(), contact.getPassword())) {
-            throw new NoEqualsPasswordException("Password is not correct, try again.");
+            throw new OldPasswordsIsNotEqualToNewException("Password is not correct, try again.");
         }
 
         var accessToken = jwtService.generateAccessToken(contact);
