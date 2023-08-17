@@ -1,20 +1,35 @@
 package com.chat.yourway.unit.service.impl;
 
+import com.chat.yourway.dto.common.EmailMessageDto;
+import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.dto.request.ChangePasswordDto;
+import com.chat.yourway.exception.ContactNotFoundException;
+import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
 import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.EmailMessageType;
+import com.chat.yourway.model.EmailToken;
 import com.chat.yourway.repository.ContactRepository;
+import com.chat.yourway.repository.EmailTokenRepository;
+import com.chat.yourway.service.EmailSenderService;
 import com.chat.yourway.service.impl.ContactServiceImpl;
+import com.chat.yourway.service.impl.EmailMessageFactoryServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpHeaders.REFERER;
 
 @ExtendWith(MockitoExtension.class)
 public class ContactServiceImplTest {
@@ -23,6 +38,14 @@ public class ContactServiceImplTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private ContactRepository contactRepository;
+    @Mock
+    private EmailTokenRepository emailTokenRepository;
+    @Mock
+    private HttpServletRequest httpServletRequest;
+    @Mock
+    private EmailSenderService emailSenderService;
+    @Mock
+    private EmailMessageFactoryServiceImpl emailMessageFactoryService;
     @InjectMocks
     private ContactServiceImpl contactService;
 
@@ -79,5 +102,116 @@ public class ContactServiceImplTest {
         verify(passwordEncoder).matches(oldPassword, encodedPassword);
         verify(passwordEncoder, never()).encode(anyString());
         verify(contactRepository, never()).changePasswordByUsername(anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("send email to restore password should send email when user account exists by email")
+    public void sendEmailToRestorePassword_shouldSendEmail_whenUserAccountExistsByEmail() {
+        // Given
+        var username = "username12353";
+        var email = "user@gmail.com";
+        var emailMessageType = EmailMessageType.RESTORE_PASSWORD;
+        var path = "path";
+        var contact = Contact.builder()
+                .id(1)
+                .username(username)
+                .email(email)
+                .password("123456")
+                .isActive(true)
+                .isPrivate(true)
+                .build();
+        var emailMessage = new EmailMessageDto(email, emailMessageType.getSubject(), emailMessageType.getMessageBody());
+
+        // When
+        when(contactRepository.findByEmail(email)).thenReturn(Optional.of(contact));
+        when(httpServletRequest.getHeader(REFERER)).thenReturn(path);
+        when(emailMessageFactoryService.generateEmailMessage(any(EmailMessageInfoDto.class))).thenReturn(emailMessage);
+        doNothing().when(emailSenderService).sendEmail(any(EmailMessageDto.class));
+        contactService.sendEmailToRestorePassword(email, httpServletRequest);
+
+        // Then
+        var emailTokenCaptor = ArgumentCaptor.forClass(EmailToken.class);
+        var emailMessageInfoDtoArgumentCaptor =
+                ArgumentCaptor.forClass(EmailMessageInfoDto.class);
+        var emailMessageDtoArgumentCaptor = ArgumentCaptor.forClass(EmailMessageDto.class);
+
+        verify(contactRepository).findByEmail(email);
+        verify(emailTokenRepository).save(emailTokenCaptor.capture());
+        verify(emailMessageFactoryService).generateEmailMessage(emailMessageInfoDtoArgumentCaptor.capture());
+        verify(emailSenderService).sendEmail(emailMessageDtoArgumentCaptor.capture());
+    }
+
+    @Test
+    @DisplayName("send email to restore password should throw ContactNotFoundException when user account does not exist by email")
+    public void sendEmailToRestorePassword_shouldThrowContactNotFoundException_whenUserAccountDoesNotExistByEmail() {
+        // Given
+        var email = "user@gmail.com";
+
+        // When
+        when(contactRepository.findByEmail(email)).thenReturn(Optional.empty());
+        assertThrows(ContactNotFoundException.class,
+                () -> contactService.sendEmailToRestorePassword(email, httpServletRequest));
+
+        // Then
+        var emailTokenCaptor = ArgumentCaptor.forClass(EmailToken.class);
+        var emailMessageInfoDtoArgumentCaptor = ArgumentCaptor.forClass(EmailMessageInfoDto.class);
+        var emailMessageDtoArgumentCaptor = ArgumentCaptor.forClass(EmailMessageDto.class);
+
+        verify(contactRepository).findByEmail(email);
+        verify(emailTokenRepository, never()).save(emailTokenCaptor.capture());
+        verify(emailMessageFactoryService, never()).generateEmailMessage(emailMessageInfoDtoArgumentCaptor.capture());
+        verify(emailSenderService, never()).sendEmail(emailMessageDtoArgumentCaptor.capture());
+    }
+
+    @Test
+    @DisplayName("restore password should set new password when user gave correct token")
+    public void restorePassword_shouldSetNewPassword_whenUserGaveCorrectToken() {
+        // Given
+        var newPassword = "newPassword";
+        var uuidToken = UUID.randomUUID().toString();
+        var contact = Contact.builder()
+                .id(1)
+                .username("username")
+                .email("email")
+                .password("123456")
+                .isActive(true)
+                .isPrivate(true)
+                .build();
+        var emailToken = EmailToken.builder()
+                .token(uuidToken)
+                .contact(contact)
+                .messageType(EmailMessageType.RESTORE_PASSWORD)
+                .build();
+
+        // When
+        when(emailTokenRepository.findById(uuidToken)).thenReturn(Optional.of(emailToken));
+        contactService.restorePassword(newPassword, uuidToken);
+
+        // Then
+        var emailTokenCaptor = ArgumentCaptor.forClass(EmailToken.class);
+
+        verify(emailTokenRepository).findById(uuidToken);
+        verify(passwordEncoder).encode(newPassword);
+        verify(emailTokenRepository).delete(emailTokenCaptor.capture());
+    }
+
+    @Test
+    @DisplayName("restore password should throw EmailTokenNotFoundException when user gave incorrect token")
+    public void restorePassword_shouldThrowEmailTokenNotFoundException_whenUserGaveIncorrectToken() {
+        // Given
+        var newPassword = "newPassword";
+        var uuidToken = UUID.randomUUID().toString();
+
+        // When
+        when(emailTokenRepository.findById(uuidToken)).thenReturn(Optional.empty());
+        assertThrows(EmailTokenNotFoundException.class,
+                () -> contactService.restorePassword(newPassword, uuidToken));
+
+        // Then
+        var emailTokenCaptor = ArgumentCaptor.forClass(EmailToken.class);
+
+        verify(emailTokenRepository).findById(uuidToken);
+        verify(passwordEncoder, never()).encode(newPassword);
+        verify(emailTokenRepository, never()).delete(emailTokenCaptor.capture());
     }
 }
