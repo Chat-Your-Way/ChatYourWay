@@ -1,5 +1,6 @@
 package com.chat.yourway.service;
 
+import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
 import com.chat.yourway.model.*;
 import com.chat.yourway.repository.ContactRepository;
@@ -13,9 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-import static com.chat.yourway.model.EmailMessageConstant.*;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpStatus.*;
 
@@ -37,11 +35,10 @@ import static org.springframework.http.HttpStatus.*;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationService {
-
+    private final EmailMessageFactoryService emailMessageFactoryService;
     private final ContactRepository contactRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final AuthenticationManager authManager;
     private final EmailSenderService emailSenderService;
     private final EmailTokenRepository emailTokenRepository;
     private final TokenRedisRepository tokenRedisRepository;
@@ -53,10 +50,13 @@ public class AuthenticationService {
     @Transactional
     public AuthResponseDto register(RegisterRequestDto request, HttpServletRequest httpRequest) {
         log.info("Started registration contact email: {}", request.getEmail());
+        var username = request.getUsername();
+        var email = request.getEmail();
+        var encodedPassword = passwordEncoder.encode(request.getPassword());
         var contact = Contact.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .username(username)
+                .email(email)
+                .password(encodedPassword)
                 .isActive(false)
                 .isPrivate(true)
                 .role(Role.USER)
@@ -64,17 +64,18 @@ public class AuthenticationService {
 
         contactRepository.save(contact);
 
-        String uuid = UUID.randomUUID().toString();
-        String link = generateLink(httpRequest, uuid, EmailMessageType.ACTIVATE);
-        EmailToken emailToken = EmailToken.builder()
+        var uuid = UUID.randomUUID().toString();
+        var path = httpRequest.getHeader(REFERER);
+        var emailMessageInfoDto = new EmailMessageInfoDto(username, email, uuid, path, EmailMessageType.ACTIVATE);
+        var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfoDto);
+        var emailToken = EmailToken.builder()
                 .contact(contact)
                 .token(uuid)
                 .messageType(EmailMessageType.ACTIVATE)
                 .build();
 
         emailTokenRepository.save(emailToken);
-
-        sendVerifyEmail(contact, link);
+        emailSenderService.sendEmail(emailMessage);
 
         var accessToken = jwtService.generateAccessToken(contact);
         var refreshToken = jwtService.generateRefreshToken(contact);
@@ -173,22 +174,6 @@ public class AuthenticationService {
                 .revoked(false)
                 .build();
         tokenRedisRepository.save(token);
-    }
-
-    private String generateLink(HttpServletRequest httpRequest, String uuid, EmailMessageType emailMessageType) {
-        log.info("Generate link for verifying account");
-        return httpRequest.getHeader(HttpHeaders.REFERER) +
-                emailMessageType.getEmailType() +
-                TOKEN_PARAMETER +
-                uuid;
-    }
-
-    private void sendVerifyEmail(Contact contact, String link) {
-        String text = String.format(VERIFY_ACCOUNT_TEXT, contact.getUsername(), link);
-        EmailSend emailSend = new EmailSend(contact.getEmail(), VERIFY_ACCOUNT_SUBJECT, text);
-
-        emailSenderService.sendEmail(emailSend);
-        log.info("Email for verifying account sent");
     }
 
 }
