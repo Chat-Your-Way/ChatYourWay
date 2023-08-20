@@ -12,8 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.http.HttpStatus.*;
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -24,7 +22,6 @@ public class AuthenticationController {
   private final ActivateAccountServiceImpl activateAccountServiceImpl;
 
   @PostMapping("/register")
-  @ResponseStatus(OK)
   @Operation(summary = "Registration")
   public AuthResponseDto register(@RequestBody ContactRequestDto request,
       HttpServletRequest httpRequest) {
@@ -32,14 +29,12 @@ public class AuthenticationController {
   }
 
   @PostMapping("/login")
-  @ResponseStatus(OK)
   @Operation(summary = "Authorization")
   public AuthResponseDto authenticate(@RequestBody AuthRequestDto request) {
     return authService.authenticate(request);
   }
 
   @PostMapping("/refresh")
-  @ResponseStatus(OK)
   @Operation(summary = "Refresh token")
   @ApiResponse(responseCode = "401", description = "User UNAUTHORIZED")
   public AuthResponseDto refreshToken(HttpServletRequest request) {
