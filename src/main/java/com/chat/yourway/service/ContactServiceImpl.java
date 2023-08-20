@@ -24,7 +24,7 @@ public class ContactServiceImpl implements ContactService {
   @Transactional
   @Override
   public Contact create(ContactRequestDto contactRequestDto) {
-
+    log.trace("Started create contact, contact email: {}", contactRequestDto.getEmail());
     if (contactRepository.existsByEmail(contactRequestDto.getEmail())) {
       throw new ValueNotUniqException(
           String.format("Email %s already in use", contactRequestDto.getEmail()));
@@ -34,7 +34,6 @@ public class ContactServiceImpl implements ContactService {
       throw new ValueNotUniqException(
           String.format("Username %s already in use", contactRequestDto.getUsername()));
     }
-
     return contactRepository.save(Contact.builder()
         .username(contactRequestDto.getUsername())
         .email(contactRequestDto.getEmail())
@@ -47,6 +46,7 @@ public class ContactServiceImpl implements ContactService {
 
   @Override
   public Contact findByEmail(String email) {
+    log.trace("Started findByEmail: {}", email);
     return contactRepository.findByEmail(email)
         .orElseThrow(
             () -> new EntityNotFoundException(String.format("Email %s wasn't found", email)));

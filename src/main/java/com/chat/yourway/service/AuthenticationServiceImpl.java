@@ -37,7 +37,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Transactional
   @Override
   public AuthResponseDto register(ContactRequestDto contactRequestDto, HttpServletRequest request) {
-    log.info("Started registration contact email: {}", contactRequestDto.getEmail());
+    log.trace("Started registration contact email: {}", contactRequestDto.getEmail());
 
     var contact = contactService.create(contactRequestDto);
     activateAccountService.sendVerifyEmail(contact, request);
@@ -46,7 +46,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     var refreshToken = jwtService.generateRefreshToken(contact);
 
     saveContactToken(contact.getEmail(), accessToken);
-    log.info("Saved registered contact to repository");
+    log.info("Saved registered contact {} to repository", contact.getEmail());
 
     return AuthResponseDto.builder()
         .accessToken(accessToken)
@@ -57,7 +57,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Transactional
   @Override
   public AuthResponseDto authenticate(AuthRequestDto authRequestDto) {
-    log.info("Started authenticate contact email: {}", authRequestDto.getEmail());
+    log.trace("Started authenticate contact email: {}", authRequestDto.getEmail());
     authenticateCredentials(authRequestDto.getEmail(), authRequestDto.getPassword());
 
     var contact = contactService.findByEmail(authRequestDto.getEmail());
@@ -67,7 +67,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     saveContactToken(contact.getEmail(), accessToken);
 
-    log.info("Contact authenticated");
+    log.info("Contact {} authenticated", contact.getEmail());
     return AuthResponseDto.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
@@ -77,7 +77,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Transactional
   @Override
   public AuthResponseDto refreshToken(HttpServletRequest request) {
-    log.info("Started refreshing access token");
+    log.trace("Started refreshing access token");
     final String refreshToken = jwtService.extractToken(request);
     final String email = jwtService.extractEmail(refreshToken);
 
