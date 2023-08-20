@@ -19,9 +19,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   private final SimpMessagingTemplate simpMessagingTemplate;
   private final MessageMapper messageMapper;
-
-  @Value("${socket.dest-prefixes}")
-  private String[] destPrefixes;
+  @Value("${socket.specific-prefix}")
+  private final String specificPrefix;
 
   @Override
   public MessageResponseDto sendToTopic(ReceivedMessageDto receivedMessageDto, String username) {
@@ -45,7 +44,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     MessageResponseDto messageResponseDto = messageMapper.toSendMessage(receivedMessageDto);
     messageResponseDto.setSentTime(LocalDateTime.now());
 
-    simpMessagingTemplate.convertAndSendToUser(sendTo, destPrefixes[1], messageResponseDto);
+    simpMessagingTemplate.convertAndSendToUser(sendTo, specificPrefix, messageResponseDto);
     log.info("{} sent message to {}", username, sendTo);
     return messageResponseDto;
   }
