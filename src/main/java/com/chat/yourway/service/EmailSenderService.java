@@ -1,8 +1,6 @@
 package com.chat.yourway.service;
 
-import static org.springframework.http.HttpStatus.*;
-
-import com.chat.yourway.exception.ServiceException;
+import com.chat.yourway.exception.EmailSendingException;
 import com.chat.yourway.model.email.EmailSend;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -27,9 +25,9 @@ public class EmailSenderService {
 
   @Async
   public void sendEmail(EmailSend request) {
-      if (Objects.isNull(request)) {
-          return;
-      }
+    if (Objects.isNull(request)) {
+      return;
+    }
 
     MimeMessage mail = javaMailSender.createMimeMessage();
     MimeMessageHelper helper = new MimeMessageHelper(mail);
@@ -41,7 +39,7 @@ public class EmailSenderService {
       helper.setText(request.text());
       javaMailSender.send(mail);
     } catch (MessagingException e) {
-      throw new ServiceException(BAD_REQUEST, "Error sending email");
+      throw new EmailSendingException("Error sending email");
     }
   }
 }

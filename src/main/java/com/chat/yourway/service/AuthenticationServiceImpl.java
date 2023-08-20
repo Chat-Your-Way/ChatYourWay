@@ -1,12 +1,12 @@
 package com.chat.yourway.service;
 
 import static com.chat.yourway.model.token.TokenType.*;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
-import com.chat.yourway.exception.ServiceException;
+import com.chat.yourway.exception.InvalidCredentialsException;
+import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.model.token.Token;
 import com.chat.yourway.security.JwtService;
 import com.chat.yourway.security.TokenService;
@@ -84,7 +84,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     var contact = contactService.findByEmail(email);
 
     if (!jwtService.isTokenValid(refreshToken, contact)) {
-      throw new ServiceException(UNAUTHORIZED, "Invalid refresh token");
+      throw new InvalidTokenException("Invalid refresh token");
     }
 
     var accessToken = jwtService.generateAccessToken(contact);
@@ -113,7 +113,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     try {
       authManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
     } catch (AuthenticationException e) {
-      throw new ServiceException(UNAUTHORIZED, "Authentication failed, invalid email or password");
+      throw new InvalidCredentialsException("Authentication failed, invalid email or password");
     }
   }
 

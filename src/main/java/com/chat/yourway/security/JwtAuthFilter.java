@@ -1,6 +1,6 @@
 package com.chat.yourway.security;
 
-import com.chat.yourway.exception.ServiceException;
+import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.repository.TokenRedisRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,7 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     try {
       jwtToken = jwtService.extractToken(request);
-    } catch (ServiceException e) {
+    } catch (InvalidTokenException e) {
       filterChain.doFilter(request, response);
       return;
     }

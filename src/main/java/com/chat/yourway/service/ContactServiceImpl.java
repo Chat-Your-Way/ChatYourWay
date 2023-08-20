@@ -1,14 +1,12 @@
 package com.chat.yourway.service;
 
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.chat.yourway.dto.request.ContactRequestDto;
-import com.chat.yourway.exception.ServiceException;
+import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Role;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.service.interfaces.ContactService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,12 +26,12 @@ public class ContactServiceImpl implements ContactService {
   public Contact create(ContactRequestDto contactRequestDto) {
 
     if (contactRepository.existsByEmail(contactRequestDto.getEmail())) {
-      throw new ServiceException(CONFLICT,
+      throw new ValueNotUniqException(
           String.format("Email %s already in use", contactRequestDto.getEmail()));
     }
 
     if (contactRepository.existsByUsername(contactRequestDto.getUsername())) {
-      throw new ServiceException(CONFLICT,
+      throw new ValueNotUniqException(
           String.format("Username %s already in use", contactRequestDto.getUsername()));
     }
 
@@ -51,7 +49,7 @@ public class ContactServiceImpl implements ContactService {
   public Contact findByEmail(String email) {
     return contactRepository.findByEmail(email)
         .orElseThrow(
-            () -> new ServiceException(NOT_FOUND, String.format("Email %s wasn't found", email)));
+            () -> new EntityNotFoundException(String.format("Email %s wasn't found", email)));
   }
 
 }

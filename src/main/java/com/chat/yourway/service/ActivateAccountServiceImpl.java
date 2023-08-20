@@ -4,14 +4,13 @@ import static com.chat.yourway.model.email.EmailMessageConstant.TOKEN_PARAMETER;
 import static com.chat.yourway.model.email.EmailMessageConstant.VERIFY_ACCOUNT_SUBJECT;
 import static com.chat.yourway.model.email.EmailMessageConstant.VERIFY_ACCOUNT_TEXT;
 import static com.chat.yourway.model.email.EmailMessageType.ACTIVATE;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import com.chat.yourway.exception.ServiceException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.email.EmailSend;
 import com.chat.yourway.model.email.EmailToken;
 import com.chat.yourway.repository.EmailTokenRepository;
 import com.chat.yourway.service.interfaces.ActivateAccountService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,7 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
   @Override
   public void activateAccount(String token) {
     EmailToken emailToken = emailTokenRepository.findById(token)
-        .orElseThrow(() -> new ServiceException(NOT_FOUND,
+        .orElseThrow(() -> new EntityNotFoundException(
             String.format("Email token: %s wasn't found in repository", token)));
 
     Contact contact = emailToken.getContact();

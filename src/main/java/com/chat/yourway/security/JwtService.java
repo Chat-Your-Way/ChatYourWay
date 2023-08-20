@@ -1,9 +1,8 @@
 package com.chat.yourway.security;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import com.chat.yourway.exception.ServiceException;
+import com.chat.yourway.exception.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -56,7 +55,7 @@ public class JwtService {
     final String tokenTypePrefix = tokenType + " ";
 
     if (isNotValidTokenType(authHeader, tokenTypePrefix)) {
-      throw new ServiceException(UNAUTHORIZED, "Invalid token type");
+      throw new InvalidTokenException("Invalid token type");
     }
     return authHeader.substring(tokenTypePrefix.length());
   }
