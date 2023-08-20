@@ -10,7 +10,9 @@ import com.chat.yourway.exception.ServiceException;
 import com.chat.yourway.model.token.Token;
 import com.chat.yourway.security.JwtService;
 import com.chat.yourway.security.TokenService;
+import com.chat.yourway.service.interfaces.ActivateAccountService;
 import com.chat.yourway.service.interfaces.AuthenticationService;
+import com.chat.yourway.service.interfaces.ContactService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +27,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-  private final ContactServiceImpl contactServiceImpl;
+  private final ContactService contactService;
   private final JwtService jwtService;
   private final TokenService tokenService;
-  private final ActivateAccountServiceImpl activateAccountServiceImpl;
+  private final ActivateAccountService activateAccountService;
   private final AuthenticationManager authManager;
 
 
@@ -37,8 +39,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   public AuthResponseDto register(ContactRequestDto contactRequestDto, HttpServletRequest request) {
     log.info("Started registration contact email: {}", contactRequestDto.getEmail());
 
-    var contact = contactServiceImpl.create(contactRequestDto);
-    activateAccountServiceImpl.sendVerifyEmail(contact, request);
+    var contact = contactService.create(contactRequestDto);
+    activateAccountService.sendVerifyEmail(contact, request);
 
     var accessToken = jwtService.generateAccessToken(contact);
     var refreshToken = jwtService.generateRefreshToken(contact);
@@ -58,7 +60,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     log.info("Started authenticate contact email: {}", authRequestDto.getEmail());
     authenticateCredentials(authRequestDto.getEmail(), authRequestDto.getPassword());
 
-    var contact = contactServiceImpl.findByEmail(authRequestDto.getEmail());
+    var contact = contactService.findByEmail(authRequestDto.getEmail());
 
     var accessToken = jwtService.generateAccessToken(contact);
     var refreshToken = jwtService.generateRefreshToken(contact);
@@ -79,7 +81,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     final String refreshToken = jwtService.extractToken(request);
     final String email = jwtService.extractEmail(refreshToken);
 
-    var contact = contactServiceImpl.findByEmail(email);
+    var contact = contactService.findByEmail(email);
 
     if (!jwtService.isTokenValid(refreshToken, contact)) {
       throw new ServiceException(UNAUTHORIZED, "Invalid refresh token");

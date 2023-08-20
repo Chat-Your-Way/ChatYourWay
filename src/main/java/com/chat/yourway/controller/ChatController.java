@@ -2,7 +2,7 @@ package com.chat.yourway.controller;
 
 import com.chat.yourway.dto.request.ReceivedMessageDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
-import com.chat.yourway.service.ChatMessageServiceImpl;
+import com.chat.yourway.service.interfaces.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -15,19 +15,19 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class ChatController {
 
-  private final ChatMessageServiceImpl chatMessageServiceImpl;
+  private final ChatMessageService chatMessageService;
 
   @MessageMapping("/application")
   @SendTo("/topic")
   public MessageResponseDto sendToTopic(ReceivedMessageDto message, Principal principal) {
     String username = principal.getName();
-    return chatMessageServiceImpl.sendToTopic(message, username);
+    return chatMessageService.sendToTopic(message, username);
   }
 
   @MessageMapping("/private")
   public MessageResponseDto sendToUser(@Payload ReceivedMessageDto message, Principal principal) {
     String username = principal.getName();
-    return chatMessageServiceImpl.sendToUser(message, username);
+    return chatMessageService.sendToUser(message, username);
   }
 
 }

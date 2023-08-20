@@ -3,8 +3,8 @@ package com.chat.yourway.controller;
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
-import com.chat.yourway.service.ActivateAccountServiceImpl;
-import com.chat.yourway.service.AuthenticationServiceImpl;
+import com.chat.yourway.service.interfaces.ActivateAccountService;
+import com.chat.yourway.service.interfaces.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication")
 public class AuthenticationController {
 
-  private final AuthenticationServiceImpl authService;
-  private final ActivateAccountServiceImpl activateAccountServiceImpl;
+  private final AuthenticationService authService;
+  private final ActivateAccountService activateAccountService;
 
   @PostMapping(path = "/register",
       produces = MediaType.APPLICATION_JSON_VALUE,
@@ -49,7 +49,7 @@ public class AuthenticationController {
   @PostMapping("/activate")
   @Operation(summary = "Activate account")
   public void activateAccount(@RequestParam String token) {
-    activateAccountServiceImpl.activateAccount(token);
+    activateAccountService.activateAccount(token);
   }
 
 }
