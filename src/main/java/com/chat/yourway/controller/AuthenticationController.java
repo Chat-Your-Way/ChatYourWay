@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,20 +22,24 @@ public class AuthenticationController {
   private final AuthenticationServiceImpl authService;
   private final ActivateAccountServiceImpl activateAccountServiceImpl;
 
-  @PostMapping("/register")
+  @PostMapping(path = "/register",
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Registration")
   public AuthResponseDto register(@RequestBody ContactRequestDto request,
       HttpServletRequest httpRequest) {
     return authService.register(request, httpRequest);
   }
 
-  @PostMapping("/login")
+  @PostMapping(path = "/login",
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Authorization")
   public AuthResponseDto authenticate(@RequestBody AuthRequestDto request) {
     return authService.authenticate(request);
   }
 
-  @PostMapping("/refresh")
+  @PostMapping(path = "/refresh", produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Refresh token")
   @ApiResponse(responseCode = "401", description = "User UNAUTHORIZED")
   public AuthResponseDto refreshToken(HttpServletRequest request) {
