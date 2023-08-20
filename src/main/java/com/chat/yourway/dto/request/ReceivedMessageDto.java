@@ -17,8 +17,6 @@ public class ReceivedMessageDto {
 
   private String sentFrom;
   private String sendTo;
-
   private String text;
-
 
 }
