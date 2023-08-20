@@ -2,6 +2,7 @@ package com.chat.yourway.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -46,6 +47,13 @@ public class ApiExceptionHandler {
       EmailSendingException exception) {
     return ResponseEntity.status(BAD_REQUEST)
         .body(new ApiErrorResponse(BAD_REQUEST, exception.getMessage()));
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(
+      IllegalArgumentException exception) {
+    return ResponseEntity.status(NOT_ACCEPTABLE)
+        .body(new ApiErrorResponse(NOT_ACCEPTABLE, exception.getMessage()));
   }
 
 }

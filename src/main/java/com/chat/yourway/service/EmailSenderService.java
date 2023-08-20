@@ -12,8 +12,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 @Service
 @EnableAsync
 @RequiredArgsConstructor
@@ -25,8 +23,8 @@ public class EmailSenderService {
 
   @Async
   public void sendEmail(EmailSend request) {
-    if (Objects.isNull(request)) {
-      return;
+    if (request == null) {
+      throw new IllegalArgumentException("EmailSend request cannot be null");
     }
 
     MimeMessage mail = javaMailSender.createMimeMessage();
