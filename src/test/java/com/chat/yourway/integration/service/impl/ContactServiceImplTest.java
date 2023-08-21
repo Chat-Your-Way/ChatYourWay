@@ -19,7 +19,6 @@ import com.github.springtestdbunit.annotation.DatabaseOperation;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseTearDown;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,9 +56,14 @@ import static org.mockito.Mockito.when;
         ResetMocksTestExecutionListener.class
 })
 public class ContactServiceImplTest {
-
+    private static final String PATH = "path";
     private static final String USERNAME = "username12345";
     private static final String EMAIL = "user@gmail.com";
+    private static final ArgumentCaptor<EmailToken> EMAIL_TOKEN_CAPTOR = ArgumentCaptor.forClass(EmailToken.class);
+    private static final ArgumentCaptor<EmailMessageInfoDto> EMAIL_MESSAGE_INFO_DTO_CAPTOR
+            = ArgumentCaptor.forClass(EmailMessageInfoDto.class);
+    private static final ArgumentCaptor<EmailMessageDto> EMAIL_MESSAGE_DTO_CAPTOR
+            = ArgumentCaptor.forClass(EmailMessageDto.class);
 
     @Autowired
     private ContactService contactService;
@@ -69,8 +73,6 @@ public class ContactServiceImplTest {
     private ContactRepository contactRepository;
     @Autowired
     private EmailTokenRepository emailTokenRepository;
-    @MockBean
-    private HttpServletRequest httpServletRequest;
     @MockBean
     private EmailMessageFactoryService emailMessageFactoryService;
     @MockBean
@@ -140,16 +142,13 @@ public class ContactServiceImplTest {
         // When
         when(uuidMock.toString()).thenReturn(uuidToken);
         doNothing().when(emailSenderService).sendEmail(any(EmailMessageDto.class));
-        contactService.sendEmailToRestorePassword(EMAIL, httpServletRequest);
+        contactService.sendEmailToRestorePassword(EMAIL, PATH);
 
         var contact = contactRepository.findByEmail(EMAIL);
 
         // Then
-        var emailMessageDtoArgumentCaptor = ArgumentCaptor.forClass(EmailMessageDto.class);
-        var emailMessageInfoDtoArgumentCaptor = ArgumentCaptor.forClass(EmailMessageInfoDto.class);
-
-        verify(emailMessageFactoryService).generateEmailMessage(emailMessageInfoDtoArgumentCaptor.capture());
-        verify(emailSenderService).sendEmail(emailMessageDtoArgumentCaptor.capture());
+        verify(emailMessageFactoryService).generateEmailMessage(EMAIL_MESSAGE_INFO_DTO_CAPTOR.capture());
+        verify(emailSenderService).sendEmail(EMAIL_MESSAGE_DTO_CAPTOR.capture());
 
         assertAll(
                 () -> assertThat(contact)
@@ -179,16 +178,12 @@ public class ContactServiceImplTest {
 
         // When
         assertThrows(ContactNotFoundException.class,
-                () -> contactService.sendEmailToRestorePassword(notExistUserEmail, httpServletRequest));
+                () -> contactService.sendEmailToRestorePassword(notExistUserEmail, PATH));
 
         // Then
-        var emailTokenCaptor = ArgumentCaptor.forClass(EmailToken.class);
-        var emailMessageInfoDtoArgumentCaptor = ArgumentCaptor.forClass(EmailMessageInfoDto.class);
-        var emailMessageDtoArgumentCaptor = ArgumentCaptor.forClass(EmailMessageDto.class);
-
-        verify(emailTokenRepositoryMock, never()).save(emailTokenCaptor.capture());
-        verify(emailMessageFactoryService, never()).generateEmailMessage(emailMessageInfoDtoArgumentCaptor.capture());
-        verify(emailSenderService, never()).sendEmail(emailMessageDtoArgumentCaptor.capture());
+        verify(emailTokenRepositoryMock, never()).save(EMAIL_TOKEN_CAPTOR.capture());
+        verify(emailMessageFactoryService, never()).generateEmailMessage(EMAIL_MESSAGE_INFO_DTO_CAPTOR.capture());
+        verify(emailSenderService, never()).sendEmail(EMAIL_MESSAGE_DTO_CAPTOR.capture());
     }
 
     @DisplayName("should set new password when user gave correct token")
@@ -237,10 +232,8 @@ public class ContactServiceImplTest {
                 () -> contactService.restorePassword(newPassword, uuidToken));
 
         // Then
-        var emailTokenCaptor = ArgumentCaptor.forClass(EmailToken.class);
-
         verify(passwordEncoderMock, never()).encode(newPassword);
-        verify(emailTokenRepositoryMock, never()).delete(emailTokenCaptor.capture());
+        verify(emailTokenRepositoryMock, never()).delete(EMAIL_TOKEN_CAPTOR.capture());
     }
 
 }

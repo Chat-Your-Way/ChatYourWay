@@ -14,7 +14,6 @@ import com.chat.yourway.repository.EmailTokenRepository;
 import com.chat.yourway.service.EmailSenderService;
 import com.chat.yourway.service.impl.ContactServiceImpl;
 import com.chat.yourway.service.impl.EmailMessageFactoryServiceImpl;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,10 +28,15 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.springframework.http.HttpHeaders.REFERER;
 
 @ExtendWith(MockitoExtension.class)
 public class ContactServiceImplTest {
+    private static final String PATH = "path";
+    private static final ArgumentCaptor<EmailToken> EMAIL_TOKEN_CAPTOR = ArgumentCaptor.forClass(EmailToken.class);
+    private static final ArgumentCaptor<EmailMessageInfoDto> EMAIL_MESSAGE_INFO_DTO_CAPTOR
+            = ArgumentCaptor.forClass(EmailMessageInfoDto.class);
+    private static final ArgumentCaptor<EmailMessageDto> EMAIL_MESSAGE_DTO_CAPTOR
+            = ArgumentCaptor.forClass(EmailMessageDto.class);
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -40,8 +44,6 @@ public class ContactServiceImplTest {
     private ContactRepository contactRepository;
     @Mock
     private EmailTokenRepository emailTokenRepository;
-    @Mock
-    private HttpServletRequest httpServletRequest;
     @Mock
     private EmailSenderService emailSenderService;
     @Mock
@@ -66,9 +68,10 @@ public class ContactServiceImplTest {
         var encodedPassword = contact.getPassword();
         var request = new ChangePasswordDto(oldPassword, newPassword);
 
-        // When
         when(passwordEncoder.matches(oldPassword, encodedPassword)).thenReturn(true);
         when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
+
+        // When
         contactService.changePassword(request, contact);
 
         // Then
@@ -94,8 +97,9 @@ public class ContactServiceImplTest {
         String encodedPassword = contact.getPassword();
         var request = new ChangePasswordDto(oldPassword, newPassword);
 
-        // When
         when(passwordEncoder.matches(oldPassword, encodedPassword)).thenReturn(false);
+
+        // When
         assertThrows(OldPasswordsIsNotEqualToNewException.class, () -> contactService.changePassword(request, contact));
 
         // Then
@@ -111,7 +115,6 @@ public class ContactServiceImplTest {
         var username = "username12353";
         var email = "user@gmail.com";
         var emailMessageType = EmailMessageType.RESTORE_PASSWORD;
-        var path = "path";
         var contact = Contact.builder()
                 .id(1)
                 .username(username)
@@ -122,23 +125,18 @@ public class ContactServiceImplTest {
                 .build();
         var emailMessage = new EmailMessageDto(email, emailMessageType.getSubject(), emailMessageType.getMessageBody());
 
-        // When
         when(contactRepository.findByEmail(email)).thenReturn(Optional.of(contact));
-        when(httpServletRequest.getHeader(REFERER)).thenReturn(path);
         when(emailMessageFactoryService.generateEmailMessage(any(EmailMessageInfoDto.class))).thenReturn(emailMessage);
         doNothing().when(emailSenderService).sendEmail(any(EmailMessageDto.class));
-        contactService.sendEmailToRestorePassword(email, httpServletRequest);
+
+        // When
+        contactService.sendEmailToRestorePassword(email, PATH);
 
         // Then
-        var emailTokenCaptor = ArgumentCaptor.forClass(EmailToken.class);
-        var emailMessageInfoDtoArgumentCaptor =
-                ArgumentCaptor.forClass(EmailMessageInfoDto.class);
-        var emailMessageDtoArgumentCaptor = ArgumentCaptor.forClass(EmailMessageDto.class);
-
         verify(contactRepository).findByEmail(email);
-        verify(emailTokenRepository).save(emailTokenCaptor.capture());
-        verify(emailMessageFactoryService).generateEmailMessage(emailMessageInfoDtoArgumentCaptor.capture());
-        verify(emailSenderService).sendEmail(emailMessageDtoArgumentCaptor.capture());
+        verify(emailTokenRepository).save(EMAIL_TOKEN_CAPTOR.capture());
+        verify(emailMessageFactoryService).generateEmailMessage(EMAIL_MESSAGE_INFO_DTO_CAPTOR.capture());
+        verify(emailSenderService).sendEmail(EMAIL_MESSAGE_DTO_CAPTOR.capture());
     }
 
     @Test
@@ -147,20 +145,17 @@ public class ContactServiceImplTest {
         // Given
         var email = "user@gmail.com";
 
-        // When
         when(contactRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        // When
         assertThrows(ContactNotFoundException.class,
-                () -> contactService.sendEmailToRestorePassword(email, httpServletRequest));
+                () -> contactService.sendEmailToRestorePassword(email, PATH));
 
         // Then
-        var emailTokenCaptor = ArgumentCaptor.forClass(EmailToken.class);
-        var emailMessageInfoDtoArgumentCaptor = ArgumentCaptor.forClass(EmailMessageInfoDto.class);
-        var emailMessageDtoArgumentCaptor = ArgumentCaptor.forClass(EmailMessageDto.class);
-
         verify(contactRepository).findByEmail(email);
-        verify(emailTokenRepository, never()).save(emailTokenCaptor.capture());
-        verify(emailMessageFactoryService, never()).generateEmailMessage(emailMessageInfoDtoArgumentCaptor.capture());
-        verify(emailSenderService, never()).sendEmail(emailMessageDtoArgumentCaptor.capture());
+        verify(emailTokenRepository, never()).save(EMAIL_TOKEN_CAPTOR.capture());
+        verify(emailMessageFactoryService, never()).generateEmailMessage(EMAIL_MESSAGE_INFO_DTO_CAPTOR.capture());
+        verify(emailSenderService, never()).sendEmail(EMAIL_MESSAGE_DTO_CAPTOR.capture());
     }
 
     @Test
@@ -183,16 +178,15 @@ public class ContactServiceImplTest {
                 .messageType(EmailMessageType.RESTORE_PASSWORD)
                 .build();
 
-        // When
         when(emailTokenRepository.findById(uuidToken)).thenReturn(Optional.of(emailToken));
+
+        // When
         contactService.restorePassword(newPassword, uuidToken);
 
         // Then
-        var emailTokenCaptor = ArgumentCaptor.forClass(EmailToken.class);
-
         verify(emailTokenRepository).findById(uuidToken);
         verify(passwordEncoder).encode(newPassword);
-        verify(emailTokenRepository).delete(emailTokenCaptor.capture());
+        verify(emailTokenRepository).delete(EMAIL_TOKEN_CAPTOR.capture());
     }
 
     @Test
@@ -202,16 +196,15 @@ public class ContactServiceImplTest {
         var newPassword = "newPassword";
         var uuidToken = UUID.randomUUID().toString();
 
-        // When
         when(emailTokenRepository.findById(uuidToken)).thenReturn(Optional.empty());
+
+        // When
         assertThrows(EmailTokenNotFoundException.class,
                 () -> contactService.restorePassword(newPassword, uuidToken));
 
         // Then
-        var emailTokenCaptor = ArgumentCaptor.forClass(EmailToken.class);
-
         verify(emailTokenRepository).findById(uuidToken);
         verify(passwordEncoder, never()).encode(newPassword);
-        verify(emailTokenRepository, never()).delete(emailTokenCaptor.capture());
+        verify(emailTokenRepository, never()).delete(EMAIL_TOKEN_CAPTOR.capture());
     }
 }
