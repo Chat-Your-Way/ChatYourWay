@@ -4,7 +4,6 @@ import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public interface ContactService {
@@ -23,10 +22,10 @@ public interface ContactService {
      * checking if account exists in the system, generating email message for sending to user by inputted email.
      *
      * @param email The email address of the user requesting password restoration.
-     * @param httpRequest The HttpServletRequest object providing client address for generating the restoration link.
+     * @param clientAddress The  client address for generating the restoration link.
      * @throws ContactNotFoundException If the provided email does not exist in a database.
      */
-    void sendEmailToRestorePassword(String email, HttpServletRequest httpRequest);
+    void sendEmailToRestorePassword(String email, String clientAddress);
 
     /**
      * Restores a user's password using a provided new password and restoration token.

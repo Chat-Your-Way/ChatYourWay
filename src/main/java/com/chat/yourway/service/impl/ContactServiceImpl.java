@@ -44,7 +44,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public void sendEmailToRestorePassword(String email, HttpServletRequest httpRequest) {
+    public void sendEmailToRestorePassword(String email, String clientAddress) {
         var contact = contactRepository.findByEmail(email).orElseThrow(() ->
             new ContactNotFoundException(String.format("Contact with email (%s) does not exist", email)));
         var uuidToken = UUID.randomUUID().toString();
@@ -55,11 +55,10 @@ public class ContactServiceImpl implements ContactService {
 
         emailTokenRepository.save(emailToken);
 
-        var path = httpRequest.getHeader(REFERER);
         var emailMessageInfo = new EmailMessageInfoDto(contact.getUsername(),
                 contact.getEmail(),
                 uuidToken,
-                path,
+                clientAddress,
                 EmailMessageType.RESTORE_PASSWORD);
         var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfo);
 
