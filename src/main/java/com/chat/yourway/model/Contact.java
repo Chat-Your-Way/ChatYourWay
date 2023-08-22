@@ -55,7 +55,7 @@ public class Contact implements UserDetails {
 
   @Override
   public String getUsername() {
-    return username;
+    return email;
   }
 
   @Override
