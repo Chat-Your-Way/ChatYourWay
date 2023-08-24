@@ -1,6 +1,6 @@
 package com.chat.yourway.service;
 
-import com.chat.yourway.model.EmailSend;
+import com.chat.yourway.dto.common.EmailMessageDto;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class EmailSenderService {
     private final JavaMailSender javaMailSender;
 
     @Async
-    public void sendEmail(EmailSend request) {
+    public void sendEmail(EmailMessageDto request) {
         if (Objects.isNull(request))
             return;
 
