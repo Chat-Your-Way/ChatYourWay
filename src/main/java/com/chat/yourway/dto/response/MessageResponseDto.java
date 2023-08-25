@@ -1,5 +1,6 @@
 package com.chat.yourway.dto.response;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,9 +14,11 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-public class AuthResponseDto {
+public class MessageResponseDto {
 
-  private String accessToken;
-  private String refreshToken;
+  private LocalDateTime sentTime;
+  private String sentFrom;
+  private String sendTo;
+  private String text;
 
 }

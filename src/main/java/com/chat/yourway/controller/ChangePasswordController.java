@@ -1,7 +1,7 @@
 package com.chat.yourway.controller;
 
 import com.chat.yourway.dto.request.ChangePasswordDto;
-import com.chat.yourway.service.ContactService;
+import com.chat.yourway.service.interfaces.ChangePasswordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Tag(name = "Contact")
+@Tag(name = "Change password")
 @RestController
-@RequestMapping("/contacts")
+@RequestMapping("/change")
 @RequiredArgsConstructor
-public class ContactController {
+public class ChangePasswordController {
 
-    private final ContactService contactService;
+    private final ChangePasswordService changePasswordService;
 
     @Operation(summary = "Change to new password")
     @PatchMapping(path = "/password",
@@ -27,20 +27,20 @@ public class ContactController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody ChangePasswordDto request,
                                @AuthenticationPrincipal UserDetails userDetails) {
-        contactService.changePassword(request, userDetails);
+        changePasswordService.changePassword(request, userDetails);
     }
 
     @Operation(summary = "Send email to restore password")
     @PostMapping(path = "/password/email")
     public void sendRequestToRestorePassword(@RequestParam String email,
                                              @RequestHeader(HttpHeaders.REFERER) String clientAddress) {
-        contactService.sendEmailToRestorePassword(email, clientAddress);
+        changePasswordService.sendEmailToRestorePassword(email, clientAddress);
     }
 
     @Operation(summary = "Restore password")
     @PatchMapping(path = "/password/restore")
     public void restorePassword(@RequestParam String newPassword,
                                 @RequestParam String token) {
-        contactService.restorePassword(newPassword, token);
+        changePasswordService.restorePassword(newPassword, token);
     }
 }

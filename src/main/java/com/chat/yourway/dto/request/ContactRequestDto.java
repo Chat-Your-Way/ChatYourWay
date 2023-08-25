@@ -1,4 +1,4 @@
-package com.chat.yourway.dto.response;
+package com.chat.yourway.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,9 +13,10 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-public class AuthResponseDto {
+public class ContactRequestDto {
 
-  private String accessToken;
-  private String refreshToken;
+  private String username;
+  private String email;
+  private String password;
 
 }
