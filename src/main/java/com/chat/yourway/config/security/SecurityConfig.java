@@ -1,7 +1,7 @@
 package com.chat.yourway.config.security;
 
+import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.repository.ContactRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +22,7 @@ public class SecurityConfig {
   @Bean
   public UserDetailsService userDetailsService() {
     return username -> contactRepository.findByEmail(username)
-        .orElseThrow(() -> new EntityNotFoundException(
+        .orElseThrow(() -> new ContactNotFoundException(
             String.format("Contact with email: %s wasn't found", username)));
   }
 

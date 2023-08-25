@@ -1,12 +1,12 @@
 package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.ContactRequestDto;
+import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Role;
 import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.service.interfaces.ContactService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,7 +49,12 @@ public class ContactServiceImpl implements ContactService {
     log.trace("Started findByEmail: {}", email);
     return contactRepository.findByEmail(email)
         .orElseThrow(
-            () -> new EntityNotFoundException(String.format("Email %s wasn't found", email)));
+            () -> new ContactNotFoundException(String.format("Email %s wasn't found", email)));
+  }
+
+  @Override
+  public void changePasswordByEmail(String password, String email) {
+    contactRepository.changePasswordByEmail(passwordEncoder.encode(password), email);
   }
 
 }

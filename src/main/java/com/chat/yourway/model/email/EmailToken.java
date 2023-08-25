@@ -10,16 +10,17 @@ import lombok.*;
 @Setter
 @Getter
 @Entity
-@Table(schema = "chat", name="email_token")
+@Table(schema = "chat", name = "email_token")
 public class EmailToken {
-    @Id
-    private String token;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "message_type")
-    private EmailMessageType messageType;
+  @Id
+  private String token;
 
-    @OneToOne
-    @JoinColumn(name = "contact_id", referencedColumnName = "id")
-    private Contact contact;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "message_type")
+  private EmailMessageType messageType;
+
+  @OneToOne
+  @JoinColumn(name = "contact_id", referencedColumnName = "id")
+  private Contact contact;
 }

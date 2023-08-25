@@ -9,12 +9,11 @@ import java.util.Optional;
 
 public interface ContactRepository extends JpaRepository<Contact, Integer> {
 
-    Optional<Contact> findByEmail(String email);
-    Optional<Contact> findByUsername(String username);
+  Optional<Contact> findByEmail(String email);
 
-    @Modifying
-    @Query("UPDATE Contact c set c.password = :password where c.username = :username")
-    void changePasswordByUsername(String password, String username);
+  @Modifying
+  @Query("UPDATE Contact c set c.password = :password where c.email = :email")
+  void changePasswordByEmail(String password, String email);
 
 
   boolean existsByEmail(String email);

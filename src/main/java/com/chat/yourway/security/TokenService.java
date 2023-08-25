@@ -1,9 +1,9 @@
 package com.chat.yourway.security;
 
+import com.chat.yourway.exception.TokenNotFoundException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.token.Token;
 import com.chat.yourway.repository.TokenRedisRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class TokenService {
 
   public Token findByToken(String token) {
     return tokenRedisRepository.findByToken(token)
-        .orElseThrow(() -> new EntityNotFoundException("Token wasn't found in repository"));
+        .orElseThrow(() -> new TokenNotFoundException("Token wasn't found in repository"));
   }
 
   public void revokeAllContactTokens(Contact contact) {

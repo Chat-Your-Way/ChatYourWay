@@ -1,9 +1,9 @@
 package com.chat.yourway.service.interfaces;
 
 import com.chat.yourway.dto.request.ContactRequestDto;
+import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
-import jakarta.persistence.EntityNotFoundException;
 
 public interface ContactService {
 
@@ -21,7 +21,15 @@ public interface ContactService {
    *
    * @param email Email of the contact.
    * @return {@link Contact} entity.
-   * @throws EntityNotFoundException If contact by email wasn't found.
+   * @throws ContactNotFoundException If contact by email wasn't found.
    */
   Contact findByEmail(String email);
+
+  /**
+   * Changes a password of contact by email
+   *
+   * @param password Password of contact
+   * @param email    Email of contact
+   */
+  void changePasswordByEmail(String password, String email);
 }

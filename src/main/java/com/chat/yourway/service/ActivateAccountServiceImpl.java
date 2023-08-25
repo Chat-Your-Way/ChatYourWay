@@ -1,21 +1,19 @@
 package com.chat.yourway.service;
 
-import static com.chat.yourway.model.email.EmailMessageConstant.TOKEN_PARAMETER;
-import static com.chat.yourway.model.email.EmailMessageConstant.VERIFY_ACCOUNT_SUBJECT;
-import static com.chat.yourway.model.email.EmailMessageConstant.VERIFY_ACCOUNT_TEXT;
 import static com.chat.yourway.model.email.EmailMessageType.ACTIVATE;
+import static org.springframework.http.HttpHeaders.REFERER;
 
+import com.chat.yourway.dto.common.EmailMessageInfoDto;
+import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.model.Contact;
-import com.chat.yourway.model.email.EmailSend;
 import com.chat.yourway.model.email.EmailToken;
 import com.chat.yourway.repository.EmailTokenRepository;
 import com.chat.yourway.service.interfaces.ActivateAccountService;
-import jakarta.persistence.EntityNotFoundException;
+import com.chat.yourway.service.interfaces.EmailMessageFactoryService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,13 +24,13 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
 
   private final EmailSenderService emailSenderService;
   private final EmailTokenRepository emailTokenRepository;
+  private final EmailMessageFactoryService emailMessageFactoryService;
 
   @Transactional
   @Override
   public void activateAccount(String token) {
     EmailToken emailToken = emailTokenRepository.findById(token)
-        .orElseThrow(() -> new EntityNotFoundException(
-            String.format("Email token: %s wasn't found in repository", token)));
+        .orElseThrow(EmailTokenNotFoundException::new);
 
     Contact contact = emailToken.getContact();
 
@@ -43,13 +41,14 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
   @Override
   public void sendVerifyEmail(Contact contact, HttpServletRequest httpRequest) {
     String uuid = generateUUID();
-    String link = generateLink(httpRequest, uuid);
     saveEmailToken(contact, uuid);
 
-    String text = String.format(VERIFY_ACCOUNT_TEXT, contact.getUsername(), link);
-    EmailSend emailSend = new EmailSend(contact.getEmail(), VERIFY_ACCOUNT_SUBJECT, text);
+    var path = httpRequest.getHeader(REFERER);
+    var emailMessageInfoDto = new EmailMessageInfoDto(contact.getUsername(), contact.getEmail(),
+        uuid, path, ACTIVATE);
+    var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfoDto);
 
-    emailSenderService.sendEmail(emailSend);
+    emailSenderService.sendEmail(emailMessage);
     log.info("Email for verifying account sent");
   }
 
@@ -65,14 +64,6 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
 
   private String generateUUID() {
     return UUID.randomUUID().toString();
-  }
-
-  private String generateLink(HttpServletRequest httpRequest, String uuid) {
-    log.info("Generate link for verifying account");
-    return httpRequest.getHeader(HttpHeaders.REFERER) +
-        ACTIVATE.getEmailType() +
-        TOKEN_PARAMETER +
-        uuid;
   }
 
 }

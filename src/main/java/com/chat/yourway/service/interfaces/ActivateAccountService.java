@@ -1,7 +1,7 @@
 package com.chat.yourway.service.interfaces;
 
+import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.model.Contact;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
 public interface ActivateAccountService {
@@ -10,7 +10,7 @@ public interface ActivateAccountService {
    * Activates a contact account using the provided activation token.
    *
    * @param token The activation token.
-   * @throws EntityNotFoundException If the token is not found in the repository.
+   * @throws EmailTokenNotFoundException If the token is not found in the repository.
    */
   void activateAccount(String token);
 

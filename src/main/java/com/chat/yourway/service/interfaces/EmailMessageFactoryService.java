@@ -1,4 +1,4 @@
-package com.chat.yourway.service;
+package com.chat.yourway.service.interfaces;
 
 import com.chat.yourway.dto.common.EmailMessageDto;
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
