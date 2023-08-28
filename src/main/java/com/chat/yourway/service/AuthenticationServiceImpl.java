@@ -36,11 +36,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Transactional
   @Override
-  public AuthResponseDto register(ContactRequestDto contactRequestDto, HttpServletRequest request) {
+  public AuthResponseDto register(ContactRequestDto contactRequestDto, String clientAddress) {
     log.trace("Started registration contact email: {}", contactRequestDto.getEmail());
 
     var contact = contactService.create(contactRequestDto);
-    activateAccountService.sendVerifyEmail(contact, request);
+    activateAccountService.sendVerifyEmail(contact, clientAddress);
 
     var accessToken = jwtService.generateAccessToken(contact);
     var refreshToken = jwtService.generateRefreshToken(contact);

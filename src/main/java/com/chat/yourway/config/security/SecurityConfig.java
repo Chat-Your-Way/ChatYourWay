@@ -21,7 +21,7 @@ public class SecurityConfig {
 
   @Bean
   public UserDetailsService userDetailsService() {
-    return username -> contactRepository.findByEmail(username)
+    return username -> contactRepository.findByEmailIgnoreCase(username)
         .orElseThrow(() -> new ContactNotFoundException(
             String.format("Contact with email: %s wasn't found", username)));
   }

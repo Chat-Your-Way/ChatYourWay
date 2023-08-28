@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +28,8 @@ public class AuthenticationController {
       consumes = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Registration")
   public AuthResponseDto register(@RequestBody ContactRequestDto request,
-      HttpServletRequest httpRequest) {
-    return authService.register(request, httpRequest);
+                                  @RequestHeader(HttpHeaders.REFERER) String clientAddress) {
+    return authService.register(request, clientAddress);
   }
 
   @PostMapping(path = "/login",

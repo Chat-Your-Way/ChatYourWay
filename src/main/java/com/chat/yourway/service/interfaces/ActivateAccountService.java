@@ -18,8 +18,8 @@ public interface ActivateAccountService {
    * Sends a verification email for activating a contact account.
    *
    * @param contact     The contact to send the verification email.
-   * @param httpRequest HttpServletRequest.
+   * @param clientAddress The client address for generating the verifying link.
    */
-  void sendVerifyEmail(Contact contact, HttpServletRequest httpRequest);
+  void sendVerifyEmail(Contact contact, String clientAddress);
 
 }

@@ -25,12 +25,12 @@ public class ContactServiceImpl implements ContactService {
   @Override
   public Contact create(ContactRequestDto contactRequestDto) {
     log.trace("Started create contact, contact email: {}", contactRequestDto.getEmail());
-    if (contactRepository.existsByEmail(contactRequestDto.getEmail())) {
+    if (contactRepository.existsByEmailIgnoreCase(contactRequestDto.getEmail())) {
       throw new ValueNotUniqException(
           String.format("Email %s already in use", contactRequestDto.getEmail()));
     }
 
-    if (contactRepository.existsByUsername(contactRequestDto.getUsername())) {
+    if (contactRepository.existsByUsernameIgnoreCase(contactRequestDto.getUsername())) {
       throw new ValueNotUniqException(
           String.format("Username %s already in use", contactRequestDto.getUsername()));
     }
@@ -47,7 +47,7 @@ public class ContactServiceImpl implements ContactService {
   @Override
   public Contact findByEmail(String email) {
     log.trace("Started findByEmail: {}", email);
-    return contactRepository.findByEmail(email)
+    return contactRepository.findByEmailIgnoreCase(email)
         .orElseThrow(
             () -> new ContactNotFoundException(String.format("Email %s wasn't found", email)));
   }

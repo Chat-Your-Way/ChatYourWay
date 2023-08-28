@@ -12,10 +12,10 @@ public interface AuthenticationService {
    * Registers a new contact and returns access and refresh tokens.
    *
    * @param contactRequestDto Contact registration details.
-   * @param request HttpServletRequest.
+   * @param clientAddress The client address for generating the verifying link.
    * @return {@link AuthResponseDto} containing access and refresh tokens.
    */
-  AuthResponseDto register(ContactRequestDto contactRequestDto, HttpServletRequest request);
+  AuthResponseDto register(ContactRequestDto contactRequestDto, String clientAddress);
 
   /**
    * Authenticates a contact's credentials and generates access and refresh tokens.
