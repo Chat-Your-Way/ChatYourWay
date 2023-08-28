@@ -1,7 +1,6 @@
 package com.chat.yourway.service;
 
 import static com.chat.yourway.model.email.EmailMessageType.ACTIVATE;
-import static org.springframework.http.HttpHeaders.REFERER;
 
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
@@ -10,7 +9,6 @@ import com.chat.yourway.model.email.EmailToken;
 import com.chat.yourway.repository.EmailTokenRepository;
 import com.chat.yourway.service.interfaces.ActivateAccountService;
 import com.chat.yourway.service.interfaces.EmailMessageFactoryService;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
