@@ -56,8 +56,6 @@ public class AuthenticationServiceImplTest {
   private static final ArgumentCaptor<Token> TOKEN_CAPTOR = ArgumentCaptor.forClass(Token.class);
   private static final ArgumentCaptor<Contact> CONTACT_CAPTOR =
       ArgumentCaptor.forClass(Contact.class);
-  private static final ArgumentCaptor<ContactRequestDto> CONTACT_REQUEST_DTO_CAPTOR =
-      ArgumentCaptor.forClass(ContactRequestDto.class);
   private static final ArgumentCaptor<Authentication> AUTHENTICATION_CAPTOR =
       ArgumentCaptor.forClass(Authentication.class);
 
