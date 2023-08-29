@@ -18,7 +18,7 @@ import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
-import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
+import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
 import com.chat.yourway.model.Contact;
@@ -110,11 +110,11 @@ public class ChangePasswordServiceImplTest {
     );
   }
 
-  @DisplayName("should throw password OldPasswordsIsNotEqualToNewException when user passed incorrect old password")
+  @DisplayName("should throw password PasswordsAreNotEqualException when user passed incorrect old password")
   @Test
   @DatabaseSetup(value = "/dataset/contacts.xml", type = DatabaseOperation.INSERT)
   @DatabaseTearDown(value = "/dataset/contacts.xml", type = DatabaseOperation.DELETE)
-  public void shouldThrowPasswordsOldPasswordsIsNotEqualToNewException_whenUserPassedIncorrectOldPassword() {
+  public void shouldThrowPasswordsAreNotEqualException_whenUserPassedIncorrectOldPassword() {
     // Given
     var passwordEncoderMock = mock(PasswordEncoder.class);
     var contactServiceMock = mock(ContactService.class);
@@ -124,7 +124,7 @@ public class ChangePasswordServiceImplTest {
     var contact = contactService.findByEmail(EMAIL);
 
     // When
-    assertThrows(OldPasswordsIsNotEqualToNewException.class,
+    assertThrows(PasswordsAreNotEqualException.class,
         () -> changePasswordService.changePassword(request, contact));
 
     // Then

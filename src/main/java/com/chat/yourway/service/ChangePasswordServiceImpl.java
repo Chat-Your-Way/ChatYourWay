@@ -3,7 +3,6 @@ package com.chat.yourway.service;
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
-import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
 import com.chat.yourway.model.email.EmailMessageType;
 import com.chat.yourway.model.email.EmailToken;
 import com.chat.yourway.repository.EmailTokenRepository;
@@ -32,10 +31,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
   @Override
   @Transactional
   public void changePassword(ChangePasswordDto request, UserDetails userDetails) {
-    if (!passwordEncoder.matches(request.getOldPassword(), userDetails.getPassword())) {
-      throw new OldPasswordsIsNotEqualToNewException("Old password is not correct, try again.");
-    }
-
+    contactService.verifyPassword(request.getOldPassword(), userDetails.getPassword());
     contactService.changePasswordByEmail(request.getNewPassword(), userDetails.getUsername());
   }
 
@@ -44,18 +40,22 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
 
     var contact = contactService.findByEmail(email);
     var uuidToken = UUID.randomUUID().toString();
-    var emailToken = EmailToken.builder().token(uuidToken)
-        .messageType(EmailMessageType.RESTORE_PASSWORD)
-        .contact(contact)
-        .build();
+    var emailToken =
+        EmailToken.builder()
+            .token(uuidToken)
+            .messageType(EmailMessageType.RESTORE_PASSWORD)
+            .contact(contact)
+            .build();
 
     emailTokenRepository.save(emailToken);
 
-    var emailMessageInfo = new EmailMessageInfoDto(contact.getUsername(),
-        contact.getEmail(),
-        uuidToken,
-        clientAddress,
-        EmailMessageType.RESTORE_PASSWORD);
+    var emailMessageInfo =
+        new EmailMessageInfoDto(
+            contact.getUsername(),
+            contact.getEmail(),
+            uuidToken,
+            clientAddress,
+            EmailMessageType.RESTORE_PASSWORD);
     var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfo);
 
     emailSenderService.sendEmail(emailMessage);
@@ -64,13 +64,12 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
   @Override
   @Transactional
   public void restorePassword(String newPassword, String token) {
-    var emailToken = emailTokenRepository.findById(token)
-        .orElseThrow(EmailTokenNotFoundException::new);
+    var emailToken =
+        emailTokenRepository.findById(token).orElseThrow(EmailTokenNotFoundException::new);
     var contact = emailToken.getContact();
     var newEncodedPassword = passwordEncoder.encode(newPassword);
 
     contact.setPassword(newEncodedPassword);
     emailTokenRepository.delete(emailToken);
   }
-
 }

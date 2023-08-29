@@ -33,7 +33,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   private final ActivateAccountService activateAccountService;
   private final AuthenticationManager authManager;
 
-
   @Transactional
   @Override
   public AuthResponseDto register(ContactRequestDto contactRequestDto, String clientAddress) {
@@ -48,10 +47,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     saveContactToken(contact.getEmail(), accessToken);
     log.info("Saved registered contact {} to repository", contact.getEmail());
 
-    return AuthResponseDto.builder()
-        .accessToken(accessToken)
-        .refreshToken(refreshToken)
-        .build();
+    return AuthResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
   }
 
   @Transactional
@@ -62,16 +58,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     var contact = contactService.findByEmail(authRequestDto.getEmail());
 
+    contactService.verifyPassword(authRequestDto.getPassword(), contact.getPassword());
+
     var accessToken = jwtService.generateAccessToken(contact);
     var refreshToken = jwtService.generateRefreshToken(contact);
 
     saveContactToken(contact.getEmail(), accessToken);
 
     log.info("Contact {} authenticated", contact.getEmail());
-    return AuthResponseDto.builder()
-        .accessToken(accessToken)
-        .refreshToken(refreshToken)
-        .build();
+    return AuthResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
   }
 
   @Transactional
@@ -92,20 +87,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     saveContactToken(email, accessToken);
 
     log.info("Refreshed access token for contact email: {}", email);
-    return AuthResponseDto.builder()
-        .accessToken(accessToken)
-        .refreshToken(refreshToken)
-        .build();
+    return AuthResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
   }
 
   private void saveContactToken(String email, String jwtToken) {
-    var token = Token.builder()
-        .email(email)
-        .token(jwtToken)
-        .tokenType(BEARER)
-        .expired(false)
-        .revoked(false)
-        .build();
+    var token =
+        Token.builder()
+            .email(email)
+            .token(jwtToken)
+            .tokenType(BEARER)
+            .expired(false)
+            .revoked(false)
+            .build();
     tokenService.saveToken(token);
   }
 
@@ -116,5 +109,4 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       throw new InvalidCredentialsException("Authentication failed, invalid email or password");
     }
   }
-
 }

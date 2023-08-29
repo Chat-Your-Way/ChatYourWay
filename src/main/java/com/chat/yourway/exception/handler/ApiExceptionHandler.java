@@ -12,7 +12,7 @@ import com.chat.yourway.exception.EmailSendingException;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.exception.InvalidCredentialsException;
 import com.chat.yourway.exception.InvalidTokenException;
-import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
+import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.TokenNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -73,9 +73,9 @@ public class ApiExceptionHandler {
   }
 
   @ResponseStatus(BAD_REQUEST)
-  @ExceptionHandler(OldPasswordsIsNotEqualToNewException.class)
+  @ExceptionHandler(PasswordsAreNotEqualException.class)
   public ApiErrorResponseDto handleOldPasswordsIsNotEqualToNewException(
-      OldPasswordsIsNotEqualToNewException exception) {
+      PasswordsAreNotEqualException exception) {
     return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
   }
 

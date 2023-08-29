@@ -2,6 +2,7 @@ package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.exception.ContactNotFoundException;
+import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Role;
@@ -34,20 +35,22 @@ public class ContactServiceImpl implements ContactService {
       throw new ValueNotUniqException(
           String.format("Username %s already in use", contactRequestDto.getUsername()));
     }
-    return contactRepository.save(Contact.builder()
-        .username(contactRequestDto.getUsername())
-        .email(contactRequestDto.getEmail())
-        .password(passwordEncoder.encode(contactRequestDto.getPassword()))
-        .isActive(false)
-        .isPrivate(true)
-        .role(Role.USER)
-        .build());
+    return contactRepository.save(
+        Contact.builder()
+            .username(contactRequestDto.getUsername())
+            .email(contactRequestDto.getEmail())
+            .password(passwordEncoder.encode(contactRequestDto.getPassword()))
+            .isActive(false)
+            .isPrivate(true)
+            .role(Role.USER)
+            .build());
   }
 
   @Override
   public Contact findByEmail(String email) {
     log.trace("Started findByEmail: {}", email);
-    return contactRepository.findByEmailIgnoreCase(email)
+    return contactRepository
+        .findByEmailIgnoreCase(email)
         .orElseThrow(
             () -> new ContactNotFoundException(String.format("Email %s wasn't found", email)));
   }
@@ -57,4 +60,10 @@ public class ContactServiceImpl implements ContactService {
     contactRepository.changePasswordByEmail(passwordEncoder.encode(password), email);
   }
 
+  @Override
+  public void verifyPassword(String password, String encodedPassword) {
+    if (!passwordEncoder.matches(password, encodedPassword)) {
+      throw new PasswordsAreNotEqualException();
+    }
+  }
 }
