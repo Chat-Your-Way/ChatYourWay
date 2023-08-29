@@ -29,7 +29,15 @@ public interface ContactService {
    * Changes a password of contact by email
    *
    * @param password Password of contact
-   * @param email    Email of contact
+   * @param email Email of contact
    */
   void changePasswordByEmail(String password, String email);
+
+  /**
+   * Changes a password of contact by email
+   *
+   * @param password Password for checking
+   * @param encodedPassword Encoded password of contact
+   */
+  void verifyPassword(String password, String encodedPassword);
 }
