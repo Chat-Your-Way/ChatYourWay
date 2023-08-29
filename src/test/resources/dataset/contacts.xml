@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
     <contact
-        id="1"
+        id="0"
         username="username12345"
         password="$2a$10$3Ds5qfmI2JcqluYe5cBp1Onak2GL5douZSxGgViQUx9FsLuQT2FkC"
         is_active="true"
