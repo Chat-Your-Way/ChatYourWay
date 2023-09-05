@@ -68,8 +68,6 @@ public class SecurityFilterConfig {
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-        .formLogin(AbstractAuthenticationFilterConfigurer::permitAll
-        )
         .logout(logout -> logout
             .logoutUrl("/auth/logout")
             .addLogoutHandler(logoutHandler)

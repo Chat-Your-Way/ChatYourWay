@@ -9,9 +9,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,16 +29,16 @@ public class AuthenticationController {
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Registration")
-  public AuthResponseDto register(@RequestBody ContactRequestDto request,
-                                  @RequestHeader(HttpHeaders.REFERER) String clientAddress) {
-    return authService.register(request, clientAddress);
+  public AuthResponseDto register(@Valid @RequestBody ContactRequestDto request,
+                                  @RequestHeader(HttpHeaders.REFERER) String clientHost) {
+    return authService.register(request, clientHost);
   }
 
   @PostMapping(path = "/login",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Authorization")
-  public AuthResponseDto authenticate(@RequestBody AuthRequestDto request) {
+  public AuthResponseDto authenticate(@Valid @RequestBody AuthRequestDto request) {
     return authService.authenticate(request);
   }
 

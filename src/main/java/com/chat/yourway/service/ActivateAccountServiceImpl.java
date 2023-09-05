@@ -37,12 +37,12 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
   }
 
   @Override
-  public void sendVerifyEmail(Contact contact, String clientAddress) {
+  public void sendVerifyEmail(Contact contact, String clientHost) {
     String uuid = generateUUID();
     saveEmailToken(contact, uuid);
 
     var emailMessageInfoDto = new EmailMessageInfoDto(contact.getUsername(), contact.getEmail(),
-        uuid, clientAddress, ACTIVATE);
+        uuid, clientHost, ACTIVATE);
     var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfoDto);
 
     emailSenderService.sendEmail(emailMessage);
