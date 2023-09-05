@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ChangePasswordServiceImplTest {
+public class ChangePasswordServiceImplTestValidation {
 
   private static final String PATH = "path";
   private static final ArgumentCaptor<EmailToken> EMAIL_TOKEN_CAPTOR = ArgumentCaptor.forClass(

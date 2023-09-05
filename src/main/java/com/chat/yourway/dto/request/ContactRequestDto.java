@@ -1,8 +1,8 @@
 package com.chat.yourway.dto.request;
 
-import com.chat.yourway.annotation.ContactEmail;
-import com.chat.yourway.annotation.Password;
-import com.chat.yourway.annotation.Username;
+import com.chat.yourway.annotation.EmailValidation;
+import com.chat.yourway.annotation.PasswordValidation;
+import com.chat.yourway.annotation.UsernameValidation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,11 +17,13 @@ import lombok.ToString;
 @Builder
 @ToString
 public class ContactRequestDto {
-  @Username
+  @UsernameValidation
   private String username;
-  @ContactEmail
+
+  @EmailValidation
   private String email;
-  @Password
+
+  @PasswordValidation
   private String password;
 
 }

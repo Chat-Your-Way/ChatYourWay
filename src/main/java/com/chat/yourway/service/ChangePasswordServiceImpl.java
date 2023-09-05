@@ -40,7 +40,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
   }
 
   @Override
-  public void sendEmailToRestorePassword(String email, String clientAddress) {
+  public void sendEmailToRestorePassword(String email, String clientHost) {
 
     var contact = contactService.findByEmail(email);
     var uuidToken = UUID.randomUUID().toString();
@@ -54,7 +54,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
     var emailMessageInfo = new EmailMessageInfoDto(contact.getUsername(),
         contact.getEmail(),
         uuidToken,
-        clientAddress,
+            clientHost,
         EmailMessageType.RESTORE_PASSWORD);
     var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfo);
 

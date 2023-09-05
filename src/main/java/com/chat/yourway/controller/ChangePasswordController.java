@@ -33,8 +33,8 @@ public class ChangePasswordController {
     @Operation(summary = "Send email to restore password")
     @PostMapping(path = "/password/email")
     public void sendRequestToRestorePassword(@RequestParam String email,
-                                             @RequestHeader(HttpHeaders.REFERER) String clientAddress) {
-        changePasswordService.sendEmailToRestorePassword(email, clientAddress);
+                                             @RequestHeader(HttpHeaders.REFERER) String clientHost) {
+        changePasswordService.sendEmailToRestorePassword(email, clientHost);
     }
 
     @Operation(summary = "Restore password")

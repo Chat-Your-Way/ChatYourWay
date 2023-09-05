@@ -59,7 +59,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
     MockitoTestExecutionListener.class,
     ResetMocksTestExecutionListener.class
 })
-public class ChangePasswordServiceImplTest {
+public class ChangePasswordServiceImplTestValidation {
 
   private static final String PATH = "path";
   private static final String EMAIL = "user@gmail.com";

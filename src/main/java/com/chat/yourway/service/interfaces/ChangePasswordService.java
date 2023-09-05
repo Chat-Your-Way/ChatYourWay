@@ -25,10 +25,10 @@ public interface ChangePasswordService {
    * system, generating email message for sending to user by inputted email.
    *
    * @param email         The email address of the user requesting password restoration.
-   * @param clientAddress The  client address for generating the restoration link.
+   * @param clientHost The client host for generating the restoration link.
    * @throws ContactNotFoundException If the provided email does not exist in a database.
    */
-  void sendEmailToRestorePassword(String email, String clientAddress);
+  void sendEmailToRestorePassword(String email, String clientHost);
 
   /**
    * Restores a user's password using a provided new password and restoration token.
