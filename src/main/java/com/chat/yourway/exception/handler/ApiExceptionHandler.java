@@ -2,7 +2,6 @@ package com.chat.yourway.exception.handler;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -15,10 +14,17 @@ import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
 import com.chat.yourway.exception.TokenNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@ApiResponse(responseCode = "ErrorCode", description = "Error response",
+    content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class),
+        mediaType = MediaType.APPLICATION_JSON_VALUE))
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
@@ -64,12 +70,6 @@ public class ApiExceptionHandler {
   @ExceptionHandler(EmailSendingException.class)
   public ApiErrorResponseDto handleEmailSendingException(EmailSendingException exception) {
     return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
-  }
-
-  @ResponseStatus(NOT_ACCEPTABLE)
-  @ExceptionHandler(IllegalArgumentException.class)
-  public ApiErrorResponseDto handleIllegalArgumentException(IllegalArgumentException exception) {
-    return new ApiErrorResponseDto(NOT_ACCEPTABLE, exception.getMessage());
   }
 
   @ResponseStatus(BAD_REQUEST)
