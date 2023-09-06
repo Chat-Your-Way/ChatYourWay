@@ -10,7 +10,7 @@ import org.testcontainers.utility.DockerImageName;
 public class PostgresExtension implements Extension, BeforeAllCallback, AfterAllCallback {
 
   private static final PostgreSQLContainer<?> container = new PostgreSQLContainer<>(
-      DockerImageName.parse("postgres:14.6"))
+      DockerImageName.parse("postgres:latest"))
       .withEnv("TZ", "UTC");
 
   @Override

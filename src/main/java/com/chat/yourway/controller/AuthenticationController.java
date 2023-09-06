@@ -25,7 +25,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,9 +59,9 @@ public class AuthenticationController {
               examples = @ExampleObject(value = OpenApiExamples.NEW_CONTACT,
                   description = "New Contact for registration"))))
   @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-  public AuthResponseDto register(@RequestBody ContactRequestDto request,
-      HttpServletRequest httpRequest) {
-    return authService.register(request, httpRequest);
+  public AuthResponseDto register(@Valid @RequestBody ContactRequestDto request,
+                                  @RequestHeader(HttpHeaders.REFERER) String clientHost) {
+    return authService.register(request, clientHost);
   }
 
   @Operation(summary = "Authorization",
@@ -74,7 +78,8 @@ public class AuthenticationController {
               examples = @ExampleObject(value = OpenApiExamples.LOGIN,
                   description = "Login credentials"))))
   @PostMapping(path = "/login", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-  public AuthResponseDto authenticate(@RequestBody AuthRequestDto request) {
+  public AuthResponseDto authenticate(@Valid @RequestBody AuthRequestDto request) {
+
     return authService.authenticate(request);
   }
 

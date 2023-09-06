@@ -4,7 +4,7 @@ import com.chat.yourway.dto.common.EmailMessageDto;
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
-import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
+import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.email.EmailMessageType;
 import com.chat.yourway.model.email.EmailToken;
@@ -31,28 +31,22 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ChangePasswordServiceImplTest {
+public class ChangePasswordServiceImplTestValidation {
 
   private static final String PATH = "path";
-  private static final ArgumentCaptor<EmailToken> EMAIL_TOKEN_CAPTOR = ArgumentCaptor.forClass(
-      EmailToken.class);
-  private static final ArgumentCaptor<EmailMessageInfoDto> EMAIL_MESSAGE_INFO_DTO_CAPTOR
-      = ArgumentCaptor.forClass(EmailMessageInfoDto.class);
-  private static final ArgumentCaptor<EmailMessageDto> EMAIL_MESSAGE_DTO_CAPTOR
-      = ArgumentCaptor.forClass(EmailMessageDto.class);
+  private static final ArgumentCaptor<EmailToken> EMAIL_TOKEN_CAPTOR =
+      ArgumentCaptor.forClass(EmailToken.class);
+  private static final ArgumentCaptor<EmailMessageInfoDto> EMAIL_MESSAGE_INFO_DTO_CAPTOR =
+      ArgumentCaptor.forClass(EmailMessageInfoDto.class);
+  private static final ArgumentCaptor<EmailMessageDto> EMAIL_MESSAGE_DTO_CAPTOR =
+      ArgumentCaptor.forClass(EmailMessageDto.class);
 
-  @Mock
-  private PasswordEncoder passwordEncoder;
-  @Mock
-  private EmailTokenRepository emailTokenRepository;
-  @Mock
-  private EmailSenderService emailSenderService;
-  @Mock
-  private EmailMessageFactoryServiceImpl emailMessageFactoryService;
-  @InjectMocks
-  private ChangePasswordServiceImpl changePasswordService;
-  @Spy
-  private ContactService contactService;
+  @Mock private PasswordEncoder passwordEncoder;
+  @Mock private EmailTokenRepository emailTokenRepository;
+  @Mock private EmailSenderService emailSenderService;
+  @Mock private EmailMessageFactoryServiceImpl emailMessageFactoryService;
+  @InjectMocks private ChangePasswordServiceImpl changePasswordService;
+  @Spy private ContactService contactService;
 
   @Test
   @DisplayName("change password should change password when user passed correct old password")
@@ -60,52 +54,59 @@ public class ChangePasswordServiceImplTest {
     // Given
     var oldPassword = "oldPassword";
     var newPassword = "newPassword";
-    var contact = Contact.builder()
-        .id(1)
-        .username("username12353")
-        .email("user@gmail.com")
-        .password(oldPassword)
-        .isActive(true)
-        .isPrivate(true)
-        .build();
+    var contact =
+        Contact.builder()
+            .id(1)
+            .username("username12353")
+            .email("user@gmail.com")
+            .password(oldPassword)
+            .isActive(true)
+            .isPrivate(true)
+            .build();
     var encodedPassword = contact.getPassword();
     var request = new ChangePasswordDto(oldPassword, newPassword);
 
-    when(passwordEncoder.matches(oldPassword, encodedPassword)).thenReturn(true);
+    doNothing().when(contactService).verifyPassword(oldPassword, encodedPassword);
 
     // When
     changePasswordService.changePassword(request, contact);
 
     // Then
-    verify(passwordEncoder).matches(oldPassword, encodedPassword);
+    verify(contactService).verifyPassword(anyString(), anyString());
     verify(contactService).changePasswordByEmail(newPassword, contact.getEmail());
   }
 
   @Test
-  @DisplayName("change password should throw password OldPasswordsIsNotEqualToNewException when user passed incorrect old password")
-  public void changePassword_shouldThrowOldPasswordsIsNotEqualToNewException_whenUserPassedIncorrectOldPassword() {
+  @DisplayName(
+      "change password should throw password PasswordsAreNotEqualException when user passed incorrect old password")
+  public void
+      changePassword_shouldThrowPasswordsAreNotEqualException_whenUserPassedIncorrectOldPassword() {
     // Given
-    var contact = Contact.builder()
-        .id(1)
-        .username("username12353")
-        .email("user@gmail.com")
-        .password("encodedPassword")
-        .isActive(true)
-        .isPrivate(true)
-        .build();
+    var contact =
+        Contact.builder()
+            .id(1)
+            .username("username12353")
+            .email("user@gmail.com")
+            .password("encodedPassword")
+            .isActive(true)
+            .isPrivate(true)
+            .build();
     String oldPassword = "oldPassword";
     String newPassword = "newPassword";
     String encodedPassword = contact.getPassword();
     var request = new ChangePasswordDto(oldPassword, newPassword);
 
-    when(passwordEncoder.matches(oldPassword, encodedPassword)).thenReturn(false);
+    doThrow(PasswordsAreNotEqualException.class)
+        .when(contactService)
+        .verifyPassword(oldPassword, encodedPassword);
 
     // When
-    assertThrows(OldPasswordsIsNotEqualToNewException.class,
+    assertThrows(
+        PasswordsAreNotEqualException.class,
         () -> changePasswordService.changePassword(request, contact));
 
     // Then
-    verify(passwordEncoder).matches(oldPassword, encodedPassword);
+    verify(contactService).verifyPassword(oldPassword, encodedPassword);
     verify(passwordEncoder, never()).encode(anyString());
   }
 
@@ -116,21 +117,22 @@ public class ChangePasswordServiceImplTest {
     var username = "username12353";
     var email = "user@gmail.com";
     var emailMessageType = EmailMessageType.RESTORE_PASSWORD;
-    var contact = Contact.builder()
-        .id(1)
-        .username(username)
-        .email(email)
-        .password("123456")
-        .isActive(true)
-        .isPrivate(true)
-        .build();
-    var emailMessage = new EmailMessageDto(email, emailMessageType.getSubject(),
-        emailMessageType.getMessageBody());
+    var contact =
+        Contact.builder()
+            .id(1)
+            .username(username)
+            .email(email)
+            .password("123456")
+            .isActive(true)
+            .isPrivate(true)
+            .build();
+    var emailMessage =
+        new EmailMessageDto(
+            email, emailMessageType.getSubject(), emailMessageType.getMessageBody());
 
     when(contactService.findByEmail(email)).thenReturn(contact);
-    when(
-        emailMessageFactoryService.generateEmailMessage(any(EmailMessageInfoDto.class))).thenReturn(
-        emailMessage);
+    when(emailMessageFactoryService.generateEmailMessage(any(EmailMessageInfoDto.class)))
+        .thenReturn(emailMessage);
     doNothing().when(emailSenderService).sendEmail(any(EmailMessageDto.class));
 
     // When
@@ -139,28 +141,31 @@ public class ChangePasswordServiceImplTest {
     // Then
     verify(contactService).findByEmail(email);
     verify(emailTokenRepository).save(EMAIL_TOKEN_CAPTOR.capture());
-    verify(emailMessageFactoryService).generateEmailMessage(
-        EMAIL_MESSAGE_INFO_DTO_CAPTOR.capture());
+    verify(emailMessageFactoryService)
+        .generateEmailMessage(EMAIL_MESSAGE_INFO_DTO_CAPTOR.capture());
     verify(emailSenderService).sendEmail(EMAIL_MESSAGE_DTO_CAPTOR.capture());
   }
 
   @Test
-  @DisplayName("send email to restore password should throw ContactNotFoundException when user account does not exist by email")
-  public void sendEmailToRestorePassword_shouldThrowContactNotFoundException_whenUserAccountDoesNotExistByEmail() {
+  @DisplayName(
+      "send email to restore password should throw ContactNotFoundException when user account does not exist by email")
+  public void
+      sendEmailToRestorePassword_shouldThrowContactNotFoundException_whenUserAccountDoesNotExistByEmail() {
     // Given
     var email = "user@gmail.com";
 
     when(contactService.findByEmail(email)).thenThrow(EntityNotFoundException.class);
 
     // When
-    assertThrows(EntityNotFoundException.class,
+    assertThrows(
+        EntityNotFoundException.class,
         () -> changePasswordService.sendEmailToRestorePassword(email, PATH));
 
     // Then
     verify(contactService).findByEmail(email);
     verify(emailTokenRepository, never()).save(EMAIL_TOKEN_CAPTOR.capture());
-    verify(emailMessageFactoryService, never()).generateEmailMessage(
-        EMAIL_MESSAGE_INFO_DTO_CAPTOR.capture());
+    verify(emailMessageFactoryService, never())
+        .generateEmailMessage(EMAIL_MESSAGE_INFO_DTO_CAPTOR.capture());
     verify(emailSenderService, never()).sendEmail(EMAIL_MESSAGE_DTO_CAPTOR.capture());
   }
 
@@ -170,19 +175,21 @@ public class ChangePasswordServiceImplTest {
     // Given
     var newPassword = "newPassword";
     var uuidToken = UUID.randomUUID().toString();
-    var contact = Contact.builder()
-        .id(1)
-        .username("username")
-        .email("email")
-        .password("123456")
-        .isActive(true)
-        .isPrivate(true)
-        .build();
-    var emailToken = EmailToken.builder()
-        .token(uuidToken)
-        .contact(contact)
-        .messageType(EmailMessageType.RESTORE_PASSWORD)
-        .build();
+    var contact =
+        Contact.builder()
+            .id(1)
+            .username("username")
+            .email("email")
+            .password("123456")
+            .isActive(true)
+            .isPrivate(true)
+            .build();
+    var emailToken =
+        EmailToken.builder()
+            .token(uuidToken)
+            .contact(contact)
+            .messageType(EmailMessageType.RESTORE_PASSWORD)
+            .build();
 
     when(emailTokenRepository.findById(uuidToken)).thenReturn(Optional.of(emailToken));
 
@@ -196,7 +203,8 @@ public class ChangePasswordServiceImplTest {
   }
 
   @Test
-  @DisplayName("restore password should throw EmailTokenNotFoundException when user gave incorrect token")
+  @DisplayName(
+      "restore password should throw EmailTokenNotFoundException when user gave incorrect token")
   public void restorePassword_shouldThrowEmailTokenNotFoundException_whenUserGaveIncorrectToken() {
     // Given
     var newPassword = "newPassword";
@@ -205,7 +213,8 @@ public class ChangePasswordServiceImplTest {
     when(emailTokenRepository.findById(uuidToken)).thenReturn(Optional.empty());
 
     // When
-    assertThrows(EmailTokenNotFoundException.class,
+    assertThrows(
+        EmailTokenNotFoundException.class,
         () -> changePasswordService.restorePassword(newPassword, uuidToken));
 
     // Then

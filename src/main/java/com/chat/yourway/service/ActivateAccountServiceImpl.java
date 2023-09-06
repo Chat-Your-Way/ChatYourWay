@@ -1,7 +1,6 @@
 package com.chat.yourway.service;
 
 import static com.chat.yourway.model.email.EmailMessageType.ACTIVATE;
-import static org.springframework.http.HttpHeaders.REFERER;
 
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
@@ -10,7 +9,6 @@ import com.chat.yourway.model.email.EmailToken;
 import com.chat.yourway.repository.EmailTokenRepository;
 import com.chat.yourway.service.interfaces.ActivateAccountService;
 import com.chat.yourway.service.interfaces.EmailMessageFactoryService;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +37,12 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
   }
 
   @Override
-  public void sendVerifyEmail(Contact contact, HttpServletRequest httpRequest) {
+  public void sendVerifyEmail(Contact contact, String clientHost) {
     String uuid = generateUUID();
     saveEmailToken(contact, uuid);
 
-    var path = httpRequest.getHeader(REFERER);
     var emailMessageInfoDto = new EmailMessageInfoDto(contact.getUsername(), contact.getEmail(),
-        uuid, path, ACTIVATE);
+        uuid, clientHost, ACTIVATE);
     var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfoDto);
 
     emailSenderService.sendEmail(emailMessage);
