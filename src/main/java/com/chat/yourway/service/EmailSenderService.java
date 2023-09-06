@@ -24,7 +24,7 @@ public class EmailSenderService {
   @Async
   public void sendEmail(EmailMessageDto request) {
     if (request == null) {
-      throw new IllegalArgumentException("EmailSend request cannot be null");
+      throw new EmailSendingException("EmailSend request cannot be null");
     }
 
     MimeMessage mail = javaMailSender.createMimeMessage();
