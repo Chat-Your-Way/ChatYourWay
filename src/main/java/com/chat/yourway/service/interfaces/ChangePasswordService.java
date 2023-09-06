@@ -3,7 +3,7 @@ package com.chat.yourway.service.interfaces;
 import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
-import com.chat.yourway.exception.OldPasswordsIsNotEqualToNewException;
+import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public interface ChangePasswordService {
@@ -11,11 +11,11 @@ public interface ChangePasswordService {
   /**
    * Changes the password for the user's account based on the provided request and user details.
    *
-   * @param request     The data transfer object (DTO) containing the necessary information for
-   *                    password change.
+   * @param request The data transfer object (DTO) containing the necessary information for password
+   *     change.
    * @param userDetails The details of the user account for which the password change is requested.
-   * @throws OldPasswordsIsNotEqualToNewException If old password does not matched to current user
-   *                                              password.
+   * @throws PasswordsAreNotEqualException If old password does not matched to current user
+   *     password.
    */
   void changePassword(ChangePasswordDto request, UserDetails userDetails);
 
@@ -32,13 +32,12 @@ public interface ChangePasswordService {
 
   /**
    * Restores a user's password using a provided new password and restoration token.
-   * <p>
-   * This method allows a user to restore their password by providing a new password along with the
-   * restoration token received through the password restoration process.
+   *
+   * <p>This method allows a user to restore their password by providing a new password along with
+   * the restoration token received through the password restoration process.
    *
    * @param newPassword The new password chosen by the user for restoration.
-   * @param token       The restoration token received by the user for verification from email
-   *                    letter.
+   * @param token The restoration token received by the user for verification from email letter.
    * @throws EmailTokenNotFoundException If the provided token does not exist in a database.
    */
   void restorePassword(String newPassword, String token);
