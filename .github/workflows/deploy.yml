@@ -2,10 +2,10 @@ name: CI-CD-Pipeline-to-AWS
 on:
   push:
     branches:
-      - CHAT-30--deploy
+      - master
   pull_request:
     branches:
-      - CHAT-30--deploy
+      - master
       
 env:
   AWS_REGION: eu-central-1
