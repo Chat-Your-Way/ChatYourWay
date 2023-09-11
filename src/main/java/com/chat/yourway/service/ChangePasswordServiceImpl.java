@@ -49,7 +49,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
 
     emailTokenRepository.save(emailToken);
 
-    var emailMessageInfo = new EmailMessageInfoDto(contact.getUsername(),
+    var emailMessageInfo = new EmailMessageInfoDto(contact.getNickname(),
         contact.getEmail(),
         uuidToken,
             clientHost,

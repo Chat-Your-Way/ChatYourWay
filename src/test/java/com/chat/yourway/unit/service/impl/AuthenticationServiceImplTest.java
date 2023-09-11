@@ -53,11 +53,12 @@ public class AuthenticationServiceImplTest {
     var username = "username12345";
     var email = "user@gmail.com";
     var password = "User12346*";
-    var request = new ContactRequestDto(username, email, password);
+    var avatarId = (byte) 1;
+    var request = new ContactRequestDto(username, email, avatarId, password);
     var contact =
         Contact.builder()
             .id(1)
-            .username(username)
+            .nickname(username)
             .email(email)
             .password(password)
             .isActive(true)
@@ -87,7 +88,8 @@ public class AuthenticationServiceImplTest {
     var username = "username12345";
     var email = "user@gmail.com";
     var password = "User12346*";
-    var request = new ContactRequestDto(username, email, password);
+    var avatarId = (byte) 1;
+    var request = new ContactRequestDto(username, email, avatarId, password);
 
     doThrow(ValueNotUniqException.class).when(contactService).create(any(ContactRequestDto.class));
 
@@ -113,7 +115,7 @@ public class AuthenticationServiceImplTest {
     var contact =
         Contact.builder()
             .id(1)
-            .username("username")
+            .nickname("username")
             .email(email)
             .password(password)
             .isActive(true)

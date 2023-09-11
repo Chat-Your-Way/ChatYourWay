@@ -14,26 +14,29 @@ import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.TokenNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@ApiResponse(responseCode = "ErrorCode", description = "Error response",
-    content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class),
-        mediaType = MediaType.APPLICATION_JSON_VALUE))
+@ApiResponse(
+    responseCode = "ErrorCode",
+    description = "Error response",
+    content =
+        @Content(
+            schema = @Schema(implementation = ApiErrorResponseDto.class),
+            mediaType = MediaType.APPLICATION_JSON_VALUE))
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -89,16 +92,18 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @Override
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
-                                                                HttpHeaders headers,
-                                                                HttpStatusCode status,
-                                                                WebRequest request) {
-    Map<String, String> errors = new HashMap<>();
-    e.getFieldErrors()
-            .forEach(error -> {
-              int size = error.getField().split("\\.").length;
-              errors.put(error.getField().split("\\.")[size-1], error.getDefaultMessage());
-            } );
-    return new ResponseEntity<>(errors, status);
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException e,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
+
+    Map<String, List<String>> errorResponse = new HashMap<>();
+    e.getBindingResult().getFieldErrors()
+            .forEach(fieldError -> errorResponse
+                    .computeIfAbsent(fieldError.getField(), key -> new ArrayList<>())
+                    .add(fieldError.getDefaultMessage()));
+
+    return new ResponseEntity<>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
   }
 }

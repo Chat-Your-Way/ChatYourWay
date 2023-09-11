@@ -57,7 +57,8 @@ public class ChangePasswordServiceImplTestValidation {
     var contact =
         Contact.builder()
             .id(1)
-            .username("username12353")
+            .nickname("username12353")
+            .avatarId((byte) 1)
             .email("user@gmail.com")
             .password(oldPassword)
             .isActive(true)
@@ -85,7 +86,8 @@ public class ChangePasswordServiceImplTestValidation {
     var contact =
         Contact.builder()
             .id(1)
-            .username("username12353")
+            .nickname("username12353")
+            .avatarId((byte) 1)
             .email("user@gmail.com")
             .password("encodedPassword")
             .isActive(true)
@@ -120,7 +122,8 @@ public class ChangePasswordServiceImplTestValidation {
     var contact =
         Contact.builder()
             .id(1)
-            .username(username)
+            .nickname(username)
+            .avatarId((byte) 1)
             .email(email)
             .password("123456")
             .isActive(true)
@@ -178,7 +181,8 @@ public class ChangePasswordServiceImplTestValidation {
     var contact =
         Contact.builder()
             .id(1)
-            .username("username")
+            .nickname("username")
+            .avatarId((byte) 1)
             .email("email")
             .password("123456")
             .isActive(true)

@@ -72,10 +72,11 @@ public class AuthenticationServiceImplTest {
   @DatabaseTearDown(value = "/dataset/contacts.xml", type = DatabaseOperation.DELETE)
   public void shouldRegisterNewUser_whenUserPassedCorrectData() {
     // Given
-    var username = "new_username12345";
+    var nickname = "new_username12345";
     var email = "new_user@gmail.com";
     var password = "User12346*";
-    var request = new ContactRequestDto(username, email, password);
+    var avatarId = (byte) 1;
+    var request = new ContactRequestDto(nickname, email, avatarId, password);
 
     doNothing().when(activateAccountService).sendVerifyEmail(any(Contact.class), any(String.class));
     doNothing().when(tokenService).saveToken(any(Token.class));
@@ -101,9 +102,10 @@ public class AuthenticationServiceImplTest {
   @DatabaseTearDown(value = "/dataset/contacts.xml", type = DatabaseOperation.DELETE)
   public void shouldThrowValueNotUniqException_whenUserPassedAlreadyUsedData() {
     // Given
-    var username = "username12345";
+    var nickname = "nickname12345";
     var password = "User12346*";
-    var request = new ContactRequestDto(username, EMAIL, password);
+    var avatarId = (byte) 1;
+    var request = new ContactRequestDto(nickname, EMAIL, avatarId, password);
 
     // When
     assertThrows(ValueNotUniqException.class, () -> authenticationService.register(request, PATH));

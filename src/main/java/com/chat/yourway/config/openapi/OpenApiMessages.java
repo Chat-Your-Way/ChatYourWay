@@ -18,5 +18,6 @@ public class OpenApiMessages {
   public static final String INVALID_OLD_PASSWORD= "Old password is not correct";
   public static final String SUCCESSFULLY_SEND_REQUEST_RESTORE_PASSWORD = "Contact successfully sent request to restored password";
   public static final String SUCCESSFULLY_RESTORED_PASSWORD = "Contact successfully restored password";
+  public static final String SUCCESSFULLY_UPDATED_CONTACT_PROFILE = "Contact profile successfully updated";
 
 }

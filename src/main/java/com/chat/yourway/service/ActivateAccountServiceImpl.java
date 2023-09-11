@@ -41,7 +41,7 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
     String uuid = generateUUID();
     saveEmailToken(contact, uuid);
 
-    var emailMessageInfoDto = new EmailMessageInfoDto(contact.getUsername(), contact.getEmail(),
+    var emailMessageInfoDto = new EmailMessageInfoDto(contact.getNickname(), contact.getEmail(),
         uuid, clientHost, ACTIVATE);
     var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfoDto);
 

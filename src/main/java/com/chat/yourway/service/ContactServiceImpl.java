@@ -1,6 +1,7 @@
 package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.ContactRequestDto;
+import com.chat.yourway.dto.request.EditContactProfileRequestDto;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.ValueNotUniqException;
@@ -10,6 +11,7 @@ import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.service.interfaces.ContactService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,13 +33,14 @@ public class ContactServiceImpl implements ContactService {
           String.format("Email %s already in use", contactRequestDto.getEmail()));
     }
 
-    if (contactRepository.existsByUsernameIgnoreCase(contactRequestDto.getUsername())) {
+    if (contactRepository.existsByNicknameIgnoreCase(contactRequestDto.getNickname())) {
       throw new ValueNotUniqException(
-          String.format("Username %s already in use", contactRequestDto.getUsername()));
+          String.format("Nickname %s already in use", contactRequestDto.getNickname()));
     }
     return contactRepository.save(
         Contact.builder()
-            .username(contactRequestDto.getUsername())
+            .nickname(contactRequestDto.getNickname())
+            .avatarId(contactRequestDto.getAvatarId())
             .email(contactRequestDto.getEmail())
             .password(passwordEncoder.encode(contactRequestDto.getPassword()))
             .isActive(false)
@@ -65,5 +68,24 @@ public class ContactServiceImpl implements ContactService {
     if (!passwordEncoder.matches(password, encodedPassword)) {
       throw new PasswordsAreNotEqualException();
     }
+  }
+
+  @Transactional
+  @Override
+  public void updateContactProfile(
+      EditContactProfileRequestDto editContactProfileRequestDto, UserDetails userDetails) {
+    log.trace("Started updating contact profile: {}", editContactProfileRequestDto);
+    String email = userDetails.getUsername();
+    Contact contact =
+        contactRepository
+            .findByEmailIgnoreCase(email)
+            .orElseThrow(
+                () -> new ContactNotFoundException(String.format("Email %s wasn't found", email)));
+
+    contact.setNickname(editContactProfileRequestDto.getNickname());
+    contact.setAvatarId(editContactProfileRequestDto.getAvatarId());
+
+    contact = contactRepository.save(contact);
+    log.trace("Updated contact: {}", contact);
   }
 }
