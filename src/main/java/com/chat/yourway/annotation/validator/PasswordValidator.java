@@ -1,12 +1,8 @@
 package com.chat.yourway.annotation.validator;
 
 import com.chat.yourway.annotation.PasswordValidation;
-import com.chat.yourway.dto.request.ContactRequestDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import org.springframework.lang.NonNull;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 
 import java.util.regex.Pattern;
 
