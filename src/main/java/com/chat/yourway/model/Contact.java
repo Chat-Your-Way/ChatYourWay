@@ -11,11 +11,8 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.Collection;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @Setter
 @Entity
+@ToString
 @Table(schema = "chat")
 public class Contact implements UserDetails {
 
@@ -33,8 +31,10 @@ public class Contact implements UserDetails {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "contact_seq_gen")
   @SequenceGenerator(name = "contact_seq_gen", sequenceName = "chat.contact_id_seq", allocationSize = 1)
   private Integer id;
-  @Column(name = "username", nullable = false, unique = true)
-  private String username;
+  @Column(name = "nickname", nullable = false, unique = true)
+  private String nickname;
+  @Column(name = "avatar_id", nullable = false)
+  private Byte avatarId;
   @Column(name = "email", nullable = false, unique = true)
   private String email;
   @Column(name = "password", nullable = false, length = 2048)

@@ -1,9 +1,11 @@
 package com.chat.yourway.service.interfaces;
 
 import com.chat.yourway.dto.request.ContactRequestDto;
+import com.chat.yourway.dto.request.EditContactProfileRequestDto;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface ContactService {
 
@@ -40,4 +42,11 @@ public interface ContactService {
    * @param encodedPassword Encoded password of contact
    */
   void verifyPassword(String password, String encodedPassword);
+
+  /**
+   * Edit contact profile (nickname and avatarId)
+   *
+   * @param editContactProfileRequestDto Request object for changing data
+   * */
+  void updateContactProfile(EditContactProfileRequestDto editContactProfileRequestDto, UserDetails userDetails);
 }
