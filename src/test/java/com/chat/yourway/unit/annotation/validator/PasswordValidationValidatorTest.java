@@ -35,7 +35,7 @@ class PasswordValidationValidatorTest {
   @Test
   public void shouldPassValidator_whenUserInputCorrectPassword() {
     // Given
-    var password = "P!ssw0rd";
+    var password = "P-ssw0rd";
 
     // When
     var isValid = passwordValidator.isValid(password, context);

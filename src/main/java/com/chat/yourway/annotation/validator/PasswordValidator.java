@@ -13,13 +13,15 @@ import java.util.regex.Pattern;
 public class PasswordValidator implements ConstraintValidator<PasswordValidation, String> {
   private static final int MIN_LENGTH = 4;
   private static final int MAX_LENGTH = 12;
-  public static final Pattern PASSWORD_SPECIAL_SYMBOLS_PATTERN =
-      Pattern.compile(".*[.,\\\\-_+&!;:'#*?].*");
-  public static final Pattern PASSWORD_UPPER_CASE_PATTERN = Pattern.compile(".*[A-Z].*");
-  public static final Pattern PASSWORD_DIGIT_PATTERN = Pattern.compile(".*\\d.*");
+  private static final Pattern PASSWORD_SPECIAL_SYMBOLS_PATTERN =
+      Pattern.compile(".*[.,\\-_+&!;:'#*?].*");
+  private static final Pattern PASSWORD_UPPER_CASE_PATTERN = Pattern.compile(".*[A-Z].*");
+  private static final Pattern PASSWORD_DIGIT_PATTERN = Pattern.compile(".*\\d.*");
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
+    context.disableDefaultConstraintViolation();
+
     if (value.isBlank()) {
       context
               .buildConstraintViolationWithTemplate("The password should not be blank")

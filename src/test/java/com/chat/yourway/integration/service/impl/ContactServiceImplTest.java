@@ -66,7 +66,7 @@ public class ContactServiceImplTest {
         // When
         contactService.updateContactProfile(request, userDetails);
         var updatedContact = contactRepository.findByEmailIgnoreCase(email).get();
-    System.out.println(updatedContact.toString());
+
         // Then
         assertAll(
                 () -> assertThat(updatedContact)

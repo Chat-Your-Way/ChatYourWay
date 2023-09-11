@@ -14,6 +14,8 @@ public class EmailValidator implements ConstraintValidator<EmailValidation, Stri
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
+    context.disableDefaultConstraintViolation();
+
     if (value.isBlank()) {
       context
               .buildConstraintViolationWithTemplate("The email should not be blank")
