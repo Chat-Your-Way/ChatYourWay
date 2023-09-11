@@ -23,7 +23,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @Setter
 @Entity
-@ToString
 @Table(schema = "chat")
 public class Contact implements UserDetails {
 
