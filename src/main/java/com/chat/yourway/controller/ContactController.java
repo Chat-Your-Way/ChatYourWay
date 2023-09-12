@@ -4,6 +4,7 @@ import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
 import com.chat.yourway.dto.response.ApiErrorResponseDto;
 import com.chat.yourway.service.interfaces.ContactService;
+import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +27,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 public class ContactController {
     private final ContactService contactService;
+    private final TopicSubscriberService topicSubscriberService;
 
     @Operation(summary = "Registration a new contact",
             responses = {
@@ -41,4 +44,17 @@ public class ContactController {
                                     @AuthenticationPrincipal UserDetails userDetails) {
         contactService.updateContactProfile(editContactProfileRequestDto, userDetails);
     }
+
+    @PostMapping(path = "/subscribe/{topicId}")
+    public void subscribeToTopic(@PathVariable Integer topicId, Principal principal) {
+        String email = principal.getName();
+        topicSubscriberService.subscribeToTopic(email, topicId);
+    }
+
+    @PostMapping(path = "/unsubscribe/{topicId}")
+    public void unsubscribeFromTopic(@PathVariable Integer topicId, Principal principal){
+        String email = principal.getName();
+        topicSubscriberService.unsubscribeFromTopic(email, topicId);
+    }
+
 }
