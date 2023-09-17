@@ -19,5 +19,14 @@ public class OpenApiMessages {
   public static final String SUCCESSFULLY_SEND_REQUEST_RESTORE_PASSWORD = "Contact successfully sent request to restored password";
   public static final String SUCCESSFULLY_RESTORED_PASSWORD = "Contact successfully restored password";
   public static final String SUCCESSFULLY_UPDATED_CONTACT_PROFILE = "Contact profile successfully updated";
+  public static final String SUCCESSFULLY_SUBSCRIBED = "Contact successfully subscribed to the topic";
+  public static final String TOPIC_NOT_FOUND = "Topic wasn't found in repository";
+  public static final String ALREADY_SUBSCRIBED = "Contact already subscribed to the topic";
+  public static final String SUCCESSFULLY_UNSUBSCRIBED = "Contact successfully unsubscribed from the topic";
+  public static final String CONTACT_WASNT_SUBSCRIBED = "Contact wasn't subscribed to the topic";
+  public static final String SUCCESSFULLY_CREATED_TOPIC = "Topic successfully created";
+  public static final String SUCCESSFULLY_FOUND_TOPIC = "Topic successfully found";
+  public static final String SUCCESSFULLY_DELETE_TOPIC = "Topic successfully deleted";
+  public static final String TOPIC_NOT_ACCESS = "Topic operation not access";
 
 }

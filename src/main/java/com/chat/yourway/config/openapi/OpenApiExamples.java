@@ -6,21 +6,29 @@ import lombok.NoArgsConstructor;
 public class OpenApiExamples {
 
   public static final String NEW_CONTACT = """
-      {  "nickname": "newNickname",
-      "email": "newEmail",
-      "avatarId" 1,
-      "password": "newPassword"}""";
+      {
+      "nickname": "newNickname",
+      "email": "newemail@gmail.com",
+      "avatarId": 1,
+      "password": "Password-123"
+      }""";
 
   public static final String LOGIN = """
-      {"email": "user@gmail.com",
-      "password": "user"}""";
+      {
+      "email": "newemail@gmail.com",
+      "password": "Password-123"
+      }""";
 
   public static final String CHANGE_PASSWORD = """
-      {"oldPassword": "12345",
-      "newPassword": "qwerty"}""";
+      {
+      "oldPassword": "Password-123",
+      "newPassword": "Password-321"
+      }""";
 
   public static final String EDIT_CONTACT_PROFILE = """
-      {  "nickname": "editNickname",
-      "avatarId" 1}""";
+      {
+      "nickname": "editNickname",
+      "avatarId": 2
+      }""";
 
 }
