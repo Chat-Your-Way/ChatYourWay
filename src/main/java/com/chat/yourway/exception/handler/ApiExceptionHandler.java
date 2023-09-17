@@ -14,6 +14,7 @@ import com.chat.yourway.exception.InvalidCredentialsException;
 import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.TokenNotFoundException;
+import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
@@ -112,6 +113,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(TopicNotFoundException.class)
   public ApiErrorResponseDto handleTopicNotFoundException(TopicNotFoundException exception) {
     return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
+  }
+
+  @ResponseStatus(CONFLICT)
+  @ExceptionHandler(TopicAccessException.class)
+  public ApiErrorResponseDto handleTopicAccessException(TopicAccessException exception) {
+    return new ApiErrorResponseDto(CONFLICT, exception.getMessage());
   }
 
   @Override

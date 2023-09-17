@@ -1,15 +1,11 @@
 package com.chat.yourway.service;
 
+import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
-import com.chat.yourway.model.Contact;
-import com.chat.yourway.model.Topic;
-import com.chat.yourway.model.TopicSubscriber;
+import com.chat.yourway.mapper.ContactMapper;
 import com.chat.yourway.repository.TopicSubscriberRepository;
-import com.chat.yourway.service.interfaces.ContactService;
-import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,54 +18,52 @@ import org.springframework.transaction.annotation.Transactional;
 public class TopicSubscriberServiceImpl implements TopicSubscriberService {
 
   private final TopicSubscriberRepository topicSubscriberRepository;
-  private final ContactService contactService;
-  private final TopicService topicService;
+  private final ContactMapper contactMapper;
 
   @Transactional
   @Override
-  public void subscribeToTopic(String email, Integer topicId) {
+  public void subscribeToTopicById(String email, Integer id) {
+    log.trace("Started subscribeToTopic, contact email: {}, id: {}", email, id);
 
-    if (hesContactSubscribedToTopic(email, topicId)) {
+    if (hasContactSubscribedToTopic(email, id)) {
+      log.warn("Contact email: {} already subscribed to the topic id: {}", email, id);
       throw new ContactAlreadySubscribedToTopicException(
-          String.format("Contact email: %s already subscribed to the topic id: %s", email,
-              topicId));
+          String.format("Contact email: %s already subscribed to the topic id: %s", email, id));
     }
 
-    Contact contact = contactService.findByEmail(email);
-    Topic topic = topicService.findById(topicId);
+    topicSubscriberRepository.subscribe(email, id);
 
-    topicSubscriberRepository.save(TopicSubscriber.builder()
-        .contact(contact)
-        .topic(topic)
-        .subscribeAt(LocalDateTime.now())
-        .unsubscribeAt(null)
-        .build());
+    log.trace("Contact email: {} was subscribed to the Topic id: {}", email, id);
   }
 
   @Transactional
   @Override
-  public void unsubscribeFromTopic(String email, Integer topicId) {
+  public void unsubscribeFromTopicById(String email, Integer id) {
+    log.trace("Started unsubscribeFromTopic, contact email: {}, id: {}", email, id);
 
-    var subscriber = findTopicSubscriberHistory(email, topicId).stream()
-        .filter(sub -> sub.getUnsubscribeAt() == null)
-        .findFirst()
-        .orElseThrow(() -> new TopicSubscriberNotFoundException(
-            String.format("Contact email: %s wasn't subscribed to the topic id: %s", email,
-                topicId)));
-    subscriber.setUnsubscribeAt(LocalDateTime.now());
+    if (!hasContactSubscribedToTopic(email, id)) {
+      log.warn("Contact email: {} wasn't subscribed to the topic id: {}", email, id);
+      throw new TopicSubscriberNotFoundException(
+          String.format("Contact email: %s wasn't subscribed to the topic id: %s", email, id));
+    }
 
-    topicSubscriberRepository.save(subscriber);
+    topicSubscriberRepository.unsubscribe(email, id);
+    log.trace("Contact email: {} was unsubscribed from the Topic id: {}", email, id);
   }
 
   @Override
-  public List<TopicSubscriber> findTopicSubscriberHistory(String email, Integer topicId) {
-    return topicSubscriberRepository.findAllByContactEmailAndTopicId(email, topicId);
+  public List<ContactResponseDto> findAllSubscribersByTopicId(Integer id) {
+    log.trace("Started findAllSubscribersByTopicId id: {}", id);
+    return topicSubscriberRepository.findAllActiveSubscribersByTopicId(id).stream()
+        .map(contactMapper::toResponseDto)
+        .toList();
   }
 
   @Override
-  public boolean hesContactSubscribedToTopic(String email, Integer topicId) {
-    return findTopicSubscriberHistory(email, topicId).stream()
-        .anyMatch(sub -> sub.getUnsubscribeAt() == null);
+  public boolean hasContactSubscribedToTopic(String email, Integer topicId) {
+    log.trace("Checking if contact {} has subscribed to topic {}", email, topicId);
+    return topicSubscriberRepository
+        .existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(email, topicId);
   }
 
 }

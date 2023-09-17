@@ -1,8 +1,8 @@
 package com.chat.yourway.service.interfaces;
 
+import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
-import com.chat.yourway.model.TopicSubscriber;
 import java.util.List;
 
 public interface TopicSubscriberService {
@@ -15,7 +15,7 @@ public interface TopicSubscriberService {
    * @throws ContactAlreadySubscribedToTopicException if the contact is already subscribed to the
    *                                                  topic.
    */
-  void subscribeToTopic(String email, Integer topicId);
+  void subscribeToTopicById(String email, Integer topicId);
 
   /**
    * Unsubscribes a contact from a topic with the specified email and topic ID.
@@ -24,17 +24,15 @@ public interface TopicSubscriberService {
    * @param topicId Topic ID.
    * @throws TopicSubscriberNotFoundException if the contact was not subscribed to the topic.
    */
-  void unsubscribeFromTopic(String email, Integer topicId);
+  void unsubscribeFromTopicById(String email, Integer topicId);
 
   /**
-   * Finds and returns the history of a contact's subscriptions to a one topic by email and topic
-   * ID.
+   * Retrieves a list of contacts who are subscribers to the topic by ID.
    *
-   * @param email   Contact's email.
-   * @param topicId Topic ID.
-   * @return List of TopicSubscriber records representing the subscription history.
+   * @param id The ID of the topic.
+   * @return A list of contacts who are subscribers to the topic.
    */
-  List<TopicSubscriber> findTopicSubscriberHistory(String email, Integer topicId);
+  List<ContactResponseDto> findAllSubscribersByTopicId(Integer id);
 
   /**
    * Checks if a contact is subscribed to a topic with the specified email and topic ID.
@@ -43,6 +41,6 @@ public interface TopicSubscriberService {
    * @param topicId Topic ID.
    * @return true if the contact is subscribed to the topic.
    */
-  boolean hesContactSubscribedToTopic(String email, Integer topicId);
+  boolean hasContactSubscribedToTopic(String email, Integer topicId);
 
 }
