@@ -39,7 +39,7 @@ public class Topic {
   private String createdBy;
 
   @Column(name = "created_at", nullable = false)
-  private LocalDateTime createdAt = LocalDateTime.now();
+  private LocalDateTime createdAt;
 
   @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private Set<TopicSubscriber> topicSubscribers;

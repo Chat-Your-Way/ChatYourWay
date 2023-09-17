@@ -1,7 +1,9 @@
 package com.chat.yourway.service.interfaces;
 
+import com.chat.yourway.dto.response.TopicResponseDto;
+import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
-import com.chat.yourway.model.Topic;
+import java.util.List;
 
 public interface TopicService {
 
@@ -12,7 +14,7 @@ public interface TopicService {
    * @param email     The email of the creator.
    * @return Created topic.
    */
-  Topic create(String topicName, String email);
+  TopicResponseDto create(String topicName, String email);
 
   /**
    * Finds a topic by ID.
@@ -21,6 +23,22 @@ public interface TopicService {
    * @return The found topic if it exists.
    * @throws TopicNotFoundException If the topic with the specified ID does not exist.
    */
-  Topic findById(Integer id);
+  TopicResponseDto findById(Integer id);
+
+  /**
+   * Retrieves a list of all topics.
+   *
+   * @return A list of topics.
+   */
+  List<TopicResponseDto> findAll();
+
+  /**
+   * Deletes a topic by ID if the specified email is the creator of the topic.
+   *
+   * @param id    The ID of the topic to delete.
+   * @param email The email of the user.
+   * @throws TopicAccessException if the email is not the creator of the topic.
+   */
+  void deleteByCreator(Integer id, String email);
 
 }
