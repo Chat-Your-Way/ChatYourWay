@@ -76,7 +76,7 @@ public class TopicServiceImpl implements TopicService {
 
   private boolean isCreator(Integer id, String email) {
     log.trace("Checking if contact email: {} is topic creator, topicId: {}", email, id);
-    return findById(id).getCreatedBy().equals(email);
+    return topicRepository.existsByIdAndCreatedBy(id, email);
   }
 
 }
