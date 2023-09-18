@@ -81,8 +81,6 @@ public class TopicController {
   @Operation(summary = "Delete by creator and topic id",
       responses = {
           @ApiResponse(responseCode = "200", description = SUCCESSFULLY_DELETE_TOPIC),
-          @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "409", description = TOPIC_NOT_ACCESS,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
@@ -97,8 +95,6 @@ public class TopicController {
   @Operation(summary = "Subscribe to the topic",
       responses = {
           @ApiResponse(responseCode = "200", description = SUCCESSFULLY_SUBSCRIBED),
-          @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "409", description = ALREADY_SUBSCRIBED,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
