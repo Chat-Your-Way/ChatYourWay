@@ -12,6 +12,8 @@ import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_ACCESS;
 import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.chat.yourway.config.openapi.OpenApiExamples;
+import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
@@ -19,6 +21,7 @@ import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,11 +51,15 @@ public class TopicController {
           @ApiResponse(responseCode = "200", description = SUCCESSFULLY_CREATED_TOPIC),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-      })
+      },
+      requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+          content = @Content(schema = @Schema(implementation = TopicRequestDto.class),
+              examples = @ExampleObject(value = OpenApiExamples.NEW_TOPIC,
+                  description = "New Topic"))))
   @PostMapping(path = "/create", produces = APPLICATION_JSON_VALUE)
-  public TopicResponseDto create(String topicName, Principal principal) {
+  public TopicResponseDto create(@RequestBody TopicRequestDto topicRequestDto, Principal principal) {
     String email = principal.getName();
-    return topicService.create(topicName, email);
+    return topicService.create(topicRequestDto, email);
   }
 
   @Operation(summary = "Find topic by id",
@@ -73,7 +81,7 @@ public class TopicController {
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
-  @GetMapping(produces = APPLICATION_JSON_VALUE)
+  @GetMapping(path = "/all", produces = APPLICATION_JSON_VALUE)
   public List<TopicResponseDto> findAll() {
     return topicService.findAll();
   }
@@ -129,6 +137,17 @@ public class TopicController {
   @GetMapping(path = "/subscribers/{topicId}", produces = APPLICATION_JSON_VALUE)
   public List<ContactResponseDto> findAllSubscribersByTopicId(@PathVariable Integer topicId) {
     return topicSubscriberService.findAllSubscribersByTopicId(topicId);
+  }
+
+  @Operation(summary = "Find all topics by teg",
+      responses = {
+          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
+          @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
+              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+      })
+  @GetMapping(path = "/all/{tagId}", produces = APPLICATION_JSON_VALUE)
+  public List<TopicResponseDto> findAllByTegId(@PathVariable Integer tagId) {
+    return topicService.findTopicsByTag(tagId);
   }
 
 }

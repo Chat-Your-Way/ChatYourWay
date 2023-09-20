@@ -10,16 +10,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.mapper.TopicMapperImpl;
 import com.chat.yourway.model.Topic;
+import com.chat.yourway.repository.TagRepository;
 import com.chat.yourway.repository.TopicRepository;
 import com.chat.yourway.service.TopicServiceImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +42,8 @@ public class TopicServiceImplTest {
 
   @Mock
   TopicRepository topicRepository;
+  @Mock
+  TagRepository tagRepository;
 
   @InjectMocks
   TopicServiceImpl topicService;
@@ -57,12 +62,13 @@ public class TopicServiceImplTest {
   public void create_shouldCreateNewTopic_whenUserPassesCorrectData() {
     // Given
     var topic = getTopics().get(0);
+    TopicRequestDto topicRequestDto = new TopicRequestDto(topic.getTopicName(), new HashSet<>());
 
     when(topicRepository.save(any(Topic.class))).thenReturn(topic);
+    when(tagRepository.saveAll(any())).thenReturn(new ArrayList<>());
 
     // When
-    TopicResponseDto topicResponseDto = topicService.create(topic.getTopicName(),
-        topic.getCreatedBy());
+    TopicResponseDto topicResponseDto = topicService.create(topicRequestDto, topic.getCreatedBy());
 
     // Then
     assertNotNull(topicResponseDto);
@@ -175,6 +181,7 @@ public class TopicServiceImplTest {
         .topicName("Topic")
         .createdBy("test-topic@gmail.com")
         .createdAt(LocalDateTime.now())
+        .tags(new HashSet<>())
         .build();
 
     Topic topic2 = Topic.builder()
@@ -182,6 +189,7 @@ public class TopicServiceImplTest {
         .topicName("Topic2")
         .createdBy("test-topic2@gmail.com")
         .createdAt(LocalDateTime.now())
+        .tags(new HashSet<>())
         .build();
 
     return Arrays.asList(topic1, topic2);

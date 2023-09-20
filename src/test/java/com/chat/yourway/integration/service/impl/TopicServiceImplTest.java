@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
@@ -18,9 +19,11 @@ import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Role;
+import com.chat.yourway.model.Tag;
 import com.chat.yourway.model.Topic;
 import com.chat.yourway.model.TopicSubscriber;
 import com.chat.yourway.repository.ContactRepository;
+import com.chat.yourway.repository.TagRepository;
 import com.chat.yourway.repository.TopicRepository;
 import com.chat.yourway.repository.TopicSubscriberRepository;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
@@ -29,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +57,8 @@ public class TopicServiceImplTest {
   @Autowired
   private TopicSubscriberService topicSubscriberService;
   @Autowired
+  private TagRepository tagRepository;
+  @Autowired
   private ObjectMapper objectMapper;
 
   @Autowired
@@ -66,6 +72,7 @@ public class TopicServiceImplTest {
     topicRepository.deleteAll();
     topicSubscriberRepository.deleteAll();
     contactRepository.deleteAll();
+    tagRepository.deleteAll();
   }
 
   //-----------------------------------
@@ -77,9 +84,12 @@ public class TopicServiceImplTest {
   public void shouldCreateNewTopic() throws Exception {
     // Given
     Topic newTopic = getTopics().get(1);
+    TopicRequestDto topicRequestDto = new TopicRequestDto();
+    topicRequestDto.setTopicName(newTopic.getTopicName());
+    topicRequestDto.setTags(new HashSet<>());
 
     mockMvc.perform(post(URI + "/create")
-            .param("topicName", newTopic.getTopicName())
+            .content(objectMapper.writeValueAsString(topicRequestDto))
             .principal(new TestingAuthenticationToken(newTopic.getCreatedBy(), null))
             .contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -218,7 +228,7 @@ public class TopicServiceImplTest {
     // Given
     topicRepository.deleteAll();
 
-    mockMvc.perform(get(URI))
+    mockMvc.perform(get(URI + "/all"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(content().json("[]"));
@@ -230,7 +240,7 @@ public class TopicServiceImplTest {
     // Given
     List<Topic> savedTopics = topicRepository.saveAll(getTopics());
 
-    mockMvc.perform(get(URI).contentType(APPLICATION_JSON))
+    mockMvc.perform(get(URI + "/all").contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(content().json(objectMapper.writeValueAsString(savedTopics)));
@@ -253,7 +263,33 @@ public class TopicServiceImplTest {
             .contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
-        .andExpect(content().json(objectMapper.writeValueAsString(savedContacts)));
+        .andExpect(jsonPath("$[0].id").isNumber())
+        .andExpect(jsonPath("$[0].nickname").value(savedContacts.get(0).getNickname()))
+        .andExpect(jsonPath("$[0].email").value(savedContacts.get(0).getEmail()))
+        .andExpect(jsonPath("$[0].avatarId").isNumber())
+        .andExpect(jsonPath("$[1].id").isNumber())
+        .andExpect(jsonPath("$[1].nickname").value(savedContacts.get(1).getNickname()))
+        .andExpect(jsonPath("$[1].email").value(savedContacts.get(1).getEmail()))
+        .andExpect(jsonPath("$[1].avatarId").isNumber());
+  }
+
+  @Test
+  @DisplayName("should return list of topics with expected size when user chose by tag ID")
+  public void shouldReturnListOfTopicsWithExpectedSize_WhenUserChoseByTagId() throws Exception {
+    // Given
+    Tag tag = tagRepository.save(new Tag("tag1"));
+    Set<Tag> tags = new HashSet<>();
+        tags.add(tag);
+    Topic topic = getTopics().get(0);
+    topic.setTags(tags);
+    topicRepository.save(topic);
+
+
+    mockMvc.perform(get(URI + "/all/{tagId}", tag.getId())
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.length()").value(1));
   }
 
   //-----------------------------------
@@ -300,6 +336,7 @@ public class TopicServiceImplTest {
         .topicName("Topic1")
         .createdBy("user1@gmail.com")
         .createdAt(LocalDateTime.parse("2023-09-18T22:38:29.65851"))
+        .tags(new HashSet<>())
         .topicSubscribers(new HashSet<>())
         .build();
 
@@ -307,6 +344,7 @@ public class TopicServiceImplTest {
         .topicName("Topic2")
         .createdBy("user2@gmail.com")
         .createdAt(LocalDateTime.parse("2023-09-18T23:30:29.65851"))
+        .tags(new HashSet<>())
         .topicSubscribers(new HashSet<>())
         .build();
 

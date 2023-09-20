@@ -1,6 +1,5 @@
 package com.chat.yourway.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,8 +11,11 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.Collection;
 import java.util.List;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,7 +39,6 @@ public class Contact implements UserDetails {
   private Byte avatarId;
   @Column(name = "email", nullable = false, unique = true)
   private String email;
-  @JsonIgnore
   @Column(name = "password", nullable = false, length = 2048)
   private String password;
   @Column(name = "is_active", nullable = false)
@@ -45,48 +46,40 @@ public class Contact implements UserDetails {
   @Column(name = "is_private", nullable = false)
   private Boolean isPrivate;
 
-  @JsonIgnore
   @Enumerated(EnumType.STRING)
   @Column(name = "role", nullable = false, length = 32)
   private Role role;
 
-  @JsonIgnore
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(new SimpleGrantedAuthority(role.name()));
   }
 
-  @JsonIgnore
   @Override
   public String getUsername() {
     return email;
   }
 
-  @JsonIgnore
   @Override
   public String getPassword() {
     return password;
   }
 
-  @JsonIgnore
   @Override
   public boolean isAccountNonExpired() {
     return true;
   }
 
-  @JsonIgnore
   @Override
   public boolean isAccountNonLocked() {
     return true;
   }
 
-  @JsonIgnore
   @Override
   public boolean isCredentialsNonExpired() {
     return true;
   }
 
-  @JsonIgnore
   @Override
   public boolean isEnabled() {
     return true;

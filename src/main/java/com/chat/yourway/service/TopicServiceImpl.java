@@ -1,14 +1,20 @@
 package com.chat.yourway.service;
 
+import static java.util.stream.Collectors.*;
+
+import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.mapper.TopicMapper;
+import com.chat.yourway.model.Tag;
 import com.chat.yourway.model.Topic;
+import com.chat.yourway.repository.TagRepository;
 import com.chat.yourway.repository.TopicRepository;
 import com.chat.yourway.service.interfaces.TopicService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,17 +26,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class TopicServiceImpl implements TopicService {
 
   private final TopicRepository topicRepository;
+  private final TagRepository tagRepository;
   private final TopicMapper topicMapper;
 
   @Transactional
   @Override
-  public TopicResponseDto create(String topicName, String email) {
+  public TopicResponseDto create(TopicRequestDto topicRequestDto, String email) {
+    String topicName = topicRequestDto.getTopicName();
     log.trace("Started create topic name: {} by contact email: {}", topicName, email);
+
+    Set<Tag> tags = addTags(topicRequestDto.getTags());
+    log.trace("Getting tags: {} for topic name: {}", tags, topicName);
 
     Topic topic = topicRepository.save(Topic.builder()
         .topicName(topicName)
         .createdBy(email)
         .createdAt(LocalDateTime.now())
+        .tags(tags)
         .build());
 
     log.trace("New Topic name: {} was created", topicName);
@@ -62,6 +74,16 @@ public class TopicServiceImpl implements TopicService {
   }
 
   @Override
+  public List<TopicResponseDto> findTopicsByTag(Integer tagId) {
+    log.trace("Started findTopicsByTag");
+
+    List<Topic> topics = topicRepository.findAllByTagId(tagId);
+
+    log.trace("All Topics by tag was found");
+    return topicMapper.toListResponseDto(topics);
+  }
+
+  @Override
   public void deleteByCreator(Integer id, String email) {
     log.trace("Started deleteByCreator emil: {} and topicId: {}", email, id);
 
@@ -77,6 +99,33 @@ public class TopicServiceImpl implements TopicService {
   private boolean isCreator(Integer id, String email) {
     log.trace("Checking if contact email: {} is topic creator, topicId: {}", email, id);
     return topicRepository.existsByIdAndCreatedBy(id, email);
+  }
+
+  private Set<Tag> addTags(Set<String> tags) {
+    log.trace("Started addTags tags: {}", tags);
+
+    Set<String> tagNames = tags.stream()
+        .map(String::toLowerCase)
+        .collect(toSet());
+
+    Set<Tag> existingTags = tagRepository.findAllByNameIn(tags);
+    log.trace("Found existing tags: {}", existingTags);
+
+    Set<String> existingTagNames = existingTags.stream()
+        .map(Tag::getName)
+        .collect(toSet());
+
+    Set<Tag> uniqueTags = tagNames.stream()
+        .filter(tag -> !existingTagNames.contains(tag))
+        .map(Tag::new)
+        .collect(toSet());
+    log.trace("Creating new uniq tags: {}", uniqueTags);
+
+    List<Tag> savedTags = tagRepository.saveAll(uniqueTags);
+    log.trace("Saved new uniq tags: {}", savedTags);
+
+    existingTags.addAll(savedTags);
+    return existingTags;
   }
 
 }

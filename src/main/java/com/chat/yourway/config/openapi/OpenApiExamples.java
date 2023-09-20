@@ -31,4 +31,9 @@ public class OpenApiExamples {
       "avatarId": 2
       }""";
 
+  public static final String NEW_TOPIC = """
+      {
+      "topicName": "new chat topic",
+      "tags": ["#tag1", "#tag2"]
+      }""";
 }
