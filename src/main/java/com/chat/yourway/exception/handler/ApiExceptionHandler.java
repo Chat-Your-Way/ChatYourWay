@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.chat.yourway.dto.response.ApiErrorResponseDto;
+import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.EmailSendingException;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
@@ -13,6 +14,9 @@ import com.chat.yourway.exception.InvalidCredentialsException;
 import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.TokenNotFoundException;
+import com.chat.yourway.exception.TopicAccessException;
+import com.chat.yourway.exception.TopicNotFoundException;
+import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -34,9 +38,9 @@ import java.util.Map;
     responseCode = "ErrorCode",
     description = "Error response",
     content =
-        @Content(
-            schema = @Schema(implementation = ApiErrorResponseDto.class),
-            mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @Content(
+        schema = @Schema(implementation = ApiErrorResponseDto.class),
+        mediaType = MediaType.APPLICATION_JSON_VALUE))
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -91,6 +95,32 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
   }
 
+  @ResponseStatus(NOT_FOUND)
+  @ExceptionHandler(TopicSubscriberNotFoundException.class)
+  public ApiErrorResponseDto handleTopicSubscriberNotFoundException(
+      TopicSubscriberNotFoundException exception) {
+    return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
+  }
+
+  @ResponseStatus(CONFLICT)
+  @ExceptionHandler(ContactAlreadySubscribedToTopicException.class)
+  public ApiErrorResponseDto handleContactAlreadySubscribedToTopicException(
+      ContactAlreadySubscribedToTopicException exception) {
+    return new ApiErrorResponseDto(CONFLICT, exception.getMessage());
+  }
+
+  @ResponseStatus(NOT_FOUND)
+  @ExceptionHandler(TopicNotFoundException.class)
+  public ApiErrorResponseDto handleTopicNotFoundException(TopicNotFoundException exception) {
+    return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
+  }
+
+  @ResponseStatus(CONFLICT)
+  @ExceptionHandler(TopicAccessException.class)
+  public ApiErrorResponseDto handleTopicAccessException(TopicAccessException exception) {
+    return new ApiErrorResponseDto(CONFLICT, exception.getMessage());
+  }
+
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
       MethodArgumentNotValidException e,
@@ -100,9 +130,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     Map<String, List<String>> errorResponse = new HashMap<>();
     e.getBindingResult().getFieldErrors()
-            .forEach(fieldError -> errorResponse
-                    .computeIfAbsent(fieldError.getField(), key -> new ArrayList<>())
-                    .add(fieldError.getDefaultMessage()));
+        .forEach(fieldError -> errorResponse
+            .computeIfAbsent(fieldError.getField(), key -> new ArrayList<>())
+            .add(fieldError.getDefaultMessage()));
 
     return new ResponseEntity<>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
   }

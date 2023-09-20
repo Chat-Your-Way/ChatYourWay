@@ -1,10 +1,11 @@
-CREATE TABLE IF NOT EXISTS chat.tag
-(
-    id            SERIAL        CONSTRAINT tag_id_pkey PRIMARY KEY,
-    name      VARCHAR(100)  NOT NULL UNIQUE
-);
+CREATE SEQUENCE IF NOT EXISTS chat.tag_id_seq;
 
-create table if not exists chat.topic_tag(
+CREATE TABLE IF NOT EXISTS chat.tag(
+    id   INTEGER DEFAULT nextval('chat.tag_id_seq') CONSTRAINT tag_id_pkey PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE
+    );
+
+CREATE TABLE IF NOT EXISTS chat.topic_tag(
     topic_id            INTEGER        NOT NULL,
     tag_id            INTEGER        NOT NULL,
     CONSTRAINT topic_tag_id_pkey PRIMARY KEY (topic_id, tag_id),

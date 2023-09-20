@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ContactRepository extends JpaRepository<Contact, Integer> {
 
   Optional<Contact> findByEmailIgnoreCase(String email);
