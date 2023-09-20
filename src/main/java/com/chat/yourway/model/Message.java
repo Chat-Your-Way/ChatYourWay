@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -28,4 +30,11 @@ public class Message {
     @ManyToOne
     @JoinColumn(name = "topic_id", referencedColumnName = "id", nullable = false)
     private Topic topic;
+    @ManyToMany
+    @JoinTable(
+            name = "contact_message_report",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "contact_id")
+    )
+    private Set<Contact> contacts = new HashSet<>();
 }
