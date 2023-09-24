@@ -2,6 +2,7 @@ package com.chat.yourway.exception.handler;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -18,6 +19,7 @@ import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -82,6 +84,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     return new ApiErrorResponseDto(UNAUTHORIZED, exception.getMessage());
   }
 
+  @ResponseStatus(UNAUTHORIZED)
+  @ExceptionHandler(ExpiredJwtException.class)
+  public ApiErrorResponseDto handleExpiredJwtException(ExpiredJwtException exception) {
+    return new ApiErrorResponseDto(UNAUTHORIZED, exception.getMessage());
+  }
+
   @ResponseStatus(BAD_REQUEST)
   @ExceptionHandler(EmailSendingException.class)
   public ApiErrorResponseDto handleEmailSendingException(EmailSendingException exception) {
@@ -115,10 +123,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
   }
 
-  @ResponseStatus(CONFLICT)
+  @ResponseStatus(NOT_ACCEPTABLE)
   @ExceptionHandler(TopicAccessException.class)
   public ApiErrorResponseDto handleTopicAccessException(TopicAccessException exception) {
-    return new ApiErrorResponseDto(CONFLICT, exception.getMessage());
+    return new ApiErrorResponseDto(NOT_ACCEPTABLE, exception.getMessage());
   }
 
   @Override
