@@ -6,15 +6,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.chat.yourway.dto.request.TopicRequestDto;
+import com.chat.yourway.dto.response.TagResponseDto;
+import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
+import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
 import com.chat.yourway.model.Contact;
@@ -26,12 +30,14 @@ import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.repository.TagRepository;
 import com.chat.yourway.repository.TopicRepository;
 import com.chat.yourway.repository.TopicSubscriberRepository;
+import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,12 +48,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith({PostgresExtension.class, RedisExtension.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc(addFilters = false)
 public class TopicServiceImplTest {
 
+  @Autowired
+  private TopicService topicService;
   @Autowired
   private TopicRepository topicRepository;
   @Autowired
@@ -80,13 +89,13 @@ public class TopicServiceImplTest {
   //-----------------------------------
 
   @Test
-  @DisplayName("should create a new topic")
-  public void shouldCreateNewTopic() throws Exception {
+  @DisplayName("create should create a new topic")
+  public void create_shouldCreateNewTopic() throws Exception {
     // Given
     Topic newTopic = getTopics().get(1);
     TopicRequestDto topicRequestDto = new TopicRequestDto();
     topicRequestDto.setTopicName(newTopic.getTopicName());
-    topicRequestDto.setTags(new HashSet<>());
+    topicRequestDto.setTags(new HashSet<>(getTags()));
 
     mockMvc.perform(post(URI + "/create")
             .content(objectMapper.writeValueAsString(topicRequestDto))
@@ -98,7 +107,161 @@ public class TopicServiceImplTest {
         .andExpect(jsonPath("$.topicName").value(newTopic.getTopicName()))
         .andExpect(jsonPath("$.createdBy").value(newTopic.getCreatedBy()))
         .andExpect(jsonPath("$.createdAt").isNotEmpty())
+        .andExpect(jsonPath("$.tags").isNotEmpty())
         .andExpect(jsonPath("$.topicSubscribers").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("create should return ValueNotUniqException")
+  public void create_shouldReturnValueNotUniqException() throws Exception {
+    // Given
+    Topic existingTopic = topicRepository.save(getTopics().get(0));
+    String duplicateTopicName = existingTopic.getTopicName();
+
+    TopicRequestDto topicRequestDto = new TopicRequestDto();
+    topicRequestDto.setTopicName(duplicateTopicName);
+    topicRequestDto.setTags(new HashSet<>(getTags()));
+
+    mockMvc.perform(post(URI + "/create")
+            .content(objectMapper.writeValueAsString(topicRequestDto))
+            .principal(new TestingAuthenticationToken(existingTopic.getCreatedBy(), null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isConflict())
+        .andExpect(result ->
+            assertThat(result.getResolvedException()).isInstanceOf(ValueNotUniqException.class));
+  }
+
+  @Test
+  @DisplayName("create_should create topic with new tags successfully")
+  public void create_shouldCreateTopicWithNewTagsSuccessfully() throws Exception {
+    // Given
+    TopicRequestDto topicRequestDto = new TopicRequestDto();
+    topicRequestDto.setTopicName("Updated Topic");
+    topicRequestDto.setTags(new HashSet<>(getTags()));
+
+    mockMvc.perform(post(URI + "/create")
+            .content(objectMapper.writeValueAsString(topicRequestDto))
+            .principal(new TestingAuthenticationToken("user@gmail.com", null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.topicName").value(topicRequestDto.getTopicName()))
+        .andExpect(jsonPath("$.tags").isArray())
+        .andExpect(jsonPath("$.tags.size()").value(2));
+  }
+
+  @Test
+  @DisplayName("update should update topic successfully")
+  public void update_shouldUpdateTopicSuccessfully() throws Exception {
+    // Given
+    Topic savedTopic = topicRepository.save(getTopics().get(0));
+    Integer topicId = savedTopic.getId();
+    String updatedTopicName = "Updated Topic";
+    String userEmail = savedTopic.getCreatedBy();
+
+    TopicRequestDto updatedTopicRequestDto = new TopicRequestDto();
+    updatedTopicRequestDto.setTopicName(updatedTopicName);
+    updatedTopicRequestDto.setTags(new HashSet<>());
+
+    mockMvc.perform(put(URI + "/update/{id}", topicId)
+            .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").value(topicId))
+        .andExpect(jsonPath("$.topicName").value(updatedTopicName))
+        .andExpect(jsonPath("$.createdBy").value(userEmail))
+        .andExpect(jsonPath("$.createdAt").isNotEmpty())
+        .andExpect(jsonPath("$.tags").isEmpty())
+        .andExpect(jsonPath("$.topicSubscribers").isEmpty());
+
+    // Verify
+    Optional<Topic> updatedTopic = topicRepository.findById(topicId);
+    assertThat(updatedTopic).isPresent();
+    assertThat(updatedTopic.get().getTopicName()).isEqualTo(updatedTopicName);
+  }
+
+  @Test
+  @DisplayName("update should return TopicAccessException when unauthorized to update")
+  public void update_shouldReturnTopicAccessExceptionWhenUnauthorizedToUpdate() throws Exception {
+    // Given
+    Topic savedTopic = topicRepository.save(getTopics().get(0));
+    Integer topicId = savedTopic.getId();
+    String unauthorizedUserEmail = "unauthorizedUser@gmail.com";
+
+    TopicRequestDto updatedTopicRequestDto = new TopicRequestDto();
+    updatedTopicRequestDto.setTopicName("Updated Topic");
+    updatedTopicRequestDto.setTags(new HashSet<>());
+
+    mockMvc.perform(put(URI + "/update/{id}", topicId)
+            .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
+            .principal(new TestingAuthenticationToken(unauthorizedUserEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isNotAcceptable())
+        .andExpect(result ->
+            assertThat(result.getResolvedException()).isInstanceOf(TopicAccessException.class));
+  }
+
+  @Test
+  @DisplayName("update_should return TopicNotFoundException when topic does not exist")
+  public void update_shouldReturnTopicNotFoundExceptionWhenTopicDoesNotExist() throws Exception {
+    mockMvc.perform(get(URI + "/{id}", NOT_EXISTED_TOPIC_ID).contentType(APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
+            TopicNotFoundException.class));
+  }
+
+  @Test
+  @DisplayName("update_should return ValueNotUniqException when updating with duplicate topic name")
+  public void update_shouldReturnValueNotUniqExceptionWhenUpdatingWithDuplicateTopicName()
+      throws Exception {
+    // Given
+    Topic savedTopic1 = topicRepository.save(getTopics().get(0));
+    Topic savedTopic2 = topicRepository.save(getTopics().get(1));
+    Integer topic2Id = savedTopic2.getId();
+    String savedTopic2Email = savedTopic2.getCreatedBy();
+
+    TopicRequestDto updatedTopicRequestDto = new TopicRequestDto();
+    updatedTopicRequestDto.setTopicName(savedTopic1.getTopicName());
+
+    mockMvc.perform(put(URI + "/update/{id}", topic2Id)
+            .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
+            .principal(new TestingAuthenticationToken(savedTopic2Email, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isConflict())
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
+            ValueNotUniqException.class));
+  }
+
+  @Test
+  @DisplayName("update_should update topic with new tags successfully")
+  @Transactional
+  public void update_shouldUpdateTopicWithNewTagsSuccessfully() throws Exception {
+    // Given
+    Topic savedTopic = topicRepository.save(getTopics().get(0));
+    Integer topicId = savedTopic.getId();
+    String userEmail = savedTopic.getCreatedBy();
+
+    TopicRequestDto updatedTopicRequestDto = new TopicRequestDto();
+    updatedTopicRequestDto.setTopicName("Updated Topic");
+    updatedTopicRequestDto.setTags(new HashSet<>(getTags()));
+
+    mockMvc.perform(put(URI + "/update/{id}", topicId)
+            .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.topicName").value(updatedTopicRequestDto.getTopicName()));
+
+    TopicResponseDto topicResponseDto = topicService.findById(topicId);
+    Set<TagResponseDto> updatedTags = topicResponseDto.getTags();
+
+    assertThat(updatedTags).isNotEmpty();
+    assertThat(updatedTags).extracting(TagResponseDto::getName).containsAll(getTags());
   }
 
   @Test
@@ -120,7 +283,7 @@ public class TopicServiceImplTest {
   }
 
   @Test
-  @DisplayName("should wasn't subscribed")
+  @DisplayName("subscribe should wasn't subscribed")
   public void subscribe_shouldWasNotSubscribed() throws Exception {
     // Given
     Contact savedContact = contactRepository.save(getContacts().get(0));
@@ -136,7 +299,7 @@ public class TopicServiceImplTest {
   }
 
   @Test
-  @DisplayName("should return ContactAlreadySubscribedToTopicException")
+  @DisplayName("subscribe should return ContactAlreadySubscribedToTopicException")
   public void subscribe_shouldReturnContactAlreadySubscribedToTopicException() throws Exception {
     // Given
     Topic savedTopic = topicRepository.save(getTopics().get(0));
@@ -153,8 +316,9 @@ public class TopicServiceImplTest {
             .principal(new TestingAuthenticationToken(userEmail, null))
             .contentType(APPLICATION_JSON))
         .andExpect(status().isConflict())
-        .andExpect(mvcResult -> mvcResult.getResolvedException().getClass()
-            .equals(ContactAlreadySubscribedToTopicException.class));
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
+            ContactAlreadySubscribedToTopicException.class));
+
   }
 
   //-----------------------------------
@@ -162,8 +326,8 @@ public class TopicServiceImplTest {
   //-----------------------------------
 
   @Test
-  @DisplayName("should unsubscribe from the topic successfully")
-  public void shouldUnsubscribeFromTopicSuccessfully() throws Exception {
+  @DisplayName("unsubscribe should unsubscribe from the topic successfully")
+  public void unsubscribe_shouldUnsubscribeFromTopicSuccessfully() throws Exception {
     // Given
     Topic savedTopic = topicRepository.save(getTopics().get(0));
     Contact savedContact = contactRepository.save(getContacts().get(0));
@@ -181,8 +345,8 @@ public class TopicServiceImplTest {
   }
 
   @Test
-  @DisplayName("should return TopicSubscriberNotFoundException")
-  public void shouldReturnTopicSubscriberNotFoundException() throws Exception {
+  @DisplayName("unsubscribe should return TopicSubscriberNotFoundException")
+  public void unsubscribe_shouldReturnTopicSubscriberNotFoundException() throws Exception {
     // Given
     Contact savedContact = contactRepository.save(getContacts().get(0));
     String userEmail = savedContact.getEmail();
@@ -191,8 +355,8 @@ public class TopicServiceImplTest {
             .principal(new TestingAuthenticationToken(userEmail, null))
             .contentType(APPLICATION_JSON))
         .andExpect(status().isNotFound())
-        .andExpect(mvcResult -> mvcResult.getResolvedException().getClass()
-            .equals(TopicSubscriberNotFoundException.class));
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
+            TopicSubscriberNotFoundException.class));
   }
 
   //-----------------------------------
@@ -218,13 +382,13 @@ public class TopicServiceImplTest {
 
     mockMvc.perform(get(URI + "/{id}", NOT_EXISTED_TOPIC_ID).contentType(APPLICATION_JSON))
         .andExpect(status().isNotFound())
-        .andExpect(mvcResult -> mvcResult.getResolvedException().getClass()
-            .equals(TopicNotFoundException.class));
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
+            TopicNotFoundException.class));
   }
 
   @Test
-  @DisplayName("should return empty list of all topics")
-  void shouldReturnEmptyListOfAllTopics() throws Exception {
+  @DisplayName("findAll should return empty list of all topics")
+  void findAll_shouldReturnEmptyListOfAllTopics() throws Exception {
     // Given
     topicRepository.deleteAll();
 
@@ -235,8 +399,8 @@ public class TopicServiceImplTest {
   }
 
   @Test
-  @DisplayName("should return list of all topics")
-  public void shouldReturnListOfAllTopics() throws Exception {
+  @DisplayName("findAll should return list of all topics")
+  public void findAll_shouldReturnListOfAllTopics() throws Exception {
     // Given
     List<Topic> savedTopics = topicRepository.saveAll(getTopics());
 
@@ -247,8 +411,8 @@ public class TopicServiceImplTest {
   }
 
   @Test
-  @DisplayName("should find all subscribers to topic by topicId")
-  public void shouldFindAllSubscribersByTopicId() throws Exception {
+  @DisplayName("findAllSubscribers should find all subscribers to topic by topicId")
+  public void findAllSubscribers_shouldFindAllSubscribersByTopicId() throws Exception {
     // Given
     Topic savedTopic = topicRepository.save(getTopics().get(0));
     Integer topicId = savedTopic.getId();
@@ -274,18 +438,18 @@ public class TopicServiceImplTest {
   }
 
   @Test
-  @DisplayName("should return list of topics with expected size when user chose by tag ID")
-  public void shouldReturnListOfTopicsWithExpectedSize_WhenUserChoseByTagId() throws Exception {
+  @DisplayName("findAllByTagByName should return list of topics with expected size when user chose by tag name")
+  public void findAllByTagByName_shouldReturnListOfTopicsWithExpectedSize_WhenUserChoseByTagId()
+      throws Exception {
     // Given
     Tag tag = tagRepository.save(new Tag("tag1"));
     Set<Tag> tags = new HashSet<>();
-        tags.add(tag);
+    tags.add(tag);
     Topic topic = getTopics().get(0);
     topic.setTags(tags);
     topicRepository.save(topic);
 
-
-    mockMvc.perform(get(URI + "/all/{tagId}", tag.getId())
+    mockMvc.perform(get(URI + "/all/{tag}", tag.getName())
             .contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
@@ -297,8 +461,8 @@ public class TopicServiceImplTest {
   //-----------------------------------
 
   @Test
-  @DisplayName("should delete topic by creator successfully")
-  public void shouldDeleteTopicByCreatorSuccessfully() throws Exception {
+  @DisplayName("deleteById should delete topic by id and creator successfully")
+  public void deleteById_shouldDeleteTopicByIdAndCreatorSuccessfully() throws Exception {
     // Given
     Topic savedTopic = topicRepository.save(getTopics().get(0));
     Integer topicId = savedTopic.getId();
@@ -322,14 +486,18 @@ public class TopicServiceImplTest {
     mockMvc.perform(delete(URI + "/{id}", topicId)
             .principal(new TestingAuthenticationToken(userEmail, null))
             .contentType(APPLICATION_JSON))
-        .andExpect(status().isConflict())
-        .andExpect(mvcResult -> mvcResult.getResolvedException().getClass()
-            .equals(TopicAccessException.class));
+        .andExpect(status().isNotAcceptable())
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
+            TopicAccessException.class));
   }
 
   //-----------------------------------
   //         Private methods
   //-----------------------------------
+
+  private List<String> getTags() {
+    return List.of("#tag1", "#tag2");
+  }
 
   private List<Topic> getTopics() {
     Topic topic1 = Topic.builder()
