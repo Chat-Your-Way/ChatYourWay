@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.chat.yourway.dto.response.ApiErrorResponseDto;
+import com.chat.yourway.exception.*;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.EmailSendingException;
@@ -45,21 +46,13 @@ import java.util.Map;
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(NOT_FOUND)
-  @ExceptionHandler(ContactNotFoundException.class)
-  public ApiErrorResponseDto handleContactNotFoundException(ContactNotFoundException exception) {
-    return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
-  }
-
-  @ResponseStatus(NOT_FOUND)
-  @ExceptionHandler(EmailTokenNotFoundException.class)
-  public ApiErrorResponseDto handleEmailTokenNotFoundException(
-      EmailTokenNotFoundException exception) {
-    return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
-  }
-
-  @ResponseStatus(NOT_FOUND)
-  @ExceptionHandler(TokenNotFoundException.class)
-  public ApiErrorResponseDto handleTokenNotFoundException(TokenNotFoundException exception) {
+  @ExceptionHandler({
+    ContactNotFoundException.class,
+    EmailTokenNotFoundException.class,
+    TokenNotFoundException.class,
+    MessageNotFoundException.class
+  })
+  public ApiErrorResponseDto handleNotFoundException(RuntimeException exception) {
     return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
   }
 
@@ -95,6 +88,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
   }
 
+  @ResponseStatus(BAD_REQUEST)
+  @ExceptionHandler(MessageHasAlreadyReportedException.class)
+  public ApiErrorResponseDto handleMessageHasAlreadyReportedException(
+          PasswordsAreNotEqualException exception) {
+    return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
+
   @ResponseStatus(NOT_FOUND)
   @ExceptionHandler(TopicSubscriberNotFoundException.class)
   public ApiErrorResponseDto handleTopicSubscriberNotFoundException(
@@ -129,10 +128,14 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
       WebRequest request) {
 
     Map<String, List<String>> errorResponse = new HashMap<>();
-    e.getBindingResult().getFieldErrors()
-        .forEach(fieldError -> errorResponse
-            .computeIfAbsent(fieldError.getField(), key -> new ArrayList<>())
-            .add(fieldError.getDefaultMessage()));
+    e.getBindingResult()
+        .getFieldErrors()
+        .forEach(
+            fieldError ->
+                errorResponse
+                    .computeIfAbsent(fieldError.getField(), key -> new ArrayList<>())
+                    .add(fieldError.getDefaultMessage()));
+
 
     return new ResponseEntity<>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
   }

@@ -29,5 +29,4 @@ public class ChatController {
     String email = principal.getName();
     return chatMessageService.sendToUser(message, email);
   }
-
 }
