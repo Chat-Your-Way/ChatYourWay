@@ -32,6 +32,7 @@ public class Message {
     private Topic topic;
     @ManyToMany
     @JoinTable(
+            schema = "chat",
             name = "contact_message_report",
             joinColumns = @JoinColumn(name = "message_id"),
             inverseJoinColumns = @JoinColumn(name = "contact_id")
