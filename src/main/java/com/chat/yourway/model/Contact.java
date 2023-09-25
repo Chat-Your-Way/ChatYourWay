@@ -11,8 +11,11 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.Collection;
 import java.util.List;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -19,6 +19,11 @@ public class PostgresExtension implements Extension, BeforeAllCallback, AfterAll
     System.setProperty("JDBC_URL", container.getJdbcUrl());
     System.setProperty("POSTGRES_USERNAME", container.getUsername());
     System.setProperty("POSTGRES_PASSWORD", container.getPassword());
+
+    // Flyway property
+    System.setProperty("spring.flyway.url", container.getJdbcUrl());
+    System.setProperty("spring.flyway.user", container.getUsername());
+    System.setProperty("spring.flyway.password", container.getPassword());
   }
 
   @Override

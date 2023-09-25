@@ -1,65 +1,377 @@
 package com.chat.yourway.integration.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.chat.yourway.dto.request.TopicRequestDto;
+import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
+import com.chat.yourway.exception.TopicAccessException;
+import com.chat.yourway.exception.TopicNotFoundException;
+import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
+import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.Role;
+import com.chat.yourway.model.Tag;
+import com.chat.yourway.model.Topic;
+import com.chat.yourway.model.TopicSubscriber;
+import com.chat.yourway.repository.ContactRepository;
+import com.chat.yourway.repository.TagRepository;
 import com.chat.yourway.repository.TopicRepository;
-import com.chat.yourway.service.TopicServiceImpl;
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
-import com.github.springtestdbunit.annotation.DatabaseOperation;
-import com.github.springtestdbunit.annotation.DatabaseSetup;
-import com.github.springtestdbunit.annotation.DatabaseTearDown;
+import com.chat.yourway.repository.TopicSubscriberRepository;
+import com.chat.yourway.service.interfaces.TopicSubscriberService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener;
-import org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
-@ExtendWith({PostgresExtension.class,
-        RedisExtension.class})
-@SpringBootTest
-@TestExecutionListeners(value = {
-        TransactionalTestExecutionListener.class,
-        DirtiesContextTestExecutionListener.class,
-        DependencyInjectionTestExecutionListener.class,
-        DbUnitTestExecutionListener.class,
-        MockitoTestExecutionListener.class,
-        ResetMocksTestExecutionListener.class
-})
+@ExtendWith({PostgresExtension.class, RedisExtension.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc(addFilters = false)
 public class TopicServiceImplTest {
-    @Autowired
-    TopicRepository topicRepository;
-    @Autowired
-    TopicServiceImpl topicService;
 
-    @Test
-    @DisplayName("should return list of topics with expected size when user chose by tag id")
-    @DatabaseSetup(value = "/dataset/find-topics-by-tag-id-dataset.xml", type = DatabaseOperation.INSERT)
-    @DatabaseTearDown(value = "/dataset/find-topics-by-tag-id-dataset.xml", type = DatabaseOperation.DELETE)
-    public void shouldReturnListOfTopicsWithExpectedSize_WhenUserChoseByTagId() {
-        // Given
-        var tagId = 2;
+  @Autowired
+  private TopicRepository topicRepository;
+  @Autowired
+  private TopicSubscriberRepository topicSubscriberRepository;
+  @Autowired
+  private ContactRepository contactRepository;
+  @Autowired
+  private TopicSubscriberService topicSubscriberService;
+  @Autowired
+  private TagRepository tagRepository;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-        // When
-        var topics = topicService.findTopicsByTag(tagId);
+  @Autowired
+  MockMvc mockMvc;
 
-        // Then
-        assertAll(
-                () -> assertThat(topics)
-                        .withFailMessage(String.format("Expecting size of list topics equals %d", tagId))
-                        .extracting(List::size)
-                        .isEqualTo(2)
-        );
-    }
+  private static final String URI = "/topics";
+  private final Integer NOT_EXISTED_TOPIC_ID = 99;
+
+  @AfterEach
+  public void cleanup() {
+    topicRepository.deleteAll();
+    topicSubscriberRepository.deleteAll();
+    contactRepository.deleteAll();
+    tagRepository.deleteAll();
+  }
+
+  //-----------------------------------
+  //               POST
+  //-----------------------------------
+
+  @Test
+  @DisplayName("should create a new topic")
+  public void shouldCreateNewTopic() throws Exception {
+    // Given
+    Topic newTopic = getTopics().get(1);
+    TopicRequestDto topicRequestDto = new TopicRequestDto();
+    topicRequestDto.setTopicName(newTopic.getTopicName());
+    topicRequestDto.setTags(new HashSet<>());
+
+    mockMvc.perform(post(URI + "/create")
+            .content(objectMapper.writeValueAsString(topicRequestDto))
+            .principal(new TestingAuthenticationToken(newTopic.getCreatedBy(), null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.topicName").value(newTopic.getTopicName()))
+        .andExpect(jsonPath("$.createdBy").value(newTopic.getCreatedBy()))
+        .andExpect(jsonPath("$.createdAt").isNotEmpty())
+        .andExpect(jsonPath("$.topicSubscribers").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("should subscribe to the topic successfully")
+  public void subscribe_shouldSubscribeToTopicSuccessfully() throws Exception {
+    // Given
+    Topic savedTopic = topicRepository.save(getTopics().get(0));
+    Contact savedContact = contactRepository.save(getContacts().get(0));
+    Integer topicId = savedTopic.getId();
+    String userEmail = savedContact.getEmail();
+
+    mockMvc.perform(post(URI + "/subscribe/{topicId}", topicId)
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk());
+    assertThat(
+        topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(userEmail,
+            topicId)).isTrue();
+  }
+
+  @Test
+  @DisplayName("should wasn't subscribed")
+  public void subscribe_shouldWasNotSubscribed() throws Exception {
+    // Given
+    Contact savedContact = contactRepository.save(getContacts().get(0));
+    String userEmail = savedContact.getEmail();
+
+    mockMvc.perform(post(URI + "/subscribe/{topicId}", NOT_EXISTED_TOPIC_ID)
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk());
+    assertThat(
+        topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(userEmail,
+            NOT_EXISTED_TOPIC_ID)).isFalse();
+  }
+
+  @Test
+  @DisplayName("should return ContactAlreadySubscribedToTopicException")
+  public void subscribe_shouldReturnContactAlreadySubscribedToTopicException() throws Exception {
+    // Given
+    Topic savedTopic = topicRepository.save(getTopics().get(0));
+    Contact savedContact = contactRepository.save(getContacts().get(0));
+    Integer topicId = savedTopic.getId();
+    String userEmail = savedContact.getEmail();
+    topicSubscriberRepository.save(TopicSubscriber.builder()
+        .contact(savedContact)
+        .topic(savedTopic)
+        .subscribeAt(LocalDateTime.now())
+        .build());
+
+    mockMvc.perform(post(URI + "/subscribe/{topicId}", topicId)
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isConflict())
+        .andExpect(mvcResult -> mvcResult.getResolvedException().getClass()
+            .equals(ContactAlreadySubscribedToTopicException.class));
+  }
+
+  //-----------------------------------
+  //               PATCH
+  //-----------------------------------
+
+  @Test
+  @DisplayName("should unsubscribe from the topic successfully")
+  public void shouldUnsubscribeFromTopicSuccessfully() throws Exception {
+    // Given
+    Topic savedTopic = topicRepository.save(getTopics().get(0));
+    Contact savedContact = contactRepository.save(getContacts().get(0));
+    Integer topicId = savedTopic.getId();
+    String userEmail = savedContact.getEmail();
+    topicSubscriberService.subscribeToTopicById(userEmail, topicId);
+
+    mockMvc.perform(patch(URI + "/unsubscribe/{topicId}", topicId)
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk());
+    assertThat(
+        topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(userEmail,
+            topicId)).isFalse();
+  }
+
+  @Test
+  @DisplayName("should return TopicSubscriberNotFoundException")
+  public void shouldReturnTopicSubscriberNotFoundException() throws Exception {
+    // Given
+    Contact savedContact = contactRepository.save(getContacts().get(0));
+    String userEmail = savedContact.getEmail();
+
+    mockMvc.perform(patch(URI + "/unsubscribe/{topicId}", NOT_EXISTED_TOPIC_ID)
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(mvcResult -> mvcResult.getResolvedException().getClass()
+            .equals(TopicSubscriberNotFoundException.class));
+  }
+
+  //-----------------------------------
+  //               GET
+  //-----------------------------------
+
+  @Test
+  @DisplayName("findTopicById should return topic by topicId")
+  public void findTopicById_shouldReturnTopicById() throws Exception {
+    // Given
+    Topic savedTopic = topicRepository.save(getTopics().get(0));
+    Integer topicId = savedTopic.getId();
+
+    mockMvc.perform(get(URI + "/{id}", topicId).contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(content().json(objectMapper.writeValueAsString(savedTopic)));
+  }
+
+  @Test
+  @DisplayName("findTopicById should return TopicNotFoundException")
+  public void findTopicById_shouldReturnTopicNotFoundException() throws Exception {
+
+    mockMvc.perform(get(URI + "/{id}", NOT_EXISTED_TOPIC_ID).contentType(APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(mvcResult -> mvcResult.getResolvedException().getClass()
+            .equals(TopicNotFoundException.class));
+  }
+
+  @Test
+  @DisplayName("should return empty list of all topics")
+  void shouldReturnEmptyListOfAllTopics() throws Exception {
+    // Given
+    topicRepository.deleteAll();
+
+    mockMvc.perform(get(URI + "/all"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(content().json("[]"));
+  }
+
+  @Test
+  @DisplayName("should return list of all topics")
+  public void shouldReturnListOfAllTopics() throws Exception {
+    // Given
+    List<Topic> savedTopics = topicRepository.saveAll(getTopics());
+
+    mockMvc.perform(get(URI + "/all").contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(content().json(objectMapper.writeValueAsString(savedTopics)));
+  }
+
+  @Test
+  @DisplayName("should find all subscribers to topic by topicId")
+  public void shouldFindAllSubscribersByTopicId() throws Exception {
+    // Given
+    Topic savedTopic = topicRepository.save(getTopics().get(0));
+    Integer topicId = savedTopic.getId();
+    List<Contact> savedContacts = contactRepository.saveAll(getContacts());
+    String email1 = savedContacts.get(0).getEmail();
+    String email2 = savedContacts.get(1).getEmail();
+    topicSubscriberService.subscribeToTopicById(email1, topicId);
+    topicSubscriberService.subscribeToTopicById(email2, topicId);
+
+    mockMvc.perform(get(URI + "/subscribers/{topicId}", topicId)
+            .principal(new TestingAuthenticationToken(email1, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$[0].id").isNumber())
+        .andExpect(jsonPath("$[0].nickname").value(savedContacts.get(0).getNickname()))
+        .andExpect(jsonPath("$[0].email").value(savedContacts.get(0).getEmail()))
+        .andExpect(jsonPath("$[0].avatarId").isNumber())
+        .andExpect(jsonPath("$[1].id").isNumber())
+        .andExpect(jsonPath("$[1].nickname").value(savedContacts.get(1).getNickname()))
+        .andExpect(jsonPath("$[1].email").value(savedContacts.get(1).getEmail()))
+        .andExpect(jsonPath("$[1].avatarId").isNumber());
+  }
+
+  @Test
+  @DisplayName("should return list of topics with expected size when user chose by tag ID")
+  public void shouldReturnListOfTopicsWithExpectedSize_WhenUserChoseByTagId() throws Exception {
+    // Given
+    Tag tag = tagRepository.save(new Tag("tag1"));
+    Set<Tag> tags = new HashSet<>();
+        tags.add(tag);
+    Topic topic = getTopics().get(0);
+    topic.setTags(tags);
+    topicRepository.save(topic);
+
+
+    mockMvc.perform(get(URI + "/all/{tagId}", tag.getId())
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.length()").value(1));
+  }
+
+  //-----------------------------------
+  //               DELETE
+  //-----------------------------------
+
+  @Test
+  @DisplayName("should delete topic by creator successfully")
+  public void shouldDeleteTopicByCreatorSuccessfully() throws Exception {
+    // Given
+    Topic savedTopic = topicRepository.save(getTopics().get(0));
+    Integer topicId = savedTopic.getId();
+    String userEmail = savedTopic.getCreatedBy();
+
+    mockMvc.perform(delete(URI + "/{id}", topicId)
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk());
+    assertThat(topicRepository.findById(topicId)).isNotPresent();
+  }
+
+  @Test
+  @DisplayName("deleteById should return TopicAccessException")
+  public void deleteById_shouldReturnTopicAccessException() throws Exception {
+    // Given
+    Topic savedTopic = topicRepository.save(getTopics().get(0));
+    Integer topicId = savedTopic.getId();
+    String userEmail = "newuser@gmail.com";
+
+    mockMvc.perform(delete(URI + "/{id}", topicId)
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isConflict())
+        .andExpect(mvcResult -> mvcResult.getResolvedException().getClass()
+            .equals(TopicAccessException.class));
+  }
+
+  //-----------------------------------
+  //         Private methods
+  //-----------------------------------
+
+  private List<Topic> getTopics() {
+    Topic topic1 = Topic.builder()
+        .topicName("Topic1")
+        .createdBy("user1@gmail.com")
+        .createdAt(LocalDateTime.parse("2023-09-18T22:38:29.65851"))
+        .tags(new HashSet<>())
+        .topicSubscribers(new HashSet<>())
+        .build();
+
+    Topic topic2 = Topic.builder()
+        .topicName("Topic2")
+        .createdBy("user2@gmail.com")
+        .createdAt(LocalDateTime.parse("2023-09-18T23:30:29.65851"))
+        .tags(new HashSet<>())
+        .topicSubscribers(new HashSet<>())
+        .build();
+
+    return Arrays.asList(topic1, topic2);
+  }
+
+  private List<Contact> getContacts() {
+    Contact contact1 = Contact.builder()
+        .nickname("nickname")
+        .avatarId((byte) 1)
+        .email("contact@gmail.com")
+        .isActive(true)
+        .isPrivate(true)
+        .password("123456789")
+        .role(Role.USER)
+        .build();
+
+    Contact contact2 = Contact.builder()
+        .nickname("nickname2")
+        .avatarId((byte) 2)
+        .email("contact2@gmail.com")
+        .isActive(true)
+        .isPrivate(true)
+        .password("0000000")
+        .role(Role.USER)
+        .build();
+    return Arrays.asList(contact1, contact2);
+  }
 
 }

@@ -20,13 +20,13 @@ public class ChatController {
   @MessageMapping("/application")
   @SendTo("/topic")
   public MessageResponseDto sendToTopic(ReceivedMessageDto message, Principal principal) {
-    String username = principal.getName();
-    return chatMessageService.sendToTopic(message, username);
+    String email = principal.getName();
+    return chatMessageService.sendToTopic(message, email);
   }
 
   @MessageMapping("/private")
   public MessageResponseDto sendToUser(@Payload ReceivedMessageDto message, Principal principal) {
-    String username = principal.getName();
-    return chatMessageService.sendToUser(message, username);
+    String email = principal.getName();
+    return chatMessageService.sendToUser(message, email);
   }
 }
