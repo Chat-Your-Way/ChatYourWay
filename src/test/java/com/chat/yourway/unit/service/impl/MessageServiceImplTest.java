@@ -4,9 +4,7 @@ import com.chat.yourway.exception.MessageHasAlreadyReportedException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.repository.MessageRepository;
 import com.chat.yourway.service.MessageServiceImpl;
-import com.github.springtestdbunit.annotation.DatabaseOperation;
-import com.github.springtestdbunit.annotation.DatabaseSetup;
-import com.github.springtestdbunit.annotation.DatabaseTearDown;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,10 +19,14 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageServiceImplTest {
+  private static final String MAX_AMOUNT_REPORTS_FIELD_NAME = "maxAmountReports";
+  private static final Byte MAX_AMOUNT_REPORTS_VALUE = 2;
+
   @Mock MessageRepository messageRepository;
   @InjectMocks MessageServiceImpl messageService;
 
   @Test
+  @SneakyThrows
   @DisplayName("reportMessageById should save report to message when user makes report")
   public void reportMessageById_shouldSaveReportToMessage_WhenUserMakesReport() {
     // Given
@@ -40,6 +42,10 @@ public class MessageServiceImplTest {
             .isPrivate(true)
             .build();
 
+    var field = MessageServiceImpl.class.getDeclaredField(MAX_AMOUNT_REPORTS_FIELD_NAME);
+    field.setAccessible(true);
+    field.set(messageService, MAX_AMOUNT_REPORTS_VALUE);
+
     when(messageRepository.existsById(anyInt())).thenReturn(true);
     when(messageRepository.getCountReportsByMessageId(anyInt())).thenReturn(0);
 
@@ -52,12 +58,9 @@ public class MessageServiceImplTest {
   }
 
   @Test
+  @SneakyThrows
   @DisplayName(
       "reportMessageById should delete message when user makes report and message reached max attempts")
-  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.INSERT)
-  @DatabaseTearDown(
-      value = "/dataset/report-to-message-dataset.xml",
-      type = DatabaseOperation.DELETE)
   public void
       reportMessageById_shouldDeleteMessage_WhenUserMakesReportAndMessageReachedMaxAttempts() {
     // Given
@@ -73,8 +76,12 @@ public class MessageServiceImplTest {
             .isPrivate(true)
             .build();
 
+    var field = MessageServiceImpl.class.getDeclaredField(MAX_AMOUNT_REPORTS_FIELD_NAME);
+    field.setAccessible(true);
+    field.set(messageService, MAX_AMOUNT_REPORTS_VALUE);
+
     when(messageRepository.existsById(anyInt())).thenReturn(true);
-    when(messageRepository.getCountReportsByMessageId(anyInt())).thenReturn(2);
+    when(messageRepository.getCountReportsByMessageId(anyInt())).thenReturn(Integer.valueOf(MAX_AMOUNT_REPORTS_VALUE));
 
     // When
     messageService.reportMessageById(messageId, contact);
@@ -87,10 +94,6 @@ public class MessageServiceImplTest {
   @Test
   @DisplayName(
       "reportMessageById should throw MessageHasAlreadyReportedException when user makes report again")
-  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.INSERT)
-  @DatabaseTearDown(
-      value = "/dataset/report-to-message-dataset.xml",
-      type = DatabaseOperation.DELETE)
   public void reportMessageById_shouldThrowMessageHasAlreadyReportedException_WhenUserMakesReportAgain() {
     // Given
     var messageId = 1;

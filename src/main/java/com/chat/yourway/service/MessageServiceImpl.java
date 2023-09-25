@@ -6,13 +6,16 @@ import com.chat.yourway.repository.MessageRepository;
 import com.chat.yourway.service.interfaces.MessageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
-  private static final Byte MAX_AMOUNT_REPORTS = 2;
+
+  @Value("${message.max.amount.reports}")
+  private Byte maxAmountReports;
 
   private final MessageRepository messageRepository;
 
@@ -25,7 +28,7 @@ public class MessageServiceImpl implements MessageService {
       throw new MessageNotFoundException();
     } else if (messageRepository.hasReportByContactEmailAndMessageId(email, messageId)) {
       throw new MessageHasAlreadyReportedException();
-    } else if (messageRepository.getCountReportsByMessageId(messageId) >= MAX_AMOUNT_REPORTS) {
+    } else if (messageRepository.getCountReportsByMessageId(messageId) >= maxAmountReports) {
       messageRepository.deleteById(messageId);
     } else {
       messageRepository.saveReportFromContactToMessage(email, messageId);
