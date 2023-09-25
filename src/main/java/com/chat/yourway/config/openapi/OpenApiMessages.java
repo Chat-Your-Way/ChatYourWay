@@ -31,5 +31,7 @@ public class OpenApiMessages {
   public static final String SUCCESSFULLY_FOUND_TOPIC = "Topic successfully found";
   public static final String SUCCESSFULLY_DELETE_TOPIC = "Topic successfully deleted";
   public static final String TOPIC_NOT_ACCESS = "Topic operation not access";
+  public static final String SUCCESSFULLY_UPDATED_TOPIC = "Topic successfully updated";
+  public static final String INVALID_VALUE = "Invalid value of request object field";
 
 }

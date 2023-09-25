@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TopicRepository extends JpaRepository<Topic, Integer> {
 
-boolean existsByIdAndCreatedBy(Integer id, String createdBy);
+  boolean existsByTopicName(String topicName);
 
-  @Query("SELECT t FROM Topic t join t.tags tag where tag.id = :tagId")
-  List<Topic> findAllByTagId(Integer tagId);
+  @Query("SELECT t FROM Topic t left join fetch t.tags tag where tag.name=:tagName")
+  List<Topic> findAllByTagName(String tagName);
 
 }

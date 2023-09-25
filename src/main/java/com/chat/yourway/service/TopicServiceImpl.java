@@ -1,11 +1,12 @@
 package com.chat.yourway.service;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toSet;
 
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
+import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.mapper.TopicMapper;
 import com.chat.yourway.model.Tag;
 import com.chat.yourway.model.Topic;
@@ -32,32 +33,28 @@ public class TopicServiceImpl implements TopicService {
   @Transactional
   @Override
   public TopicResponseDto create(TopicRequestDto topicRequestDto, String email) {
-    String topicName = topicRequestDto.getTopicName();
-    log.trace("Started create topic name: {} by contact email: {}", topicName, email);
-
-    Set<Tag> tags = addTags(topicRequestDto.getTags());
-    log.trace("Getting tags: {} for topic name: {}", tags, topicName);
-
-    Topic topic = topicRepository.save(Topic.builder()
-        .topicName(topicName)
-        .createdBy(email)
-        .createdAt(LocalDateTime.now())
-        .tags(tags)
-        .build());
-
-    log.trace("New Topic name: {} was created", topicName);
+    log.trace("Started create topic: {} by contact email: {}", topicRequestDto, email);
+    Topic topic = createOrUpdateTopic(null, topicRequestDto, email);
     return topicMapper.toResponseDto(topic);
+  }
+
+  @Transactional
+  @Override
+  public TopicResponseDto update(Integer topicId, TopicRequestDto topicRequestDto, String email) {
+    log.trace("Started update topic: {} by contact email: {}", topicRequestDto, email);
+    Topic topic = getTopic(topicId);
+
+    validateCreator(email, topic);
+
+    Topic updatedTopic = createOrUpdateTopic(topic, topicRequestDto, email);
+    return topicMapper.toResponseDto(updatedTopic);
   }
 
   @Override
   public TopicResponseDto findById(Integer id) {
     log.trace("Started findById: {}", id);
 
-    Topic topic = topicRepository.findById(id)
-        .orElseThrow(() -> {
-          log.warn("Topic id: {} wasn't found", id);
-          return new TopicNotFoundException(String.format("Topic id: %s wasn't found", id));
-        });
+    Topic topic = getTopic(id);
 
     log.trace("Topic id: {} was found", id);
     return topicMapper.toResponseDto(topic);
@@ -74,38 +71,35 @@ public class TopicServiceImpl implements TopicService {
   }
 
   @Override
-  public List<TopicResponseDto> findTopicsByTag(Integer tagId) {
-    log.trace("Started findTopicsByTag");
+  public List<TopicResponseDto> findTopicsByTagName(String tagName){
+    log.trace("Started findTopicsByTagName");
 
-    List<Topic> topics = topicRepository.findAllByTagId(tagId);
+    List<Topic> topics = topicRepository.findAllByTagName(tagName);
 
-    log.trace("All Topics by tag was found");
+    log.trace("All Topics by tag name was found");
     return topicMapper.toListResponseDto(topics);
   }
 
+  @Transactional
   @Override
   public void deleteByCreator(Integer id, String email) {
     log.trace("Started deleteByCreator emil: {} and topicId: {}", email, id);
 
-    if (!isCreator(id, email)) {
-      log.warn("Email: {} wasn't the topic creator", email);
-      throw new TopicAccessException(String.format("Email: %s wasn't the topic creator", email));
-    }
+    Topic topic = getTopic(id);
 
-    topicRepository.deleteById(id);
+    validateCreator(email, topic);
+
+    topicRepository.delete(topic);
     log.trace("Deleted Topic by creator email: {} and topicId: {}", email, id);
   }
 
-  private boolean isCreator(Integer id, String email) {
-    log.trace("Checking if contact email: {} is topic creator, topicId: {}", email, id);
-    return topicRepository.existsByIdAndCreatedBy(id, email);
-  }
-
-  private Set<Tag> addTags(Set<String> tags) {
-    log.trace("Started addTags tags: {}", tags);
+  @Transactional
+  @Override
+  public Set<Tag> addUniqTags(Set<String> tags) {
+    log.trace("Started addUniqTags tags: {}", tags);
 
     Set<String> tagNames = tags.stream()
-        .map(String::toLowerCase)
+        .map(tag -> tag.trim().toLowerCase())
         .collect(toSet());
 
     Set<Tag> existingTags = tagRepository.findAllByNameIn(tags);
@@ -126,6 +120,60 @@ public class TopicServiceImpl implements TopicService {
 
     existingTags.addAll(savedTags);
     return existingTags;
+  }
+
+  private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email) {
+    String topicName = topicRequestDto.getTopicName();
+    validateName(topicName);
+
+    Set<Tag> tags = addUniqTags(topicRequestDto.getTags());
+
+    if (topic == null) {
+      log.trace("Create new topic");
+      topic = Topic.builder()
+          .topicName(topicName)
+          .createdBy(email)
+          .createdAt(LocalDateTime.now())
+          .tags(tags)
+          .build();
+    } else {
+      log.trace("Update topic");
+      topic.setTopicName(topicName);
+      topic.setTags(tags);
+    }
+
+    log.trace("Topic name: {} was saved", topicName);
+    return topicRepository.save(topic);
+  }
+
+  private Topic getTopic(Integer topicId) {
+    return topicRepository.findById(topicId)
+        .orElseThrow(() -> {
+          log.warn("Topic id: {} wasn't found", topicId);
+          return new TopicNotFoundException(String.format("Topic id: %s wasn't found", topicId));
+        });
+  }
+
+  private void validateName(String topicName) {
+    if (isTopicNameExists(topicName)) {
+      log.warn("Topic name: [{}] already in use", topicName);
+      throw new ValueNotUniqException(String.format("Topic name: %s already in use", topicName));
+    }
+  }
+
+  private boolean isTopicNameExists(String topicName) {
+    return topicRepository.existsByTopicName(topicName);
+  }
+
+  private void validateCreator(String email, Topic topic) {
+    if (!isCreator(email, topic)) {
+      log.warn("Email: {} wasn't the topic creator", email);
+      throw new TopicAccessException(String.format("Email: %s wasn't the topic creator", email));
+    }
+  }
+
+  private boolean isCreator(String email, Topic topic) {
+    return topic.getCreatedBy().equals(email);
   }
 
 }
