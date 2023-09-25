@@ -18,7 +18,7 @@ import lombok.ToString;
 public class TopicResponseDto {
   @Schema(description = "ID", example = "1")
   private Integer id;
-  @Schema(description = "New Topic name", example = "Example topic name")
+  @Schema(description = "New Topic name", example = "My programming topic")
   private String topicName;
   @Schema(description = "Email of Topic creator", example = "example@gmail.com")
   private String createdBy;

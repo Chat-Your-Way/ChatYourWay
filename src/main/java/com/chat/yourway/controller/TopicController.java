@@ -67,7 +67,7 @@ public class TopicController {
   @Operation(summary = "Update topic",
       responses = {
           @ApiResponse(responseCode = "200", description = SUCCESSFULLY_UPDATED_TOPIC),
-          @ApiResponse(responseCode = "406", description = TOPIC_NOT_ACCESS,
+          @ApiResponse(responseCode = "403", description = TOPIC_NOT_ACCESS,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
@@ -108,7 +108,7 @@ public class TopicController {
   @Operation(summary = "Delete by creator and topic id",
       responses = {
           @ApiResponse(responseCode = "200", description = SUCCESSFULLY_DELETE_TOPIC),
-          @ApiResponse(responseCode = "406", description = TOPIC_NOT_ACCESS,
+          @ApiResponse(responseCode = "403", description = TOPIC_NOT_ACCESS,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
@@ -158,7 +158,7 @@ public class TopicController {
     return topicSubscriberService.findAllSubscribersByTopicId(topicId);
   }
 
-  @Operation(summary = "Find all topics by teg name",
+  @Operation(summary = "Find all topics by tag name",
       responses = {
           @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,

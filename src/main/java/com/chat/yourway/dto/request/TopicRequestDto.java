@@ -19,12 +19,12 @@ import lombok.ToString;
 @ToString
 public class TopicRequestDto {
 
-  @Schema(description = "New Topic name", example = "Example topic name")
+  @Schema(description = "New Topic name", example = "My programming topic")
   @NotEmpty(message = "Topic name cannot be empty")
   @Size(min = 3, max = 30, message = "Name length should be from 3 to 30 symbols")
   private String topicName;
 
-  @ArraySchema(schema = @Schema(description = "Tags", example = "tag1"), minItems = 1, uniqueItems = true)
+  @ArraySchema(schema = @Schema(description = "Tags", example = "#programming"), minItems = 1, uniqueItems = true)
   @NotEmpty(message = "Topic should has at least 1 tag")
   @NotNull(message = "Topic should has at least 1 tag")
   private Set<String> tags;

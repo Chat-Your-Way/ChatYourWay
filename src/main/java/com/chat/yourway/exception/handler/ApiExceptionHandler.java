@@ -2,7 +2,7 @@ package com.chat.yourway.exception.handler;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -20,21 +20,24 @@ import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import io.jsonwebtoken.ExpiredJwtException;
-import org.springframework.http.*;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @ApiResponse(
     responseCode = "ErrorCode",
@@ -123,10 +126,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
   }
 
-  @ResponseStatus(NOT_ACCEPTABLE)
+  @ResponseStatus(FORBIDDEN)
   @ExceptionHandler(TopicAccessException.class)
   public ApiErrorResponseDto handleTopicAccessException(TopicAccessException exception) {
-    return new ApiErrorResponseDto(NOT_ACCEPTABLE, exception.getMessage());
+    return new ApiErrorResponseDto(FORBIDDEN, exception.getMessage());
   }
 
   @Override

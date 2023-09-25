@@ -14,7 +14,7 @@ import lombok.ToString;
 @ToString
 public class TagResponseDto {
 
-  @Schema(description = "Tag name", example = "tag1")
+  @Schema(description = "Tag name", example = "#programming")
   private String name;
 
 }
