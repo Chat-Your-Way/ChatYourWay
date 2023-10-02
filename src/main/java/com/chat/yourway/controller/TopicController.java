@@ -30,15 +30,7 @@ import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/topics")
@@ -169,4 +161,14 @@ public class TopicController {
     return topicService.findTopicsByTagName(tag);
   }
 
+  @Operation(summary = "Find all topics by topic name",
+          responses = {
+                  @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
+                  @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
+                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+          })
+  @GetMapping(path = "/search", produces = APPLICATION_JSON_VALUE)
+  public List<TopicResponseDto> findAllByTopicName(@RequestParam String topicName) {
+    return topicService.findTopicsByTopicName(topicName);
+  }
 }
