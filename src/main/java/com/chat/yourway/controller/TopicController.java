@@ -15,6 +15,7 @@ import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_FOUND;
 import static com.chat.yourway.config.openapi.OpenApiMessages.VALUE_NOT_UNIQUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.ContactResponseDto;
@@ -59,9 +60,26 @@ public class TopicController {
           @ApiResponse(responseCode = "400", description = INVALID_VALUE)
       })
   @PostMapping(path = "/create", produces = APPLICATION_JSON_VALUE)
-  public TopicResponseDto create(@Valid @RequestBody TopicRequestDto topicRequestDto, Principal principal) {
+  public TopicResponseDto create(@Valid @RequestBody TopicRequestDto topicRequestDto,
+      Principal principal) {
     String email = principal.getName();
     return topicService.create(topicRequestDto, email);
+  }
+
+  @Operation(summary = "Create private topic",
+      responses = {
+          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_CREATED_TOPIC),
+          @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
+              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+          @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
+              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+          @ApiResponse(responseCode = "400", description = INVALID_VALUE)
+      })
+  @PostMapping(path = "/create/private", produces = APPLICATION_JSON_VALUE)
+  public TopicResponseDto createPrivate(@Valid @RequestBody TopicPrivateRequestDto topicRequestDto,
+      Principal principal) {
+    String email = principal.getName();
+    return topicService.createPrivate(topicRequestDto, email);
   }
 
   @Operation(summary = "Update topic",
@@ -76,7 +94,8 @@ public class TopicController {
           @ApiResponse(responseCode = "400", description = INVALID_VALUE)
       })
   @PutMapping(path = "/update/{id}", produces = APPLICATION_JSON_VALUE)
-  public TopicResponseDto update(@PathVariable Integer id, @RequestBody TopicRequestDto topicRequestDto, Principal principal) {
+  public TopicResponseDto update(@PathVariable Integer id,
+      @RequestBody TopicRequestDto topicRequestDto, Principal principal) {
     String email = principal.getName();
     return topicService.update(id, topicRequestDto, email);
   }
@@ -94,15 +113,15 @@ public class TopicController {
     return topicService.findById(id);
   }
 
-  @Operation(summary = "Find all topics",
+  @Operation(summary = "Find all public topics",
       responses = {
           @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
   @GetMapping(path = "/all", produces = APPLICATION_JSON_VALUE)
-  public List<TopicResponseDto> findAll() {
-    return topicService.findAll();
+  public List<TopicResponseDto> findAllPublic() {
+    return topicService.findAllPublic();
   }
 
   @Operation(summary = "Delete by creator and topic id",

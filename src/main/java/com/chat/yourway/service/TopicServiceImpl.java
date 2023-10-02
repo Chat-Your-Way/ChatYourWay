@@ -2,6 +2,7 @@ package com.chat.yourway.service;
 
 import static java.util.stream.Collectors.toSet;
 
+import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.TopicAccessException;
@@ -13,9 +14,13 @@ import com.chat.yourway.model.Topic;
 import com.chat.yourway.repository.TagRepository;
 import com.chat.yourway.repository.TopicRepository;
 import com.chat.yourway.service.interfaces.TopicService;
+import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,12 +34,29 @@ public class TopicServiceImpl implements TopicService {
   private final TopicRepository topicRepository;
   private final TagRepository tagRepository;
   private final TopicMapper topicMapper;
+  private final TopicSubscriberService topicSubscriberService;
 
   @Transactional
   @Override
   public TopicResponseDto create(TopicRequestDto topicRequestDto, String email) {
     log.trace("Started create topic: {} by contact email: {}", topicRequestDto, email);
     Topic topic = createOrUpdateTopic(null, topicRequestDto, email);
+    topicSubscriberService.subscribeToTopicById(email, topic.getId());
+    return topicMapper.toResponseDto(topic);
+  }
+
+  @Transactional
+  @Override
+  public TopicResponseDto createPrivate(TopicPrivateRequestDto topicPrivateDto, String email) {
+    String sendTo = topicPrivateDto.getSendTo();
+    log.trace("Started create private topic by sendTo: {} and creator email: {}", sendTo, email);
+    String privateName = generatePrivateName(sendTo, email);
+    TopicRequestDto topicRequestDto = new TopicRequestDto(privateName, new HashSet<>());
+
+    Topic topic = createOrUpdateTopic(null, topicRequestDto, email);
+
+    topicSubscriberService.subscribeToTopicById(email, topic.getId());
+    topicSubscriberService.subscribeToTopicById(sendTo, topic.getId());
     return topicMapper.toResponseDto(topic);
   }
 
@@ -61,17 +83,27 @@ public class TopicServiceImpl implements TopicService {
   }
 
   @Override
-  public List<TopicResponseDto> findAll() {
-    log.trace("Started findAll");
+  public TopicResponseDto findByName(String name) {
+    log.trace("Started findByName: {}", name);
 
-    List<Topic> topics = topicRepository.findAll();
+    Topic topic = getTopicByName(name);
 
-    log.trace("All Topics was found");
+    log.trace("Topic name: {} was found", name);
+    return topicMapper.toResponseDto(topic);
+  }
+
+  @Override
+  public List<TopicResponseDto> findAllPublic() {
+    log.trace("Started findAllPublic");
+
+    List<Topic> topics = topicRepository.findAllByIsPublicIsTrue();
+
+    log.trace("All public topics was found");
     return topicMapper.toListResponseDto(topics);
   }
 
   @Override
-  public List<TopicResponseDto> findTopicsByTagName(String tagName){
+  public List<TopicResponseDto> findTopicsByTagName(String tagName) {
     log.trace("Started findTopicsByTagName");
 
     List<Topic> topics = topicRepository.findAllByTagName(tagName);
@@ -122,6 +154,13 @@ public class TopicServiceImpl implements TopicService {
     return existingTags;
   }
 
+  @Override
+  public String generatePrivateName(String sendTo, String email) {
+    return Stream.of(sendTo, email)
+        .sorted()
+        .collect(Collectors.joining("<->"));
+  }
+
   private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email) {
     String topicName = topicRequestDto.getTopicName();
     validateName(topicName);
@@ -132,6 +171,7 @@ public class TopicServiceImpl implements TopicService {
       log.trace("Create new topic");
       topic = Topic.builder()
           .topicName(topicName)
+          .isPublic(isPublic(email, topicName))
           .createdBy(email)
           .createdAt(LocalDateTime.now())
           .tags(tags)
@@ -146,11 +186,23 @@ public class TopicServiceImpl implements TopicService {
     return topicRepository.save(topic);
   }
 
+  private boolean isPublic(String email, String topicName) {
+    return !topicName.contains(email);
+  }
+
   private Topic getTopic(Integer topicId) {
     return topicRepository.findById(topicId)
         .orElseThrow(() -> {
           log.warn("Topic id: {} wasn't found", topicId);
           return new TopicNotFoundException(String.format("Topic id: %s wasn't found", topicId));
+        });
+  }
+
+  private Topic getTopicByName(String name) {
+    return topicRepository.findByTopicName(name)
+        .orElseThrow(() -> {
+          log.warn("Topic name: {} wasn't found", name);
+          return new TopicNotFoundException(String.format("Topic name: %s wasn't found", name));
         });
   }
 

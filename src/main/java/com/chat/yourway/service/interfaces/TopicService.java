@@ -1,5 +1,6 @@
 package com.chat.yourway.service.interfaces;
 
+import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.TopicAccessException;
@@ -20,6 +21,17 @@ public interface TopicService {
    * @throws ValueNotUniqException If the topic name already in use.
    */
   TopicResponseDto create(TopicRequestDto topicRequestDto, String email);
+
+  /**
+   * Creates a new private topic with name sendTo + sendFor,
+   * and subscribe to this topic both contacts.
+   *
+   * @param topicPrivateDto Request object for creating topic.
+   * @param email     The email of the creator.
+   * @return Created private topic.
+   * @throws ValueNotUniqException If the topic name already in use.
+   */
+  TopicResponseDto createPrivate(TopicPrivateRequestDto topicPrivateDto, String email);
 
   /**
    * Update an existing topic with the specified email of the creator.
@@ -43,11 +55,20 @@ public interface TopicService {
   TopicResponseDto findById(Integer id);
 
   /**
-   * Retrieves a list of all topics.
+   * Finds a topic by topic name.
    *
-   * @return A list of topics.
+   * @param name The name of the topic to find.
+   * @return The found topic if it exists.
+   * @throws TopicNotFoundException If the topic with the specified name does not exist.
    */
-  List<TopicResponseDto> findAll();
+  TopicResponseDto findByName(String name);
+
+  /**
+   * Retrieves a list of all public topics.
+   *
+   * @return A list of public topics.
+   */
+  List<TopicResponseDto> findAllPublic();
 
   /**
    * Deletes a topic by ID if the specified email is the creator of the topic.
@@ -78,4 +99,15 @@ public interface TopicService {
    * @return A set of tags that includes both the existing tags and the newly created unique tags.
    */
   Set<Tag> addUniqTags(Set<String> tags);
+
+  /**
+   * Generates a unique private topic name based on the email addresses of the sender and receiver.
+   * The private name is created by concatenating the email addresses in lexicographical order,
+   * separated by "<->" symbol.
+   *
+   * @param sendTo Email address of the receiver.
+   * @param email Email address of the sender.
+   * @return Unique private topic name.
+   */
+  String generatePrivateName(String sendTo, String email);
 }
