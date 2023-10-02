@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -44,9 +46,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
     responseCode = "ErrorCode",
     description = "Error response",
     content =
-    @Content(
-        schema = @Schema(implementation = ApiErrorResponseDto.class),
-        mediaType = MediaType.APPLICATION_JSON_VALUE))
+        @Content(
+            schema = @Schema(implementation = ApiErrorResponseDto.class),
+            mediaType = MediaType.APPLICATION_JSON_VALUE))
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -102,8 +104,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   @ResponseStatus(BAD_REQUEST)
   @ExceptionHandler(MessageHasAlreadyReportedException.class)
   public ApiErrorResponseDto handleMessageHasAlreadyReportedException(
-          PasswordsAreNotEqualException exception) {
+      PasswordsAreNotEqualException exception) {
     return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
+  }
 
   @ResponseStatus(NOT_FOUND)
   @ExceptionHandler(TopicSubscriberNotFoundException.class)
@@ -134,9 +137,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
       MethodArgumentNotValidException e,
-      HttpHeaders headers,
-      HttpStatusCode status,
-      WebRequest request) {
+      @NotNull HttpHeaders headers,
+      @NotNull HttpStatusCode status,
+      @NotNull WebRequest request) {
 
     Map<String, List<String>> errorResponse = new HashMap<>();
     e.getBindingResult()
@@ -146,7 +149,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 errorResponse
                     .computeIfAbsent(fieldError.getField(), key -> new ArrayList<>())
                     .add(fieldError.getDefaultMessage()));
-
 
     return new ResponseEntity<>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
   }
