@@ -1,56 +1,55 @@
 package com.chat.yourway.service;
 
-import com.chat.yourway.dto.request.ReceivedMessageDto;
+import com.chat.yourway.dto.request.MessagePrivateRequestDto;
+import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
-import com.chat.yourway.mapper.MessageMapper;
 import com.chat.yourway.service.interfaces.ChatMessageService;
+import com.chat.yourway.service.interfaces.MessageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class ChatMessageServiceImpl implements ChatMessageService {
 
   private final SimpMessagingTemplate simpMessagingTemplate;
-  private final MessageMapper messageMapper;
-  private final String specificPrefix;
+  private final MessageService messageService;
 
-  public ChatMessageServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
-      MessageMapper messageMapper, @Value("${socket.specific-prefix}") String specificPrefix) {
-    this.simpMessagingTemplate = simpMessagingTemplate;
-    this.messageMapper = messageMapper;
-    this.specificPrefix = specificPrefix;
-  }
+  @Value("${socket.dest-prefixes}")
+  private String[] destPrefixes;
 
+  @Transactional
   @Override
-  public MessageResponseDto sendToTopic(ReceivedMessageDto receivedMessageDto, String username) {
+  public MessageResponseDto sendToTopic(Integer topicId, MessagePublicRequestDto message, String email) {
+    log.trace("Started contact email: {} sendToTopic id: {}", email, topicId);
+    MessageResponseDto messageResponseDto = messageService.createPublic(topicId, message, email);
 
-    receivedMessageDto.setSentFrom(username);
-    receivedMessageDto.setSendTo("topic");
+    simpMessagingTemplate.convertAndSend(toTopicDestination(topicId), messageResponseDto);
 
-    MessageResponseDto messageResponseDto = messageMapper.toSendMessage(receivedMessageDto);
-
-    messageResponseDto.setSentTime(LocalDateTime.now());
-    log.info("{} sent message to topic", username);
+    log.trace("{} sent message to topic id: {}", email, topicId);
     return messageResponseDto;
   }
 
+  @Transactional
   @Override
-  public MessageResponseDto sendToUser(ReceivedMessageDto receivedMessageDto, String username) {
+  public MessageResponseDto sendToContact(MessagePrivateRequestDto message, String email) {
+    String sendTo = message.getSendTo();
+    log.trace("Started contact email: {} sendToContact email: {}", email, sendTo);
+    MessageResponseDto messageResponseDto = messageService.createPrivate(message, email);
 
-    String sendTo = receivedMessageDto.getSendTo();
-    receivedMessageDto.setSentFrom(username);
+    simpMessagingTemplate.convertAndSendToUser(sendTo, destPrefixes[1], messageResponseDto);
 
-    MessageResponseDto messageResponseDto = messageMapper.toSendMessage(receivedMessageDto);
-    messageResponseDto.setSentTime(LocalDateTime.now());
-
-    simpMessagingTemplate.convertAndSendToUser(sendTo, specificPrefix, messageResponseDto);
-    log.info("{} sent message to {}", username, sendTo);
+    log.trace("{} sent message to {}", email, sendTo);
     return messageResponseDto;
+  }
+
+  private String toTopicDestination(Integer topicId) {
+    return destPrefixes[0] + "/" + topicId;
   }
 
 }

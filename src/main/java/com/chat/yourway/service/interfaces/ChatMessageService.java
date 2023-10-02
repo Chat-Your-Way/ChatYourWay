@@ -1,6 +1,7 @@
 package com.chat.yourway.service.interfaces;
 
-import com.chat.yourway.dto.request.ReceivedMessageDto;
+import com.chat.yourway.dto.request.MessagePrivateRequestDto;
+import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 
 public interface ChatMessageService {
@@ -8,18 +9,20 @@ public interface ChatMessageService {
   /**
    * Sends a message to the chat topic.
    *
-   * @param receivedMessageDto The received message details.
-   * @param username           The username of the sender.
+   * @param topicId                  The id of the topic.
+   * @param messagePrivateRequestDto The received message details.
+   * @param email                    The email of the sender.
    * @return {@link MessageResponseDto} is the sent message.
    */
-  MessageResponseDto sendToTopic(ReceivedMessageDto receivedMessageDto, String username);
+  MessageResponseDto sendToTopic(Integer topicId, MessagePublicRequestDto messagePrivateRequestDto,
+      String email);
 
   /**
-   * Sends a message to the specific user.
+   * Sends a message to the specific contact.
    *
-   * @param receivedMessageDto The received message details.
-   * @param username           The username of the sender.
+   * @param messagePrivateRequestDto The received message details.
+   * @param email                    The email of the sender.
    * @return {@link MessageResponseDto} is the sent message.
    */
-  MessageResponseDto sendToUser(ReceivedMessageDto receivedMessageDto, String username);
+  MessageResponseDto sendToContact(MessagePrivateRequestDto messagePrivateRequestDto, String email);
 }

@@ -16,9 +16,10 @@ import lombok.ToString;
 @ToString
 public class MessageResponseDto {
 
-  private LocalDateTime sentTime;
+  private Integer id;
+  private LocalDateTime timestamp;
   private String sentFrom;
   private String sendTo;
-  private String text;
+  private String content;
 
 }
