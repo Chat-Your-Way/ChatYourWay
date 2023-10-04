@@ -78,4 +78,11 @@ public interface TopicService {
    * @return A set of tags that includes both the existing tags and the newly created unique tags.
    */
   Set<Tag> addUniqTags(Set<String> tags);
+
+  /**
+   * Search topics by topic name and return list of topics
+   *
+   * @param topicName A name for searching topics
+   * */
+  List<TopicResponseDto> findTopicsByTopicName(String topicName);
 }

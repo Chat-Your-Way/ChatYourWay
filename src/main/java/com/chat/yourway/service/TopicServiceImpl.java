@@ -71,7 +71,7 @@ public class TopicServiceImpl implements TopicService {
   }
 
   @Override
-  public List<TopicResponseDto> findTopicsByTagName(String tagName){
+  public List<TopicResponseDto> findTopicsByTagName(String tagName) {
     log.trace("Started findTopicsByTagName");
 
     List<Topic> topics = topicRepository.findAllByTagName(tagName);
@@ -98,21 +98,18 @@ public class TopicServiceImpl implements TopicService {
   public Set<Tag> addUniqTags(Set<String> tags) {
     log.trace("Started addUniqTags tags: {}", tags);
 
-    Set<String> tagNames = tags.stream()
-        .map(tag -> tag.trim().toLowerCase())
-        .collect(toSet());
+    Set<String> tagNames = tags.stream().map(tag -> tag.trim().toLowerCase()).collect(toSet());
 
     Set<Tag> existingTags = tagRepository.findAllByNameIn(tags);
     log.trace("Found existing tags: {}", existingTags);
 
-    Set<String> existingTagNames = existingTags.stream()
-        .map(Tag::getName)
-        .collect(toSet());
+    Set<String> existingTagNames = existingTags.stream().map(Tag::getName).collect(toSet());
 
-    Set<Tag> uniqueTags = tagNames.stream()
-        .filter(tag -> !existingTagNames.contains(tag))
-        .map(Tag::new)
-        .collect(toSet());
+    Set<Tag> uniqueTags =
+        tagNames.stream()
+            .filter(tag -> !existingTagNames.contains(tag))
+            .map(Tag::new)
+            .collect(toSet());
     log.trace("Creating new uniq tags: {}", uniqueTags);
 
     List<Tag> savedTags = tagRepository.saveAll(uniqueTags);
@@ -120,6 +117,12 @@ public class TopicServiceImpl implements TopicService {
 
     existingTags.addAll(savedTags);
     return existingTags;
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<TopicResponseDto> findTopicsByTopicName(String topicName) {
+    return topicMapper.toListResponseDto(topicRepository.findAllByTopicName(topicName));
   }
 
   private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email) {
@@ -130,12 +133,13 @@ public class TopicServiceImpl implements TopicService {
 
     if (topic == null) {
       log.trace("Create new topic");
-      topic = Topic.builder()
-          .topicName(topicName)
-          .createdBy(email)
-          .createdAt(LocalDateTime.now())
-          .tags(tags)
-          .build();
+      topic =
+          Topic.builder()
+              .topicName(topicName)
+              .createdBy(email)
+              .createdAt(LocalDateTime.now())
+              .tags(tags)
+              .build();
     } else {
       log.trace("Update topic");
       topic.setTopicName(topicName);
@@ -147,11 +151,14 @@ public class TopicServiceImpl implements TopicService {
   }
 
   private Topic getTopic(Integer topicId) {
-    return topicRepository.findById(topicId)
-        .orElseThrow(() -> {
-          log.warn("Topic id: {} wasn't found", topicId);
-          return new TopicNotFoundException(String.format("Topic id: %s wasn't found", topicId));
-        });
+    return topicRepository
+        .findById(topicId)
+        .orElseThrow(
+            () -> {
+              log.warn("Topic id: {} wasn't found", topicId);
+              return new TopicNotFoundException(
+                  String.format("Topic id: %s wasn't found", topicId));
+            });
   }
 
   private void validateName(String topicName) {
@@ -175,5 +182,4 @@ public class TopicServiceImpl implements TopicService {
   private boolean isCreator(String email, Topic topic) {
     return topic.getCreatedBy().equals(email);
   }
-
 }
