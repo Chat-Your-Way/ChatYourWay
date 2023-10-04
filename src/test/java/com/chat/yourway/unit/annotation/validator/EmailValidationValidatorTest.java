@@ -1,7 +1,6 @@
 package com.chat.yourway.unit.annotation.validator;
 
 import com.chat.yourway.annotation.validator.EmailValidator;
-import com.chat.yourway.annotation.validator.PasswordValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
