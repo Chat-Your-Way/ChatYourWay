@@ -6,6 +6,8 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.regex.Pattern;
 
+import static com.chat.yourway.annotation.constant.ValidatorConstant.PATTERN_SPACE;
+
 public class NicknameValidator implements ConstraintValidator<NicknameValidation, String> {
 
   private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9а-яА-ЯІіЇї]{4,20}$");
@@ -23,6 +25,11 @@ public class NicknameValidator implements ConstraintValidator<NicknameValidation
       context
           .buildConstraintViolationWithTemplate("The nickname is invalid")
           .addConstraintViolation();
+      return false;
+    } else if (PATTERN_SPACE.matcher(value).matches()) {
+      context
+              .buildConstraintViolationWithTemplate("The nickname should not include space")
+              .addConstraintViolation();
       return false;
     }
 
