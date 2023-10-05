@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+  <topic_subscriber
+    id="1"
+    contact_id="1"
+    topic_id="1"
+    subscribe_at="2023-09-21 22:53:12.818683"
+    unsubscribe_at=""
+  />
+  <topic_subscriber
+    id="2"
+    contact_id="2"
+    topic_id="1"
+    subscribe_at="2023-10-01 16:31:35.283240"
+    unsubscribe_at=""
+  />
+  <topic_subscriber
+    id="3"
+    contact_id="1"
+    topic_id="2"
+    subscribe_at="2023-09-24 22:53:12.818683"
+    unsubscribe_at=""
+  />
+  <topic_subscriber
+    id="4"
+    contact_id="2"
+    topic_id="2"
+    subscribe_at="2023-09-24 16:31:35.283240"
+    unsubscribe_at=""
+  />
+</dataset>

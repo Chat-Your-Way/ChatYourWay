@@ -1,4 +1,4 @@
-package com.chat.yourway.integration.service.impl;
+package com.chat.yourway.integration.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TagResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
@@ -53,7 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ExtendWith({PostgresExtension.class, RedisExtension.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc(addFilters = false)
-public class TopicServiceImplTest {
+public class TopicControllerTest {
 
   @Autowired
   private TopicService topicService;
@@ -107,7 +108,31 @@ public class TopicServiceImplTest {
         .andExpect(jsonPath("$.topicName").value(newTopic.getTopicName()))
         .andExpect(jsonPath("$.createdBy").value(newTopic.getCreatedBy()))
         .andExpect(jsonPath("$.createdAt").isNotEmpty())
+        .andExpect(jsonPath("$.isPublic").value(true))
         .andExpect(jsonPath("$.tags").isNotEmpty())
+        .andExpect(jsonPath("$.topicSubscribers").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("createPrivate should create a new private topic")
+  public void createPrivate_shouldCreateNewPrivateTopic() throws Exception {
+    // Given
+    String sentFrom = "vasil@gmail.com";
+    String sendTo = "anton@gmail.com";
+    TopicPrivateRequestDto topicRequestDto = new TopicPrivateRequestDto(sendTo);
+
+    mockMvc.perform(post(URI + "/create/private")
+            .content(objectMapper.writeValueAsString(topicRequestDto))
+            .principal(new TestingAuthenticationToken(sentFrom, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.topicName").value(sendTo + "-" + sentFrom))
+        .andExpect(jsonPath("$.createdBy").value(sentFrom))
+        .andExpect(jsonPath("$.createdAt").isNotEmpty())
+        .andExpect(jsonPath("$.isPublic").value(false))
+        .andExpect(jsonPath("$.tags").isEmpty())
         .andExpect(jsonPath("$.topicSubscribers").doesNotExist());
   }
 
@@ -199,7 +224,7 @@ public class TopicServiceImplTest {
             .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
             .principal(new TestingAuthenticationToken(unauthorizedUserEmail, null))
             .contentType(APPLICATION_JSON))
-        .andExpect(status().isNotAcceptable())
+        .andExpect(status().isForbidden())
         .andExpect(result ->
             assertThat(result.getResolvedException()).isInstanceOf(TopicAccessException.class));
   }
@@ -373,7 +398,12 @@ public class TopicServiceImplTest {
     mockMvc.perform(get(URI + "/{id}", topicId).contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
-        .andExpect(content().json(objectMapper.writeValueAsString(savedTopic)));
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.topicName").value(savedTopic.getTopicName()))
+        .andExpect(jsonPath("$.createdBy").value(savedTopic.getCreatedBy()))
+        .andExpect(jsonPath("$.createdAt").isNotEmpty())
+        .andExpect(jsonPath("$.tags").isEmpty())
+        .andExpect(jsonPath("$.topicSubscribers").isEmpty());
   }
 
   @Test
@@ -387,8 +417,8 @@ public class TopicServiceImplTest {
   }
 
   @Test
-  @DisplayName("findAll should return empty list of all topics")
-  void findAll_shouldReturnEmptyListOfAllTopics() throws Exception {
+  @DisplayName("findAllPublic should return empty list of all public topics")
+  void findAllPublic_shouldReturnEmptyListOfAllPublicTopics() throws Exception {
     // Given
     topicRepository.deleteAll();
 
@@ -399,15 +429,25 @@ public class TopicServiceImplTest {
   }
 
   @Test
-  @DisplayName("findAll should return list of all topics")
-  public void findAll_shouldReturnListOfAllTopics() throws Exception {
+  @DisplayName("findAllPublic should return list of all public topics")
+  public void findAllPublic_shouldReturnListOfAllPublicTopics() throws Exception {
     // Given
     List<Topic> savedTopics = topicRepository.saveAll(getTopics());
 
     mockMvc.perform(get(URI + "/all").contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
-        .andExpect(content().json(objectMapper.writeValueAsString(savedTopics)));
+        .andExpect(jsonPath("$[0].id").isNumber())
+        .andExpect(jsonPath("$[1].id").isNumber())
+        .andExpect(jsonPath("$[0].topicName").value(savedTopics.get(0).getTopicName()))
+        .andExpect(jsonPath("$[0].createdBy").value(savedTopics.get(0).getCreatedBy()))
+        .andExpect(jsonPath("$[1].topicName").value(savedTopics.get(1).getTopicName()))
+        .andExpect(jsonPath("$[1].createdBy").value(savedTopics.get(1).getCreatedBy()))
+        .andExpect(jsonPath("$[*].createdAt").isNotEmpty())
+        .andExpect(jsonPath("$[0].isPublic").value(true))
+        .andExpect(jsonPath("$[1].isPublic").value(true))
+        .andExpect(jsonPath("$[*].tags").isArray())
+        .andExpect(jsonPath("$[*].topicSubscribers").isArray());
   }
 
   @Test
@@ -486,7 +526,7 @@ public class TopicServiceImplTest {
     mockMvc.perform(delete(URI + "/{id}", topicId)
             .principal(new TestingAuthenticationToken(userEmail, null))
             .contentType(APPLICATION_JSON))
-        .andExpect(status().isNotAcceptable())
+        .andExpect(status().isForbidden())
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
             TopicAccessException.class));
   }
@@ -502,6 +542,7 @@ public class TopicServiceImplTest {
   private List<Topic> getTopics() {
     Topic topic1 = Topic.builder()
         .topicName("Topic1")
+        .isPublic(true)
         .createdBy("user1@gmail.com")
         .createdAt(LocalDateTime.parse("2023-09-18T22:38:29.65851"))
         .tags(new HashSet<>())
@@ -510,6 +551,7 @@ public class TopicServiceImplTest {
 
     Topic topic2 = Topic.builder()
         .topicName("Topic2")
+        .isPublic(true)
         .createdBy("user2@gmail.com")
         .createdAt(LocalDateTime.parse("2023-09-18T23:30:29.65851"))
         .tags(new HashSet<>())

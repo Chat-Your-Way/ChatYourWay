@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TagResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
@@ -25,6 +26,7 @@ import com.chat.yourway.model.Topic;
 import com.chat.yourway.repository.TagRepository;
 import com.chat.yourway.repository.TopicRepository;
 import com.chat.yourway.service.TopicServiceImpl;
+import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +54,9 @@ public class TopicServiceImplTest {
   TopicRepository topicRepository;
   @Mock
   TagRepository tagRepository;
+
+  @Spy
+  TopicSubscriberService topicSubscriberService;
 
   @Spy
   @InjectMocks
@@ -84,6 +89,27 @@ public class TopicServiceImplTest {
 
     // When
     TopicResponseDto topicResponseDto = topicService.create(topicRequestDto, email);
+
+    // Then
+    assertNotNull(topicResponseDto);
+    assertTopicEquals(topic, topicResponseDto);
+    verify(topicRepository, times(1)).save(any(Topic.class));
+  }
+
+  @Test
+  @DisplayName("createPrivate should create a new private topic when user passes correct data")
+  public void createPrivate_shouldCreateNewPrivateTopic_whenUserPassesCorrectData() {
+    // Given
+    Topic topic = getTopics().get(0);
+    topic.setTopicName("abc@gmail.com<->test-topic@gmail.com");
+    topic.setIsPublic(false);
+    String email = topic.getCreatedBy();
+    TopicPrivateRequestDto topicPrivateRequestDto = new TopicPrivateRequestDto("abc@gmail.com");
+
+    when(topicRepository.save(any(Topic.class))).thenReturn(topic);
+
+    // When
+    TopicResponseDto topicResponseDto = topicService.createPrivate(topicPrivateRequestDto, email);
 
     // Then
     assertNotNull(topicResponseDto);
@@ -296,15 +322,15 @@ public class TopicServiceImplTest {
   }
 
   @Test
-  @DisplayName("findAll should return a list of TopicResponseDto")
-  public void findAll_shouldReturnListOfTopicResponseDto() {
+  @DisplayName("findAllPublic should return a list of TopicResponseDto")
+  public void findAllPublic_shouldReturnListOfTopicResponseDto() {
     // Given
     List<Topic> topics = getTopics();
 
-    when(topicRepository.findAll()).thenReturn(topics);
+    when(topicRepository.findAllByIsPublicIsTrue()).thenReturn(topics);
 
     // When
-    List<TopicResponseDto> topicResponseDtos = topicService.findAll();
+    List<TopicResponseDto> topicResponseDtos = topicService.findAllPublic();
 
     // Then
     assertThat(topicResponseDtos).isNotNull();
@@ -314,15 +340,15 @@ public class TopicServiceImplTest {
   }
 
   @Test
-  @DisplayName("findAll should return empty list of TopicResponseDto")
-  public void findAll_shouldReturnEmptyListOfTopicResponseDto() {
+  @DisplayName("findAllPublic should return empty list of TopicResponseDto")
+  public void findAllPublic_shouldReturnEmptyListOfTopicResponseDto() {
     // Given
     List<Topic> emptyList = new ArrayList<>();
 
-    when(topicRepository.findAll()).thenReturn(emptyList);
+    when(topicRepository.findAllByIsPublicIsTrue()).thenReturn(emptyList);
 
     // When
-    List<TopicResponseDto> topicResponseDtos = topicService.findAll();
+    List<TopicResponseDto> topicResponseDtos = topicService.findAllPublic();
 
     // Then
     assertThat(topicResponseDtos).isNotNull();
@@ -380,6 +406,21 @@ public class TopicServiceImplTest {
     Mockito.verify(topicRepository, Mockito.times(1)).findById(anyInt());
   }
 
+  @Test
+  @DisplayName("generatePrivateName should generate private name")
+  public void generatePrivateName_shouldGeneratePrivateName() {
+    // Given
+    String sendTo = "vasil@gmail.com";
+    String sentFrom = "anton@gmail.com";
+    String expected = sentFrom + "-" + sendTo;
+
+    // When
+    String privateName = topicService.generatePrivateName(sendTo, sentFrom);
+
+    // Then
+    assertEquals(privateName, expected);
+  }
+
   private List<Topic> getTopics() {
     Topic topic1 = Topic.builder()
         .id(1)
@@ -419,6 +460,7 @@ public class TopicServiceImplTest {
     assertThat(topicResponseDto.getTopicName()).isEqualTo(topic.getTopicName());
     assertThat(topicResponseDto.getCreatedBy()).isEqualTo(topic.getCreatedBy());
     assertThat(topicResponseDto.getCreatedAt()).isEqualTo(topic.getCreatedAt());
+    assertThat(topicResponseDto.getIsPublic()).isEqualTo(topic.getIsPublic());
     assertThat(responseTags).hasSameElementsAs(requestTags);
     assertThat(topicResponseDto.getTopicSubscribers()).isNull();
   }
