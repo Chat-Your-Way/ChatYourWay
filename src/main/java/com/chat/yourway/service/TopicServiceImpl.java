@@ -158,7 +158,7 @@ public class TopicServiceImpl implements TopicService {
   public String generatePrivateName(String sendTo, String email) {
     return Stream.of(sendTo, email)
         .sorted()
-        .collect(Collectors.joining("<->"));
+        .collect(Collectors.joining("-"));
   }
 
   private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email) {

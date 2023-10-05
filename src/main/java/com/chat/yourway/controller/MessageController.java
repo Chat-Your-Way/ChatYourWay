@@ -15,10 +15,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,8 +42,9 @@ public class MessageController {
           })
   @PostMapping("/{id}/report")
   public void reportMessage(
-      @PathVariable Integer id, @AuthenticationPrincipal UserDetails userDetails) {
-    messageService.reportMessageById(id, userDetails);
+      @PathVariable Integer id, Principal principal) {
+    String email = principal.getName();
+    messageService.reportMessageById(id, email);
   }
 
   @Operation(summary = "Find all messages by topic id",

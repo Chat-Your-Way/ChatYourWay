@@ -20,7 +20,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -80,8 +79,7 @@ public class MessageServiceImpl implements MessageService {
 
   @Override
   @Transactional
-  public void reportMessageById(Integer messageId, UserDetails userDetails) {
-    String email = userDetails.getUsername();
+  public void reportMessageById(Integer messageId, String email) {
     log.trace("Contact email: {} is reporting message with ID: {}", email, messageId);
 
     if (!messageRepository.existsById(messageId)) {
