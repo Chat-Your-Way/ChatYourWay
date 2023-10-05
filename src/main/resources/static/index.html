@@ -1,71 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>WebSocket Test Client</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <title>WebSocket Chat Test Client</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 <body>
 <div>
-    <h1>WebSocket Chat</h1>
+  <h1>WebSocket Chat Test Client</h1>
+  <div>
+
     <div>
+      <label for="message">
+        <input type="text" id="message" placeholder="Enter your message">
+      </label>
 
-        <div>
-            <input type="text" id="message" placeholder="Enter your message">
-            <button onclick="sendMessage()">Send</button>
-        </div>
-        <br/>
-        <div>
-            <input type="text" id="privateMessage" placeholder="Enter your message">
-            <input type="text" id="sendTo" placeholder="To"/>
-            <button onclick="sendPrivateMessage()">Send Private</button>
-        </div>
+      <label for="subscribeToTopic">
+        <input type="number" id="subscribeToTopic" placeholder="Enter topic id">
+      </label>
 
-        <br/>
-        <br/>
-
-        <div id="messages"></div>
-
+      <button onclick="subscribeToTopic()">Subscribe</button>
+      <button onclick="sendMessage()">Send to Topic</button>
     </div>
+    <br/>
+    <div>
+      <label for="privateMessage">
+        <input type="text" id="privateMessage" placeholder="Enter your message">
+      </label>
+
+      <label for="sendToContact">
+        <input type="text" id="sendToContact" placeholder="Enter contact email"/>
+      </label>
+
+      <button onclick="sendPrivateMessage()">Send to Contact</button>
+    </div>
+
+    <br/>
+    <br/>
+
+    <div id="messages"></div>
+
+  </div>
 </div>
 
 <script>
-    const socket = new SockJS('/chat');
-    const stompClient = Stomp.over(socket);
+  const socket = new SockJS('/chat');
+  const stompClient = Stomp.over(socket);
 
-    stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
+  stompClient.connect({}, function (frame) {
+    console.log('Connected: ' + frame);
 
-        stompClient.subscribe('/topic', function (message) {
-            console.log(message.body);
-            showMessage(JSON.parse(message.body));
-        });
+    subscribeToTopic();
 
-        stompClient.subscribe('/user/specific', function (message) {
-            console.log(message.body);
-            showMessage(JSON.parse(message.body));
-        });
+    stompClient.subscribe('/user/specific', function (message) {
+      console.log(message.body);
+      showMessage(JSON.parse(message.body));
+    });
+  });
+
+  function subscribeToTopic() {
+    var topicId = document.getElementById('subscribeToTopic').value;
+
+    stompClient.subscribe('/topic/' + topicId, function (message) {
+      console.log(message.body);
+      showMessage(JSON.parse(message.body));
     });
 
-    function showMessage(message) {
-        var response = document.getElementById('messages');
-        var p = document.createElement('p');
-        p.innerHTML = JSON.stringify(message)
-        response.appendChild(p);
-    }
+  }
 
-    function sendMessage() {
-        var message = document.getElementById('message').value;
-        stompClient.send("/app/application", {},
-            JSON.stringify({'text': message}));
-    }
+  function showMessage(message) {
+    var response = document.getElementById('messages');
+    response.innerText += ('>>> ' + JSON.stringify(message) + '\n');
+  }
 
-    function sendPrivateMessage() {
-        var message = document.getElementById('privateMessage').value;
-        var sendTo = document.getElementById('sendTo').value;
-        stompClient.send("/app/private", {},
-            JSON.stringify({'text': message, 'sendTo': sendTo}));
-    }
+  function sendMessage() {
+    var message = document.getElementById('message').value;
+    var topicId = document.getElementById('subscribeToTopic').value;
+    stompClient.send("/app/topic/" + topicId, {},
+        JSON.stringify({'sendTo': topicId, 'content': message}));
+  }
+
+  function sendPrivateMessage() {
+    var message = document.getElementById('privateMessage').value;
+    var sendTo = document.getElementById('sendToContact').value;
+    var request = JSON.stringify({'sendTo': sendTo, 'content': message});
+    var response = document.getElementById('messages');
+
+    stompClient.send("/app/private", {}, request);
+    response.innerText += ('<<< ' + request + '\n');
+  }
 </script>
 </body>
 </html>
