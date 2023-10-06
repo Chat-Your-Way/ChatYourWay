@@ -1,8 +1,16 @@
 package com.chat.yourway.integration.controller;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-<<<<<<<< HEAD:src/test/java/com/chat/yourway/integration/controller/TopicControllerTest.java
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TagResponseDto;
@@ -12,31 +20,38 @@ import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
-========
->>>>>>>> develop:src/test/java/com/chat/yourway/integration/service/impl/TopicServiceImplTest.java
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
-
+import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.Role;
+import com.chat.yourway.model.Tag;
+import com.chat.yourway.model.Topic;
+import com.chat.yourway.model.TopicSubscriber;
+import com.chat.yourway.repository.ContactRepository;
+import com.chat.yourway.repository.TagRepository;
+import com.chat.yourway.repository.TopicRepository;
+import com.chat.yourway.repository.TopicSubscriberRepository;
 import com.chat.yourway.service.interfaces.TopicService;
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
-import com.github.springtestdbunit.annotation.DatabaseOperation;
-import com.github.springtestdbunit.annotation.DatabaseSetup;
-import com.github.springtestdbunit.annotation.DatabaseTearDown;
-import lombok.SneakyThrows;
+import com.chat.yourway.service.interfaces.TopicSubscriberService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener;
-import org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith({PostgresExtension.class, RedisExtension.class})
-<<<<<<<< HEAD:src/test/java/com/chat/yourway/integration/controller/TopicControllerTest.java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc(addFilters = false)
 public class TopicControllerTest {
@@ -73,35 +88,16 @@ public class TopicControllerTest {
   //-----------------------------------
   //               POST
   //-----------------------------------
-========
-@SpringBootTest
-@TestExecutionListeners(
-    value = {
-      TransactionalTestExecutionListener.class,
-      DirtiesContextTestExecutionListener.class,
-      DependencyInjectionTestExecutionListener.class,
-      DbUnitTestExecutionListener.class,
-      MockitoTestExecutionListener.class,
-      ResetMocksTestExecutionListener.class
-    })
-public class TopicServiceImplTest {
-  @Autowired TopicService topicService;
->>>>>>>> develop:src/test/java/com/chat/yourway/integration/service/impl/TopicServiceImplTest.java
 
   @Test
-  @SneakyThrows
-  @DatabaseSetup(
-      value = "/dataset/find-topics-by-topic-name-dataset.xml",
-      type = DatabaseOperation.INSERT)
-  @DatabaseTearDown(
-      value = "/dataset/find-topics-by-topic-name-dataset.xml",
-      type = DatabaseOperation.DELETE)
-  @DisplayName("should return list of topics when user search topics by topic name")
-  public void shouldReturnListOfTopics_whenUserSearchTopicsByTopicName() {
-    var topicName = "best";
-    var expectedSize = 2;
+  @DisplayName("create should create a new topic")
+  public void create_shouldCreateNewTopic() throws Exception {
+    // Given
+    Topic newTopic = getTopics().get(1);
+    TopicRequestDto topicRequestDto = new TopicRequestDto();
+    topicRequestDto.setTopicName(newTopic.getTopicName());
+    topicRequestDto.setTags(new HashSet<>(getTags()));
 
-<<<<<<<< HEAD:src/test/java/com/chat/yourway/integration/controller/TopicControllerTest.java
     mockMvc.perform(post(URI + "/create")
             .content(objectMapper.writeValueAsString(topicRequestDto))
             .principal(new TestingAuthenticationToken(newTopic.getCreatedBy(), null))
@@ -500,6 +496,43 @@ public class TopicServiceImplTest {
         .andExpect(jsonPath("$.length()").value(1));
   }
 
+  @Test
+  @DisplayName("findAllByTopicName should return empty list of all topics by name")
+  void findAllByTopicName_shouldReturnEmptyListOfAllTopicsByName() throws Exception {
+    // Given
+    topicRepository.deleteAll();
+
+    mockMvc.perform(get(URI + "/search")
+            .param("topicName", "NotExistsName"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(content().json("[]"));
+  }
+
+  @Test
+  @DisplayName("findAllByTopicName should return list of all topics by name")
+  public void findAllByTopicName_shouldReturnListOfAllTopicsByName() throws Exception {
+    // Given
+    List<Topic> savedTopics = topicRepository.saveAll(getTopics());
+
+    mockMvc.perform(get(URI + "/search")
+            .param("topicName", "topic")
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(APPLICATION_JSON))
+        .andExpect(jsonPath("$[0].id").isNumber())
+        .andExpect(jsonPath("$[1].id").isNumber())
+        .andExpect(jsonPath("$[0].topicName").value(savedTopics.get(0).getTopicName()))
+        .andExpect(jsonPath("$[0].createdBy").value(savedTopics.get(0).getCreatedBy()))
+        .andExpect(jsonPath("$[1].topicName").value(savedTopics.get(1).getTopicName()))
+        .andExpect(jsonPath("$[1].createdBy").value(savedTopics.get(1).getCreatedBy()))
+        .andExpect(jsonPath("$[*].createdAt").isNotEmpty())
+        .andExpect(jsonPath("$[0].isPublic").value(true))
+        .andExpect(jsonPath("$[1].isPublic").value(true))
+        .andExpect(jsonPath("$[*].tags").isArray())
+        .andExpect(jsonPath("$[*].topicSubscribers").isArray());
+  }
+
   //-----------------------------------
   //               DELETE
   //-----------------------------------
@@ -545,7 +578,7 @@ public class TopicServiceImplTest {
 
   private List<Topic> getTopics() {
     Topic topic1 = Topic.builder()
-        .topicName("Topic1")
+        .topicName("new Topic 1")
         .isPublic(true)
         .createdBy("user1@gmail.com")
         .createdAt(LocalDateTime.parse("2023-09-18T22:38:29.65851"))
@@ -554,7 +587,7 @@ public class TopicServiceImplTest {
         .build();
 
     Topic topic2 = Topic.builder()
-        .topicName("Topic2")
+        .topicName("new Topic 2")
         .isPublic(true)
         .createdBy("user2@gmail.com")
         .createdAt(LocalDateTime.parse("2023-09-18T23:30:29.65851"))
@@ -588,14 +621,4 @@ public class TopicServiceImplTest {
     return Arrays.asList(contact1, contact2);
   }
 
-========
-    // When
-    var resultList = topicService.findTopicsByTopicName(topicName);
-
-    // Then
-    assertThat(resultList.size())
-        .withFailMessage("Expecting size of list of topics equals to " + expectedSize)
-        .isEqualTo(expectedSize);
-  }
->>>>>>>> develop:src/test/java/com/chat/yourway/integration/service/impl/TopicServiceImplTest.java
 }
