@@ -1,16 +1,8 @@
 package com.chat.yourway.integration.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+<<<<<<<< HEAD:src/test/java/com/chat/yourway/integration/controller/TopicControllerTest.java
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TagResponseDto;
@@ -20,38 +12,31 @@ import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
+========
+>>>>>>>> develop:src/test/java/com/chat/yourway/integration/service/impl/TopicServiceImplTest.java
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
-import com.chat.yourway.model.Contact;
-import com.chat.yourway.model.Role;
-import com.chat.yourway.model.Tag;
-import com.chat.yourway.model.Topic;
-import com.chat.yourway.model.TopicSubscriber;
-import com.chat.yourway.repository.ContactRepository;
-import com.chat.yourway.repository.TagRepository;
-import com.chat.yourway.repository.TopicRepository;
-import com.chat.yourway.repository.TopicSubscriberRepository;
+
 import com.chat.yourway.service.interfaces.TopicService;
-import com.chat.yourway.service.interfaces.TopicSubscriberService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import org.junit.jupiter.api.AfterEach;
+import com.github.springtestdbunit.DbUnitTestExecutionListener;
+import com.github.springtestdbunit.annotation.DatabaseOperation;
+import com.github.springtestdbunit.annotation.DatabaseSetup;
+import com.github.springtestdbunit.annotation.DatabaseTearDown;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener;
+import org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
+import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 @ExtendWith({PostgresExtension.class, RedisExtension.class})
+<<<<<<<< HEAD:src/test/java/com/chat/yourway/integration/controller/TopicControllerTest.java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc(addFilters = false)
 public class TopicControllerTest {
@@ -88,16 +73,35 @@ public class TopicControllerTest {
   //-----------------------------------
   //               POST
   //-----------------------------------
+========
+@SpringBootTest
+@TestExecutionListeners(
+    value = {
+      TransactionalTestExecutionListener.class,
+      DirtiesContextTestExecutionListener.class,
+      DependencyInjectionTestExecutionListener.class,
+      DbUnitTestExecutionListener.class,
+      MockitoTestExecutionListener.class,
+      ResetMocksTestExecutionListener.class
+    })
+public class TopicServiceImplTest {
+  @Autowired TopicService topicService;
+>>>>>>>> develop:src/test/java/com/chat/yourway/integration/service/impl/TopicServiceImplTest.java
 
   @Test
-  @DisplayName("create should create a new topic")
-  public void create_shouldCreateNewTopic() throws Exception {
-    // Given
-    Topic newTopic = getTopics().get(1);
-    TopicRequestDto topicRequestDto = new TopicRequestDto();
-    topicRequestDto.setTopicName(newTopic.getTopicName());
-    topicRequestDto.setTags(new HashSet<>(getTags()));
+  @SneakyThrows
+  @DatabaseSetup(
+      value = "/dataset/find-topics-by-topic-name-dataset.xml",
+      type = DatabaseOperation.INSERT)
+  @DatabaseTearDown(
+      value = "/dataset/find-topics-by-topic-name-dataset.xml",
+      type = DatabaseOperation.DELETE)
+  @DisplayName("should return list of topics when user search topics by topic name")
+  public void shouldReturnListOfTopics_whenUserSearchTopicsByTopicName() {
+    var topicName = "best";
+    var expectedSize = 2;
 
+<<<<<<<< HEAD:src/test/java/com/chat/yourway/integration/controller/TopicControllerTest.java
     mockMvc.perform(post(URI + "/create")
             .content(objectMapper.writeValueAsString(topicRequestDto))
             .principal(new TestingAuthenticationToken(newTopic.getCreatedBy(), null))
@@ -584,4 +588,14 @@ public class TopicControllerTest {
     return Arrays.asList(contact1, contact2);
   }
 
+========
+    // When
+    var resultList = topicService.findTopicsByTopicName(topicName);
+
+    // Then
+    assertThat(resultList.size())
+        .withFailMessage("Expecting size of list of topics equals to " + expectedSize)
+        .isEqualTo(expectedSize);
+  }
+>>>>>>>> develop:src/test/java/com/chat/yourway/integration/service/impl/TopicServiceImplTest.java
 }

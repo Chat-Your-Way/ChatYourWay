@@ -28,12 +28,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -46,7 +42,7 @@ public class AuthenticationController {
 
   @Operation(summary = "Registration a new contact",
       responses = {
-          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REGISTERED,
+          @ApiResponse(responseCode = "201", description = SUCCESSFULLY_REGISTERED,
               content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
           @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
@@ -57,6 +53,7 @@ public class AuthenticationController {
           content = @Content(schema = @Schema(implementation = ContactRequestDto.class),
               examples = @ExampleObject(value = OpenApiExamples.NEW_CONTACT,
                   description = "New Contact for registration"))))
+  @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
   public AuthResponseDto register(@Valid @RequestBody ContactRequestDto request,
                                   @RequestHeader(HttpHeaders.REFERER) String clientHost) {
