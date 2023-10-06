@@ -101,6 +101,13 @@ public interface TopicService {
   Set<Tag> addUniqTags(Set<String> tags);
 
   /**
+   * Search topics by topic name and return list of topics
+   *
+   * @param topicName A name for searching topics
+   * */
+  List<TopicResponseDto> findTopicsByTopicName(String topicName);
+
+  /**
    * Generates a unique private topic name based on the email addresses of the sender and receiver.
    * The private name is created by concatenating the email addresses in lexicographical order,
    * separated by "<->" symbol.

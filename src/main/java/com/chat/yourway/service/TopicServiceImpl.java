@@ -154,6 +154,12 @@ public class TopicServiceImpl implements TopicService {
     return existingTags;
   }
 
+  @Transactional(readOnly = true)
+  @Override
+  public List<TopicResponseDto> findTopicsByTopicName(String topicName) {
+    return topicMapper.toListResponseDto(topicRepository.findAllByTopicName(topicName));
+  }
+
   @Override
   public String generatePrivateName(String sendTo, String email) {
     return Stream.of(sendTo, email)
