@@ -33,10 +33,6 @@ public class ContactServiceImpl implements ContactService {
           String.format("Email %s already in use", contactRequestDto.getEmail()));
     }
 
-    if (contactRepository.existsByNicknameIgnoreCase(contactRequestDto.getNickname())) {
-      throw new ValueNotUniqException(
-          String.format("Nickname %s already in use", contactRequestDto.getNickname()));
-    }
     return contactRepository.save(
         Contact.builder()
             .nickname(contactRequestDto.getNickname())

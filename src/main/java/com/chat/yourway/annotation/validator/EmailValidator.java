@@ -8,9 +8,9 @@ import java.util.regex.Pattern;
 
 public class EmailValidator implements ConstraintValidator<EmailValidation, String> {
   private static final int MIN_LENGTH = 6;
-  private static final int MAX_LENGTH = 320;
+  private static final int MAX_LENGTH = 255;
   private static final Pattern EMAIL_PATTERN =
-      Pattern.compile("[a-z0-9.\\-_]+@[a-z]+\\.[a-z]{2,3}");
+      Pattern.compile("[A-Za-z0-9.\\-_]+@[a-z]+\\.[a-z]{2,3}");
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
@@ -28,7 +28,7 @@ public class EmailValidator implements ConstraintValidator<EmailValidation, Stri
       return false;
     } else if (value.length() > MAX_LENGTH) {
       context
-              .buildConstraintViolationWithTemplate("The email must not be longer than 320 characters")
+              .buildConstraintViolationWithTemplate("The email must not be longer than 255 characters")
               .addConstraintViolation();
       return false;
     } else if (!EMAIL_PATTERN.matcher(value).matches()) {

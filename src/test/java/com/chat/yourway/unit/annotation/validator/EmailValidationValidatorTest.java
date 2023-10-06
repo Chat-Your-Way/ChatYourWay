@@ -1,7 +1,6 @@
 package com.chat.yourway.unit.annotation.validator;
 
 import com.chat.yourway.annotation.validator.EmailValidator;
-import com.chat.yourway.annotation.validator.PasswordValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +31,7 @@ class EmailValidationValidatorTest {
                 });
   }
 
-  @DisplayName("ContactEmailValidator should pass validator when user input correct email")
+  @DisplayName("EmailValidator should pass validator when user input correct email")
   @Test
   public void shouldPassValidator_whenUserInputCorrectEmail() {
     // Given
@@ -45,7 +44,7 @@ class EmailValidationValidatorTest {
     assertTrue(isValid);
   }
 
-  @DisplayName("ContactEmailValidator should fail validator when user input blank email")
+  @DisplayName("EmailValidator should fail validator when user input blank email")
   @Test
   public void shouldFailValidator_whenUserInputBlankEmail() {
     // Given
@@ -58,7 +57,7 @@ class EmailValidationValidatorTest {
     assertFalse(isValid);
   }
 
-  @DisplayName("ContactEmailValidator should fail validator when user input short email")
+  @DisplayName("EmailValidator should fail validator when user input short email")
   @Test
   public void shouldFailValidator_whenUserInputShortEmail() {
     // Given
@@ -71,12 +70,12 @@ class EmailValidationValidatorTest {
     assertFalse(isValid);
   }
 
-  @DisplayName("ContactEmailValidator should fail validator when user input long email")
+  @DisplayName("EmailValidator should fail validator when user input long email")
   @Test
   public void shouldFailValidator_whenUserInputLongEmail() {
     // Given
     var email =
-        "toolongemailaddress1234567890123456789012345678901234567890123456789012345123213123132222222222222222222222222221322222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222111111111111111111111111111111111111111111111112222222222222222222222222222222222222267890@example.com";
+        "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddemailaddressforthispurposeonlyabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz@example.com";
 
     // When
     var isValid = emailValidator.isValid(email, context);
@@ -85,7 +84,7 @@ class EmailValidationValidatorTest {
     assertFalse(isValid);
   }
 
-  @DisplayName("ContactEmailValidator should fail validator when user input invalid characters")
+  @DisplayName("EmailValidator should fail validator when user input invalid characters")
   @Test
   public void shouldFailValidator_whenUserInputInvalidCharacters() {
     // Given
@@ -99,7 +98,7 @@ class EmailValidationValidatorTest {
   }
 
   @DisplayName(
-      "ContactEmailValidator should fail validator when user input invalid top level domain")
+      "EmailValidator should fail validator when user input invalid top level domain")
   @Test
   public void shouldFailValidator_whenUserInputInvalidTopLevelDomain() {
     // Given
@@ -112,7 +111,7 @@ class EmailValidationValidatorTest {
     assertFalse(isValid);
   }
 
-  @DisplayName("ContactEmailValidator should fail validator when user input email with space")
+  @DisplayName("EmailValidator should fail validator when user input email with space")
   @Test
   public void shouldFailValidator_whenUserInputEmailWithSpace() {
     // Given
@@ -126,7 +125,7 @@ class EmailValidationValidatorTest {
   }
 
   @DisplayName(
-      "ContactEmailValidator should pass validator when user input email with dots, underscores and dashes")
+      "EmailValidator should pass validator when user input email with dots, underscores and dashes")
   @Test
   public void shouldPassValidator_whenUserInputEmailWithDotsUnderscoresAndDashes() {
     // Given

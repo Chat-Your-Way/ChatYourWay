@@ -111,12 +111,38 @@ class PasswordValidationValidatorTest {
     assertFalse(isValid);
   }
 
-  @DisplayName(
-      "PasswordValidator should fail validator when user input password without upper-case character")
+  @DisplayName("PasswordValidator should fail validator when user input password without digit")
   @Test
   public void shouldFailValidator_whenUserInputPasswordWithoutDigit() {
     // Given
     var password = "Password!";
+
+    // When
+    var isValid = passwordValidator.isValid(password, context);
+
+    // Then
+    assertFalse(isValid);
+  }
+
+  @DisplayName("PasswordValidator should fail validator when user input password with space")
+  @Test
+  public void shouldFailValidator_whenUserInputPasswordWithSpace() {
+    // Given
+    var password = "Passw ord! ";
+
+    // When
+    var isValid = passwordValidator.isValid(password, context);
+
+    // Then
+    assertFalse(isValid);
+  }
+
+  @DisplayName(
+      "PasswordValidator should fail validator when user input password with forbidden symbols")
+  @Test
+  public void shouldFailValidator_whenUserInputPasswordWithForbiddenSymbols() {
+    // Given
+    var password = "<Password!";
 
     // When
     var isValid = passwordValidator.isValid(password, context);
