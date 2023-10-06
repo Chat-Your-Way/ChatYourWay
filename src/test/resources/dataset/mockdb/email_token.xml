@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+  <email_token
+    token="24596e34-cc65-4dce-b374-7419fbfc18e5"
+    message_type="ACTIVATE"
+    contact_id="1"
+  />
+  <email_token
+    token="14135f97-f54d-4114-9384-ee39ed63cfdc"
+    message_type="ACTIVATE"
+    contact_id="2"
+  />
+</dataset>

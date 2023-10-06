@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+  <message
+    id="1"
+    sent_from="anton@gmail.com"
+    send_to="Topic id=1"
+    content="hi"
+    timestamp="2023-09-26 21:34:59.849802"
+    topic_id="1"
+  />
+  <message
+    id="2"
+    sent_from="vasil@gmail.com"
+    send_to="Topic id=1"
+    content="hello"
+    timestamp="2023-09-26 22:08:59.114802"
+    topic_id="1"
+  />
+  <message
+    id="3"
+    sent_from="anton@gmail.com"
+    send_to="vasil@gmail.com"
+    content="hello Vasil!"
+    timestamp="2023-09-28 15:17:25.046396"
+    topic_id="2"
+  />
+  <message
+    id="4"
+    sent_from="vasil@gmail.com"
+    send_to="anton@gmail.com"
+    content="hello Anton!"
+    timestamp="2023-09-28 15:18:15.057391"
+    topic_id="2"
+  />
+</dataset>

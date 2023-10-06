@@ -51,11 +51,10 @@ public class MessageServiceImplTest {
   public void shouldSaveReportToMessage_WhenUserMakesReport() {
     // Given
     var messageId = 2;
-    var contactId = 3;
-    var contact = contactRepository.findById(contactId).get();
+    var email = "user3@gmail.com";
 
     // When
-    messageService.reportMessageById(messageId, contact);
+    messageService.reportMessageById(messageId, email);
 
     var countReports = messageRepository.getCountReportsByMessageId(messageId);
     // Then
@@ -75,11 +74,10 @@ public class MessageServiceImplTest {
   public void shouldDeleteMessage_WhenUserMakesReportAndMessageReachedMaxAttempts() {
     // Given
     var messageId = 1;
-    var contactId = 3;
-    var contact = contactRepository.findById(contactId).get();
+    var email = "user3@gmail.com";
 
     // When
-    messageService.reportMessageById(messageId, contact);
+    messageService.reportMessageById(messageId, email);
 
     var message = messageRepository.findById(messageId);
 
@@ -97,13 +95,12 @@ public class MessageServiceImplTest {
   public void shouldThrowMessageHasAlreadyReportedException_WhenUserMakesReportAgain() {
     // Given
     var messageId = 1;
-    var contactId = 2;
-    var contact = contactRepository.findById(contactId).get();
+    var email = "user2@gmail.com";
 
     // When
     // Then
     assertThrows(
         MessageHasAlreadyReportedException.class,
-        () -> messageService.reportMessageById(messageId, contact));
+        () -> messageService.reportMessageById(messageId, email));
   }
 }

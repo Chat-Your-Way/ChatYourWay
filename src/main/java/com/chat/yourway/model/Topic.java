@@ -14,6 +14,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,6 +39,9 @@ public class Topic {
   @Column(name = "topic_name", nullable = false, unique = true)
   private String topicName;
 
+  @Column(name = "is_public", nullable = false)
+  private Boolean isPublic;
+
   @Column(name = "created_by", nullable = false)
   private String createdBy;
 
@@ -55,5 +59,8 @@ public class Topic {
 
   @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private Set<TopicSubscriber> topicSubscribers;
+
+  @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  private List<Message> messages;
 
 }

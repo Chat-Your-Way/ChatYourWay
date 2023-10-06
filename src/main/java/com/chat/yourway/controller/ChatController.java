@@ -1,12 +1,14 @@
 package com.chat.yourway.controller;
 
-import com.chat.yourway.dto.request.ReceivedMessageDto;
+import com.chat.yourway.dto.request.MessagePrivateRequestDto;
+import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.service.interfaces.ChatMessageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
@@ -17,16 +19,17 @@ public class ChatController {
 
   private final ChatMessageService chatMessageService;
 
-  @MessageMapping("/application")
-  @SendTo("/topic")
-  public MessageResponseDto sendToTopic(ReceivedMessageDto message, Principal principal) {
+  @MessageMapping("/topic/{topicId}")
+  public MessageResponseDto sendToTopic(@DestinationVariable Integer topicId,
+      @Valid @Payload MessagePublicRequestDto message, Principal principal) {
     String email = principal.getName();
-    return chatMessageService.sendToTopic(message, email);
+    return chatMessageService.sendToTopic(topicId, message, email);
   }
 
   @MessageMapping("/private")
-  public MessageResponseDto sendToUser(@Payload ReceivedMessageDto message, Principal principal) {
+  public MessageResponseDto sendToContact(@Valid @Payload MessagePrivateRequestDto message,
+      Principal principal) {
     String email = principal.getName();
-    return chatMessageService.sendToUser(message, email);
+    return chatMessageService.sendToContact(message, email);
   }
 }

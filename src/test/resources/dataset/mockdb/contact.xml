@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+  <contact
+    id="1"
+    nickname="Vasil"
+    password="$2a$10$b9SjqPefZMJRK8WPQEbmP.BBcsqSXey2dCRa0dsRnydFY.GiPjWty"
+    is_active="true"
+    is_private="true"
+    email="vasil@gmail.com"
+    role="USER"
+    avatar_id="1"
+  />
+  <contact
+    id="2"
+    nickname="Anton"
+    password="$2a$10$aerCnzmFriFrD2XqAgd8Huc/ywG/me8s/t4jC/eH8GlIaR3RcABZ2"
+    is_active="true"
+    is_private="true"
+    email="anton@gmail.com"
+    role="USER"
+    avatar_id="7"
+  />
+</dataset>

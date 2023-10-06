@@ -27,12 +27,12 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 @SpringBootTest
 @TestExecutionListeners(
     value = {
-      TransactionalTestExecutionListener.class,
-      DirtiesContextTestExecutionListener.class,
-      DependencyInjectionTestExecutionListener.class,
-      DbUnitTestExecutionListener.class,
-      MockitoTestExecutionListener.class,
-      ResetMocksTestExecutionListener.class
+        TransactionalTestExecutionListener.class,
+        DirtiesContextTestExecutionListener.class,
+        DependencyInjectionTestExecutionListener.class,
+        DbUnitTestExecutionListener.class,
+        MockitoTestExecutionListener.class,
+        ResetMocksTestExecutionListener.class
     })
 public class TopicServiceImplTest {
   @Autowired TopicService topicService;

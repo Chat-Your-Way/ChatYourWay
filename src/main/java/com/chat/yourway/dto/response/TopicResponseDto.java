@@ -20,6 +20,8 @@ public class TopicResponseDto {
   private Integer id;
   @Schema(description = "New Topic name", example = "My programming topic")
   private String topicName;
+  @Schema(description = "Topic status is public", example = "true")
+  private Boolean isPublic;
   @Schema(description = "Email of Topic creator", example = "example@gmail.com")
   private String createdBy;
   @Schema(description = "Created time")

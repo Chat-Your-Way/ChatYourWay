@@ -28,13 +28,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.springframework.lang.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -46,91 +45,57 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
     responseCode = "ErrorCode",
     description = "Error response",
     content =
-        @Content(
-            schema = @Schema(implementation = ApiErrorResponseDto.class),
-            mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @Content(
+        schema = @Schema(implementation = ApiErrorResponseDto.class),
+        mediaType = MediaType.APPLICATION_JSON_VALUE))
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(NOT_FOUND)
   @ExceptionHandler({
-    ContactNotFoundException.class,
-    EmailTokenNotFoundException.class,
-    TokenNotFoundException.class,
-    MessageNotFoundException.class
+      ContactNotFoundException.class,
+      EmailTokenNotFoundException.class,
+      TokenNotFoundException.class,
+      MessageNotFoundException.class,
+      TopicSubscriberNotFoundException.class,
+      TopicNotFoundException.class
   })
   public ApiErrorResponseDto handleNotFoundException(RuntimeException exception) {
     return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
   }
 
   @ResponseStatus(CONFLICT)
-  @ExceptionHandler(ValueNotUniqException.class)
-  public ApiErrorResponseDto handleValueNotUniqException(ValueNotUniqException exception) {
+  @ExceptionHandler({
+      ValueNotUniqException.class,
+      ContactAlreadySubscribedToTopicException.class
+  })
+  public ApiErrorResponseDto handleConflictException(RuntimeException exception) {
     return new ApiErrorResponseDto(CONFLICT, exception.getMessage());
   }
 
   @ResponseStatus(UNAUTHORIZED)
-  @ExceptionHandler(InvalidTokenException.class)
-  public ApiErrorResponseDto handleInvalidTokenException(InvalidTokenException exception) {
-    return new ApiErrorResponseDto(UNAUTHORIZED, exception.getMessage());
-  }
-
-  @ResponseStatus(UNAUTHORIZED)
-  @ExceptionHandler(InvalidCredentialsException.class)
-  public ApiErrorResponseDto handleInvalidCredentialsException(
-      InvalidCredentialsException exception) {
-    return new ApiErrorResponseDto(UNAUTHORIZED, exception.getMessage());
-  }
-
-  @ResponseStatus(UNAUTHORIZED)
-  @ExceptionHandler(ExpiredJwtException.class)
-  public ApiErrorResponseDto handleExpiredJwtException(ExpiredJwtException exception) {
+  @ExceptionHandler({
+      InvalidTokenException.class,
+      InvalidCredentialsException.class,
+      ExpiredJwtException.class
+  })
+  public ApiErrorResponseDto handleUnauthorizedException(RuntimeException exception) {
     return new ApiErrorResponseDto(UNAUTHORIZED, exception.getMessage());
   }
 
   @ResponseStatus(BAD_REQUEST)
-  @ExceptionHandler(EmailSendingException.class)
-  public ApiErrorResponseDto handleEmailSendingException(EmailSendingException exception) {
+  @ExceptionHandler({
+      EmailSendingException.class,
+      PasswordsAreNotEqualException.class,
+      MessageHasAlreadyReportedException.class
+  })
+  public ApiErrorResponseDto handleBadRequestException(RuntimeException exception) {
     return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
-  }
-
-  @ResponseStatus(BAD_REQUEST)
-  @ExceptionHandler(PasswordsAreNotEqualException.class)
-  public ApiErrorResponseDto handleOldPasswordsIsNotEqualToNewException(
-      PasswordsAreNotEqualException exception) {
-    return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
-  }
-
-  @ResponseStatus(BAD_REQUEST)
-  @ExceptionHandler(MessageHasAlreadyReportedException.class)
-  public ApiErrorResponseDto handleMessageHasAlreadyReportedException(
-      PasswordsAreNotEqualException exception) {
-    return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
-  }
-
-  @ResponseStatus(NOT_FOUND)
-  @ExceptionHandler(TopicSubscriberNotFoundException.class)
-  public ApiErrorResponseDto handleTopicSubscriberNotFoundException(
-      TopicSubscriberNotFoundException exception) {
-    return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
-  }
-
-  @ResponseStatus(CONFLICT)
-  @ExceptionHandler(ContactAlreadySubscribedToTopicException.class)
-  public ApiErrorResponseDto handleContactAlreadySubscribedToTopicException(
-      ContactAlreadySubscribedToTopicException exception) {
-    return new ApiErrorResponseDto(CONFLICT, exception.getMessage());
-  }
-
-  @ResponseStatus(NOT_FOUND)
-  @ExceptionHandler(TopicNotFoundException.class)
-  public ApiErrorResponseDto handleTopicNotFoundException(TopicNotFoundException exception) {
-    return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
   }
 
   @ResponseStatus(FORBIDDEN)
   @ExceptionHandler(TopicAccessException.class)
-  public ApiErrorResponseDto handleTopicAccessException(TopicAccessException exception) {
+  public ApiErrorResponseDto handleForbiddenException(RuntimeException exception) {
     return new ApiErrorResponseDto(FORBIDDEN, exception.getMessage());
   }
 

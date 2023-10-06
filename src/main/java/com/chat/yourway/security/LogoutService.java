@@ -20,7 +20,7 @@ public class LogoutService implements LogoutHandler {
   @Override
   public void logout(HttpServletRequest request, HttpServletResponse response,
       Authentication auth) {
-    log.trace("Started logout contact email: {}", auth.getName());
+    log.trace("Started logout");
     final String token = jwtService.extractToken(request);
 
     var storedToken = tokenService.findByToken(token);
