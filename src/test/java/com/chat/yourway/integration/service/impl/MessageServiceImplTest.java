@@ -67,7 +67,7 @@ public class MessageServiceImplTest {
 
   @Test
   @DisplayName("should delete message when user makes report and message reached max attempts")
-  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.INSERT)
+  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/report-to-message-dataset.xml",
       type = DatabaseOperation.DELETE)
