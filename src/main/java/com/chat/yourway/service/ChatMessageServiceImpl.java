@@ -5,6 +5,7 @@ import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.service.interfaces.ChatMessageService;
 import com.chat.yourway.service.interfaces.MessageService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,13 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     log.trace("{} sent message to {}", email, sendTo);
     return messageResponseDto;
+  }
+
+  @Override
+  public List<MessageResponseDto> getMessages(Integer topicId){
+    List<MessageResponseDto> messages = messageService.findAllByTopicId(topicId);
+    simpMessagingTemplate.convertAndSend(toTopicDestination(topicId), messages);
+    return messages;
   }
 
   private String toTopicDestination(Integer topicId) {
