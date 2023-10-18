@@ -43,4 +43,19 @@ public interface TopicSubscriberService {
    */
   boolean hasContactSubscribedToTopic(String email, Integer topicId);
 
+  /**
+   * Retrieves a list of online contacts associated with a specific topic.
+   *
+   * This method queries the database or data source to find all online contacts that are
+   * linked to the provided topic ID. Online contacts are those currently available for
+   * communication.
+   *
+   * @param topicId The unique identifier of the topic for which you want to retrieve online contacts.
+   * @return A list of {@link ContactResponseDto} objects representing online contacts
+   *         associated with the specified topic. If no online contacts are found for the
+   *         given topic ID, an empty list is returned. The list may also be empty if there
+   *         are no online contacts available at the moment.
+   *
+   */
+  List<ContactResponseDto> findAllOnlineContactsByTopicId(Integer topicId);
 }
