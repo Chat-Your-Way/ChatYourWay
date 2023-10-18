@@ -45,7 +45,6 @@ public interface TopicSubscriberService {
 
   /**
    * Retrieves a list of online contacts associated with a specific topic.
-   *
    * This method queries the database or data source to find all online contacts that are
    * linked to the provided topic ID. Online contacts are those currently available for
    * communication.
