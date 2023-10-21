@@ -20,4 +20,14 @@
     role="USER"
     avatar_id="7"
   />
+  <contact
+    id="3"
+    nickname="Anonim"
+    password="123"
+    is_active="true"
+    is_private="true"
+    email="anonim@user"
+    role="USER"
+    avatar_id="6"
+  />
 </dataset>
