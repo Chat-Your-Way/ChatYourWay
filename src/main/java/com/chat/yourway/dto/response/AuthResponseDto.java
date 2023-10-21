@@ -2,22 +2,20 @@ package com.chat.yourway.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-/**
- * {@link AuthResponseDto}
- *
- * @author Dmytro Trotsenko on 7/26/23
- */
-
-@Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
+@ToString
 public class AuthResponseDto {
 
-    private String accessToken;
-    private String refreshToken;
+  private String accessToken;
+  private String refreshToken;
 
 }

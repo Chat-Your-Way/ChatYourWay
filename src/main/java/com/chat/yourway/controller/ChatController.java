@@ -1,39 +1,35 @@
 package com.chat.yourway.controller;
 
-import com.chat.yourway.dto.request.ReceivedMessage;
-import com.chat.yourway.dto.response.SendMessage;
-import com.chat.yourway.service.MessageService;
+import com.chat.yourway.dto.request.MessagePrivateRequestDto;
+import com.chat.yourway.dto.request.MessagePublicRequestDto;
+import com.chat.yourway.dto.response.MessageResponseDto;
+import com.chat.yourway.service.interfaces.ChatMessageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
-
-/**
- * {@link ChatController}
- *
- * @author Dmytro Trotsenko on 7/21/23
- */
 
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
 
-    private final MessageService messageService;
+  private final ChatMessageService chatMessageService;
 
-    @MessageMapping("/application")
-    @SendTo("/topic")
-    public SendMessage sendToTopic(ReceivedMessage message, Principal principal) {
-        String username = principal.getName();
-        return messageService.sendToTopic(message, username);
-    }
+  @MessageMapping("/topic/{topicId}")
+  public MessageResponseDto sendToTopic(@DestinationVariable Integer topicId,
+      @Valid @Payload MessagePublicRequestDto message, Principal principal) {
+    String email = principal.getName();
+    return chatMessageService.sendToTopic(topicId, message, email);
+  }
 
-    @MessageMapping("/private")
-    public SendMessage sendToUser(@Payload ReceivedMessage message, Principal principal) {
-        String username = principal.getName();
-        return messageService.sendToUser(message, username);
-    }
-
+  @MessageMapping("/private")
+  public MessageResponseDto sendToContact(@Valid @Payload MessagePrivateRequestDto message,
+      Principal principal) {
+    String email = principal.getName();
+    return chatMessageService.sendToContact(message, email);
+  }
 }

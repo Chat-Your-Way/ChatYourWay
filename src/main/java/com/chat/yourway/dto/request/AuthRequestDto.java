@@ -1,23 +1,24 @@
 package com.chat.yourway.dto.request;
 
+import com.chat.yourway.annotation.EmailValidation;
+import com.chat.yourway.annotation.PasswordValidation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-/**
- * {@link AuthRequestDto}
- *
- * @author Dmytro Trotsenko on 7/27/23
- */
-
-@Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
+@ToString
 public class AuthRequestDto {
+  @EmailValidation
+  private String email;
 
-    private String email;
-    private String password;
-
+  @PasswordValidation
+  private String password;
 }
