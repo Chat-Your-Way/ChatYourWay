@@ -26,7 +26,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   @Transactional
   @Override
-  public MessageResponseDto sendToTopic(Integer topicId, MessagePublicRequestDto message, String email) {
+  public MessageResponseDto sendToTopic(Integer topicId, MessagePublicRequestDto message,
+      String email) {
     log.trace("Started contact email: {} sendToTopic id: {}", email, topicId);
     MessageResponseDto messageResponseDto = messageService.createPublic(topicId, message, email);
 
@@ -50,9 +51,11 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   }
 
   @Override
-  public List<MessageResponseDto> getMessages(Integer topicId){
+  public List<MessageResponseDto> getMessages(Integer topicId) {
+    log.trace("Started getMessages for topicId={}", topicId);
     List<MessageResponseDto> messages = messageService.findAllByTopicId(topicId);
     simpMessagingTemplate.convertAndSend(toTopicDestination(topicId), messages);
+    log.trace("All messages send to topicId={}", topicId);
     return messages;
   }
 
