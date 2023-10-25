@@ -13,6 +13,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
+  @Value("${spring.profiles.active}")
+  private String profile;
+
   @Value("${spring.data.redis.host}")
   private String redisHost;
 
@@ -24,8 +27,11 @@ public class RedisConfig {
 
   @Bean
   public JedisConnectionFactory jedisConnectionFactory() {
-    var redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisHost, redisPort);
-    redisStandaloneConfiguration.setPassword(redisPassword);
+    RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(
+        redisHost, redisPort);
+    if (profile.equals("prod")) {
+      redisStandaloneConfiguration.setPassword(redisPassword);
+    }
     return new JedisConnectionFactory(redisStandaloneConfiguration);
   }
 
