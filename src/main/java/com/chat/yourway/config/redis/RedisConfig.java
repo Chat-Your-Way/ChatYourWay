@@ -1,7 +1,7 @@
-package com.chat.yourway.config;
+package com.chat.yourway.config.redis;
 
 import com.chat.yourway.model.token.Token;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -11,26 +11,17 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
+@RequiredArgsConstructor
 public class RedisConfig {
 
-  @Value("${spring.profiles.active}")
-  private String profile;
-
-  @Value("${spring.data.redis.host}")
-  private String redisHost;
-
-  @Value("${spring.data.redis.port}")
-  private int redisPort;
-
-  @Value("${spring.data.redis.password}")
-  private String redisPassword;
+  private final RedisProperties properties;
 
   @Bean
   public JedisConnectionFactory jedisConnectionFactory() {
     RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(
-        redisHost, redisPort);
-    if (profile.equals("prod")) {
-      redisStandaloneConfiguration.setPassword(redisPassword);
+        properties.getHost(), properties.getPort());
+    if (properties.getProfile().equals("prod")) {
+      redisStandaloneConfiguration.setPassword(properties.getPassword());
     }
     return new JedisConnectionFactory(redisStandaloneConfiguration);
   }
