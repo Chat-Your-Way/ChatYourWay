@@ -1,5 +1,6 @@
 package com.chat.yourway.integration.controller;
 
+import static com.chat.yourway.model.Role.USER;
 import static com.chat.yourway.model.token.TokenType.BEARER;
 import static com.github.springtestdbunit.annotation.DatabaseOperation.CLEAN_INSERT;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -11,8 +12,10 @@ import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.integration.controller.websocketclient.TestStompFrameHandler;
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
+import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.token.Token;
 import com.chat.yourway.repository.TokenRedisRepository;
+import com.chat.yourway.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
@@ -58,24 +61,25 @@ public class ChatControllerTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
   @Autowired
   private TokenRedisRepository tokenRedisRepository;
+
+  @Autowired
+  private JwtService jwtService;
 
   @LocalServerPort
   private int port;
   private StompSession session;
 
-  //Test jwt access token for email = vasil@gmail.com, expiration = 19/09/2024
-  private final String JWT_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2YXNpbEBnbWFpbC5jb20iLCJpYXQiOjE2OTc3MTQzNzYsImV4cCI6MTcyNjc0NDc3Nn0.d8cLceS967kh45h2P-cbQix5XAAo4LRYvGUZmo9HFHI";
-
   @BeforeEach
   void setUp() {
-    saveTokenToRedis();
+    String accessToken = getAccessToken();
 
     String URL = "ws://localhost:" + port + "/chat";
 
     WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-    headers.add("Authorization", "Bearer " + JWT_ACCESS_TOKEN);
+    headers.add("Authorization", "Bearer " + accessToken);
 
     session = createWebSocketSession(URL, headers);
   }
@@ -176,10 +180,22 @@ public class ChatControllerTest {
   //         Private methods
   //-----------------------------------
 
-  private void saveTokenToRedis() {
+  private String getAccessToken() {
+    String accessToken = jwtService.generateAccessToken(Contact.builder()
+        .email("vasil@gmail.com")
+        .password("Password-123")
+        .role(USER)
+        .build());
+
+    saveTokenToRedis(accessToken);
+
+    return accessToken;
+  }
+
+  private void saveTokenToRedis(String accessToken) {
     tokenRedisRepository.save(Token.builder()
         .email("vasil@gmail.com")
-        .token(JWT_ACCESS_TOKEN)
+        .token(accessToken)
         .tokenType(BEARER)
         .expired(false)
         .revoked(false)

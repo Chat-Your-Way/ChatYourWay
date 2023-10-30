@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
   <message
-    id="1"
+    id="100"
     sent_from="anton@gmail.com"
     send_to="Topic id=1"
     content="hi"
@@ -9,7 +9,7 @@
     topic_id="1"
   />
   <message
-    id="2"
+    id="101"
     sent_from="vasil@gmail.com"
     send_to="Topic id=1"
     content="hello"
@@ -17,7 +17,7 @@
     topic_id="1"
   />
   <message
-    id="3"
+    id="102"
     sent_from="anton@gmail.com"
     send_to="vasil@gmail.com"
     content="hello Vasil!"
@@ -25,7 +25,7 @@
     topic_id="2"
   />
   <message
-    id="4"
+    id="103"
     sent_from="vasil@gmail.com"
     send_to="anton@gmail.com"
     content="hello Anton!"
