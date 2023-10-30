@@ -96,7 +96,7 @@ public class MessageControllerTest {
   @DisplayName("reportMessage should report a message")
   public void reportMessage_shouldReportMessage() throws Exception {
     // Given
-    int messageId = 3;
+    int messageId = 103;
     String email = "vasil@gmail.com";
 
     // When
@@ -126,7 +126,7 @@ public class MessageControllerTest {
   @DisplayName("reportMessage should return 400 Bad Request if message is already reported")
   public void reportMessage_shouldReturn400ForAlreadyReportedMessage() throws Exception {
     // Given
-    int messageId = 1;
+    int messageId = 100;
     String email = "vasil@gmail.com";
 
     // When
