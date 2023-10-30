@@ -53,9 +53,12 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   @Override
   public List<MessageResponseDto> getMessages(Integer topicId) {
     log.trace("Started getMessages for topicId={}", topicId);
+
     List<MessageResponseDto> messages = messageService.findAllByTopicId(topicId);
     simpMessagingTemplate.convertAndSend(toTopicDestination(topicId), messages);
+
     log.trace("All messages send to topicId={}", topicId);
+
     return messages;
   }
 
