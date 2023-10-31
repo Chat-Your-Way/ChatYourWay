@@ -3,6 +3,8 @@ package com.chat.yourway.repository;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.TopicSubscriber;
 import java.util.List;
+import java.util.Set;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -39,4 +41,25 @@ public interface TopicSubscriberRepository extends JpaRepository<TopicSubscriber
       """)
   List<Contact> findAllActiveSubscribersByTopicId(Integer topicId);
 
+  @Modifying
+  @Query(value = """
+      UPDATE chat.topic_subscriber ts set ts.last_message_id = :last_message_id
+      from ts join chat.contact c on c.id = ts.subscriber_id 
+      WHERE ts.topic_id = :topicId AND c.email = :subEmail
+      """, nativeQuery = true)
+  void setLastMessageByOneSubscriber(String subEmail, Integer lastMessageId, Integer topicId);
+
+  @Modifying
+  @Query(value = """
+      UPDATE chat.topic_subscriber ts set ts.last_message_id = :last_message_id
+      from ts join chat.contact c on c.id = ts.subscriber_id 
+      WHERE ts.topic_id = :topicId AND c.email in :subEmails
+      """, nativeQuery = true)
+  void setLastMessageByManySubscribers(Set<String> subEmails, Integer lastMessageId, Integer topicId);
+
+  @Query(value = """
+      SELECT ts.subscriber_id from ts join chat.contact c on c.id = ts.subscriber_id 
+      WHERE ts.topic_id = :topicId AND c.email not in :subEmails
+      """, nativeQuery = true)
+  List<Integer> findAllSubIdsWhoNotInSubEmails(Set<String> subEmails, Integer topicId);
 }

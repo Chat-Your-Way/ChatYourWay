@@ -30,4 +30,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
 
 
   List<Message> findAllByTopicId(Integer topic_id);
+
+  @Query(value = "SELECT MAX(m.id) from Topic t join t.messages m where t.id = :topicId")
+  Integer findLastMessageIdByTopicId(Integer topicId);
 }
