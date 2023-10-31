@@ -10,8 +10,10 @@ import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.mapper.MessageMapper;
 import com.chat.yourway.mapper.TopicMapper;
 import com.chat.yourway.model.Message;
+import com.chat.yourway.repository.impl.LastMessageRepositoryImpl;
 import com.chat.yourway.repository.MessageRepository;
 import com.chat.yourway.service.interfaces.MessageService;
+import com.chat.yourway.service.interfaces.NotificationMessageService;
 import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import jakarta.transaction.Transactional;
@@ -35,6 +37,8 @@ public class MessageServiceImpl implements MessageService {
   private final TopicService topicService;
   private final TopicMapper topicMapper;
   private final TopicSubscriberService topicSubscriberService;
+  private final LastMessageRepositoryImpl lastMessageRepository;
+  private final NotificationMessageService notificationMessageService;
 
   @Transactional
   @Override
@@ -52,6 +56,10 @@ public class MessageServiceImpl implements MessageService {
         .timestamp(LocalDateTime.now())
         .topic(topicMapper.toEntity(topic))
         .build());
+    var lastMessageId = savedMessage.getId();
+
+    log.trace("Set last message id [{}] of topic id [{}]", lastMessageId, topicId);
+    processMessage(lastMessageId, topicId);
 
     log.trace("Public message from email: {} to topic id: {} was created", email, topicId);
     return messageMapper.toResponseDto(savedMessage);
@@ -72,6 +80,11 @@ public class MessageServiceImpl implements MessageService {
         .timestamp(LocalDateTime.now())
         .topic(topicMapper.toEntity(topic))
         .build());
+    var lastMessageId = savedMessage.getId();
+    var topicId = savedMessage.getTopic().getId();
+
+    log.trace("Set last message id [{}] of topic id [{}]", lastMessageId, topicId);
+    processMessage(lastMessageId, topicId);
 
     log.trace("Private message from email: {} to email: {} was created", email, sendTo);
     return messageMapper.toResponseDto(savedMessage);
@@ -110,4 +123,9 @@ public class MessageServiceImpl implements MessageService {
     }
   }
 
+  private void processMessage(int lastMessageId, int topicId) {
+    lastMessageRepository.setLastMessageIdTopicId(lastMessageId, topicId);
+    notificationMessageService.setLastMessageSubsByTopicId(topicId);
+    notificationMessageService.sendNotification(topicId);
+  }
 }
