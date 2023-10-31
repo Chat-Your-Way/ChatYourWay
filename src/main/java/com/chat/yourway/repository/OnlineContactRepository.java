@@ -1,23 +1,25 @@
 package com.chat.yourway.repository;
 
-import org.springframework.stereotype.Repository;
+public interface OnlineContactRepository {
+    /**
+     * Saves a contact's email address to the repository.
+     *
+     * @param email The email address of the contact to be saved.
+     */
+    void save(String email);
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+    /**
+     * Deletes a contact's email address from the repository.
+     *
+     * @param email The email address of the contact to be deleted.
+     */
+    void delete(String email);
 
-@Repository
-public class OnlineContactRepository {
-  private static final Set<String> onlineContactEmails = ConcurrentHashMap.newKeySet();
-
-  public void save(String email) {
-    onlineContactEmails.add(email);
-  }
-
-  public void delete(String email) {
-    onlineContactEmails.remove(email);
-  }
-
-  public boolean contains(String email) {
-    return onlineContactEmails.contains(email);
-  }
+    /**
+     * Checks if a contact with the given email address exists in the repository.
+     *
+     * @param email The email address to check for existence.
+     * @return true if the contact exists, false otherwise.
+     */
+    boolean contains(String email);
 }
