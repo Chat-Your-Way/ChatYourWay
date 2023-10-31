@@ -1,24 +1,21 @@
 package com.chat.yourway.listener;
 
-import com.chat.yourway.repository.OnlineContactRepository;
+import com.chat.yourway.repository.impl.OnlineContactRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.AbstractSubProtocolEvent;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.util.Objects;
-
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class StompConnectionListener {
+public class StompConnectionListener extends StompListener {
   private static final boolean ONLINE = true;
 
-  private final OnlineContactRepository onlineContactRepository;
+  private final OnlineContactRepositoryImpl onlineContactRepository;
 
   @EventListener
   public void handleWebSocketConnectListener(SessionConnectEvent event) {
@@ -46,11 +43,5 @@ public class StompConnectionListener {
       onlineContactRepository.delete(userEmail);
       log.info("User [{}] deleted successfully", userEmail);
     }
-  }
-
-  private String getUserEmail(AbstractSubProtocolEvent event) {
-    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.wrap(event.getMessage());
-
-    return Objects.requireNonNull(Objects.requireNonNull(headerAccessor.getUser()).getName());
   }
 }
