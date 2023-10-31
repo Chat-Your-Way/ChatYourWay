@@ -77,7 +77,7 @@ public class MessageControllerTest {
   @DisplayName("findAllByTopicId should return list of all messages by topic id")
   public void findAllByTopicId_shouldReturnListOfAllMessagesByTopicId() throws Exception {
     // Given
-    int topicId = 1;
+    int topicId = 11;
     List<Message> messages = messageRepository.findAllByTopicId(topicId);
 
     // When

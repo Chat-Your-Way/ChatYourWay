@@ -95,7 +95,7 @@ public class ChatControllerTest {
   @DisplayName("sendToTopic should return correct send to public topic and received message from topic")
   void sendToTopic_shouldReturnCorrectSendToPublicTopicAndReceivedMessageFromTopic() {
     // Given
-    int topicId = 3;
+    int topicId = 13;
     MessagePublicRequestDto messageRequestDto = new MessagePublicRequestDto("Hello");
     //Stored subscription results for testing
     CompletableFuture<MessageResponseDto> resultKeeper = new CompletableFuture<>();
@@ -152,7 +152,7 @@ public class ChatControllerTest {
   @DisplayName("getMessages should return received messages history from topic")
   void getMessages_shouldReturnReceivedMessagesHistoryFromTopic() {
     // Given
-    int topicId = 2;
+    int topicId = 12;
     //Stored subscription results for testing
     CompletableFuture<MessageResponseDto[]> resultKeeper = new CompletableFuture<>();
 

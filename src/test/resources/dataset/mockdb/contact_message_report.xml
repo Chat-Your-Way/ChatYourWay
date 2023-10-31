@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
   <contact_message_report
-    contact_id="1"
+    contact_id="11"
     message_id="100"
   />
   <contact_message_report
-    contact_id="2"
+    contact_id="12"
     message_id="100"
   />
 </dataset>
