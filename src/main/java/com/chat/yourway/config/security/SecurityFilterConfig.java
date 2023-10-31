@@ -51,7 +51,7 @@ public class SecurityFilterConfig {
       "/ws/**", "/chat/**",
 
       //Other
-      "/"
+      "/*"
   };
 
   @Bean
