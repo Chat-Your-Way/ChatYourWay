@@ -11,15 +11,18 @@
   <div>
 
     <div>
-      <label for="message">
-        <input type="text" id="message" placeholder="Enter your message">
-      </label>
-
       <label for="subscribeToTopic">
         <input type="number" id="subscribeToTopic" placeholder="Enter topic id">
       </label>
 
       <button onclick="subscribeToTopic()">Subscribe</button>
+    </div>
+    <br/>
+    <div>
+      <label for="message">
+        <input type="text" id="message" placeholder="Enter your message">
+      </label>
+
       <button onclick="sendMessage()">Send to Topic</button>
     </div>
     <br/>
@@ -46,47 +49,66 @@
 <script>
   const socket = new SockJS('/chat');
   const stompClient = Stomp.over(socket);
+  const toUserDest = '/user/specific';
+  const toTopicDest = '/topic/';
+  const sendToTopicDest = "/app/topic/";
+  const sendToUserDest = "/app/private";
+  const getMessagesDest = '/app/get/messages/';
 
   stompClient.connect({}, function (frame) {
     console.log('Connected: ' + frame);
 
     subscribeToTopic();
-
-    stompClient.subscribe('/user/specific', function (message) {
-      console.log(message.body);
-      showMessage(JSON.parse(message.body));
-    });
+    subscribeToUser();
   });
 
-  function subscribeToTopic() {
-    var topicId = document.getElementById('subscribeToTopic').value;
-
-    stompClient.subscribe('/topic/' + topicId, function (message) {
+  function subscribeToUser() {
+    stompClient.subscribe(toUserDest, function (message) {
       console.log(message.body);
       showMessage(JSON.parse(message.body));
     });
+  }
 
+  function subscribeToTopic() {
+    let topicId = document.getElementById('subscribeToTopic').value;
+
+    stompClient.subscribe(toTopicDest + topicId, function (messages) {
+      let parseMessage = JSON.parse(messages.body);
+      if (Array.isArray(parseMessage)) {
+        parseMessage.forEach(function (message) {
+          showMessage(message);
+        });
+      } else {
+        showMessage(parseMessage);
+      }
+    });
+
+    getMessageHistory(topicId);
   }
 
   function showMessage(message) {
-    var response = document.getElementById('messages');
+    let response = document.getElementById('messages');
     response.innerText += ('>>> ' + JSON.stringify(message) + '\n');
   }
 
+  function getMessageHistory(topicId) {
+    stompClient.send(getMessagesDest + topicId);
+  }
+
   function sendMessage() {
-    var message = document.getElementById('message').value;
-    var topicId = document.getElementById('subscribeToTopic').value;
-    stompClient.send("/app/topic/" + topicId, {},
+    let message = document.getElementById('message').value;
+    let topicId = document.getElementById('subscribeToTopic').value;
+    stompClient.send(sendToTopicDest + topicId, {},
         JSON.stringify({'sendTo': topicId, 'content': message}));
   }
 
   function sendPrivateMessage() {
-    var message = document.getElementById('privateMessage').value;
-    var sendTo = document.getElementById('sendToContact').value;
-    var request = JSON.stringify({'sendTo': sendTo, 'content': message});
-    var response = document.getElementById('messages');
+    let message = document.getElementById('privateMessage').value;
+    let sendTo = document.getElementById('sendToContact').value;
+    let request = JSON.stringify({'sendTo': sendTo, 'content': message});
+    let response = document.getElementById('messages');
 
-    stompClient.send("/app/private", {}, request);
+    stompClient.send(sendToUserDest, {}, request);
     response.innerText += ('<<< ' + request + '\n');
   }
 </script>
