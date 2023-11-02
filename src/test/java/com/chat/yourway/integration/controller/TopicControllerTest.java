@@ -16,6 +16,7 @@ import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TagResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
+import com.chat.yourway.exception.OwnerCantUnsubscribedException;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
@@ -382,6 +383,26 @@ public class TopicControllerTest {
         .andExpect(status().isNotFound())
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
             TopicSubscriberNotFoundException.class));
+  }
+
+  @Test
+  @DisplayName("unsubscribe should Return OwnerCantUnsubscribedException")
+  public void unsubscribe_shouldReturnOwnerCantUnsubscribedException() throws Exception {
+    // Given
+    Contact savedContact = contactRepository.save(getContacts().get(0));
+    Topic topic = getTopics().get(0);
+    topic.setCreatedBy(savedContact.getEmail());
+    Topic savedTopic = topicRepository.save(topic);
+    Integer topicId = savedTopic.getId();
+    String userEmail = savedContact.getEmail();
+    topicSubscriberService.subscribeToTopicById(userEmail, topicId);
+
+    mockMvc.perform(patch(URI + "/unsubscribe/{topicId}", topicId)
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isForbidden())
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
+            OwnerCantUnsubscribedException.class));
   }
 
   //-----------------------------------
