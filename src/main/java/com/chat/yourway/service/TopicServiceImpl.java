@@ -2,6 +2,7 @@ package com.chat.yourway.service;
 
 import static java.util.stream.Collectors.toSet;
 
+import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
@@ -127,14 +128,14 @@ public class TopicServiceImpl implements TopicService {
 
   @Transactional
   @Override
-  public Set<Tag> addUniqTags(Set<String> tags) {
+  public Set<Tag> addUniqTags(Set<TagRequestDto> tags) {
     log.trace("Started addUniqTags tags: {}", tags);
 
     Set<String> tagNames = tags.stream()
-        .map(tag -> tag.trim().toLowerCase())
+        .map(tag -> tag.getName().trim().toLowerCase())
         .collect(toSet());
 
-    Set<Tag> existingTags = tagRepository.findAllByNameIn(tags);
+    Set<Tag> existingTags = tagRepository.findAllByNameIn(tagNames);
     log.trace("Found existing tags: {}", existingTags);
 
     Set<String> existingTagNames = existingTags.stream()

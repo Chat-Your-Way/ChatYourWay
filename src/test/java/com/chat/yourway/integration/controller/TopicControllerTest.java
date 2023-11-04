@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TagResponseDto;
@@ -40,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -273,6 +275,10 @@ public class TopicControllerTest {
     updatedTopicRequestDto.setTopicName("Updated Topic");
     updatedTopicRequestDto.setTags(new HashSet<>(getTags()));
 
+    Set<String> expectedTags = getTags().stream()
+        .map(TagRequestDto::getName)
+        .collect(Collectors.toSet());
+
     mockMvc.perform(put(URI + "/update/{id}", topicId)
             .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
             .principal(new TestingAuthenticationToken(userEmail, null))
@@ -286,7 +292,7 @@ public class TopicControllerTest {
     Set<TagResponseDto> updatedTags = topicResponseDto.getTags();
 
     assertThat(updatedTags).isNotEmpty();
-    assertThat(updatedTags).extracting(TagResponseDto::getName).containsAll(getTags());
+    assertThat(updatedTags).extracting(TagResponseDto::getName).containsAll(expectedTags);
   }
 
   @Test
@@ -572,8 +578,8 @@ public class TopicControllerTest {
   //         Private methods
   //-----------------------------------
 
-  private List<String> getTags() {
-    return List.of("#tag1", "#tag2");
+  private List<TagRequestDto> getTags() {
+    return List.of(new TagRequestDto("#tag1"), new TagRequestDto("#tag2"));
   }
 
   private List<Topic> getTopics() {

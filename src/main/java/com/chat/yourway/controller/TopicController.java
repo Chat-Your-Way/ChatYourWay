@@ -87,7 +87,7 @@ public class TopicController {
       })
   @PutMapping(path = "/update/{id}", produces = APPLICATION_JSON_VALUE)
   public TopicResponseDto update(@PathVariable Integer id,
-      @RequestBody TopicRequestDto topicRequestDto, Principal principal) {
+      @Valid @RequestBody TopicRequestDto topicRequestDto, Principal principal) {
     String email = principal.getName();
     return topicService.update(id, topicRequestDto, email);
   }
@@ -181,11 +181,11 @@ public class TopicController {
   }
 
   @Operation(summary = "Find all topics by topic name",
-          responses = {
-                  @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                  @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
-                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-          })
+      responses = {
+          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
+          @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
+              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+      })
   @GetMapping(path = "/search", produces = APPLICATION_JSON_VALUE)
   public List<TopicResponseDto> findAllByTopicName(@RequestParam String topicName) {
     return topicService.findTopicsByTopicName(topicName);
