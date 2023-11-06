@@ -118,8 +118,11 @@ public class TopicControllerTest {
   public void createPrivate_shouldCreateNewPrivateTopic() throws Exception {
     // Given
     String sentFrom = "vasil@gmail.com";
-    String sendTo = "anton@gmail.com";
+    Contact recipient = getContacts().get(0);
+    String sendTo = recipient.getEmail();
     TopicPrivateRequestDto topicRequestDto = new TopicPrivateRequestDto(sendTo);
+
+    contactRepository.save(recipient);
 
     mockMvc.perform(post(URI + "/create/private")
             .content(objectMapper.writeValueAsString(topicRequestDto))
