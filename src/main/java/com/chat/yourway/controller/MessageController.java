@@ -42,7 +42,7 @@ public class MessageController {
           })
   @PostMapping("/{id}/report")
   public void reportMessage(
-      @PathVariable Integer id, Principal principal) {
+      @PathVariable int id, Principal principal) {
     String email = principal.getName();
     messageService.reportMessageById(id, email);
   }
