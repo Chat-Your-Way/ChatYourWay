@@ -35,5 +35,6 @@ public class OpenApiMessages {
   public static final String INVALID_VALUE = "Invalid value of request object field";
   public static final String SUCCESSFULLY_FOUND_MESSAGE = "Message successfully found";
   public static final String OWNER_CANT_UNSUBSCRIBED = "Owner can't unsubscribed from topic";
+  public static final String RECIPIENT_EMAIL_NOT_EXIST = "Recipient email does not exist";
 
 }

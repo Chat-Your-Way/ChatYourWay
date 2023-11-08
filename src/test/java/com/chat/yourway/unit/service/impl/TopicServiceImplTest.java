@@ -27,6 +27,7 @@ import com.chat.yourway.model.Topic;
 import com.chat.yourway.repository.TagRepository;
 import com.chat.yourway.repository.TopicRepository;
 import com.chat.yourway.service.TopicServiceImpl;
+import com.chat.yourway.service.interfaces.ContactService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -58,6 +59,8 @@ public class TopicServiceImplTest {
 
   @Spy
   TopicSubscriberService topicSubscriberService;
+  @Mock
+  ContactService contactService;
 
   @Spy
   @InjectMocks
@@ -105,9 +108,11 @@ public class TopicServiceImplTest {
     topic.setTopicName("abc@gmail.com<->test-topic@gmail.com");
     topic.setIsPublic(false);
     String email = topic.getCreatedBy();
-    TopicPrivateRequestDto topicPrivateRequestDto = new TopicPrivateRequestDto("abc@gmail.com");
+    String sentTo = "abc@gmail.com";
+    TopicPrivateRequestDto topicPrivateRequestDto = new TopicPrivateRequestDto(sentTo);
 
     when(topicRepository.save(any(Topic.class))).thenReturn(topic);
+    when(contactService.isEmailExists("abc@gmail.com")).thenReturn(true);
 
     // When
     TopicResponseDto topicResponseDto = topicService.createPrivate(topicPrivateRequestDto, email);

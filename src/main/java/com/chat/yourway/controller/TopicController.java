@@ -5,6 +5,7 @@ import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_UNAUTHORIZ
 import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_WASNT_SUBSCRIBED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.INVALID_VALUE;
 import static com.chat.yourway.config.openapi.OpenApiMessages.OWNER_CANT_UNSUBSCRIBED;
+import static com.chat.yourway.config.openapi.OpenApiMessages.RECIPIENT_EMAIL_NOT_EXIST;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_CREATED_TOPIC;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_DELETE_TOPIC;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_FOUND_TOPIC;
@@ -67,6 +68,8 @@ public class TopicController {
           @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
+              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+          @ApiResponse(responseCode = "404", description = RECIPIENT_EMAIL_NOT_EXIST,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "400", description = INVALID_VALUE)
       })
