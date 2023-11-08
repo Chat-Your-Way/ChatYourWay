@@ -66,7 +66,7 @@ public class TopicController {
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-          @ApiResponse(responseCode = "403", description = RECIPIENT_EMAIL_NOT_EXIST,
+          @ApiResponse(responseCode = "404", description = RECIPIENT_EMAIL_NOT_EXIST,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "400", description = INVALID_VALUE)
       })
