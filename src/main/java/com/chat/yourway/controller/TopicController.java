@@ -5,6 +5,8 @@ import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_UNAUTHORIZ
 import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_WASNT_SUBSCRIBED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.INVALID_VALUE;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SEARCH_TOPIC_VALIDATION;
+import static com.chat.yourway.config.openapi.OpenApiMessages.OWNER_CANT_UNSUBSCRIBED;
+import static com.chat.yourway.config.openapi.OpenApiMessages.RECIPIENT_EMAIL_NOT_EXIST;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_CREATED_TOPIC;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_DELETE_TOPIC;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_FOUND_TOPIC;
@@ -71,6 +73,8 @@ public class TopicController {
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+          @ApiResponse(responseCode = "404", description = RECIPIENT_EMAIL_NOT_EXIST,
+              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "400", description = INVALID_VALUE)
       })
   @PostMapping(path = "/create/private", produces = APPLICATION_JSON_VALUE)
@@ -93,7 +97,7 @@ public class TopicController {
       })
   @PutMapping(path = "/update/{id}", produces = APPLICATION_JSON_VALUE)
   public TopicResponseDto update(@PathVariable Integer id,
-      @RequestBody TopicRequestDto topicRequestDto, Principal principal) {
+      @Valid @RequestBody TopicRequestDto topicRequestDto, Principal principal) {
     String email = principal.getName();
     return topicService.update(id, topicRequestDto, email);
   }
@@ -156,6 +160,8 @@ public class TopicController {
           @ApiResponse(responseCode = "404", description = CONTACT_WASNT_SUBSCRIBED,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
+              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+          @ApiResponse(responseCode = "403", description = OWNER_CANT_UNSUBSCRIBED,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
   @PatchMapping(path = "/unsubscribe/{topicId}", produces = APPLICATION_JSON_VALUE)
@@ -183,7 +189,8 @@ public class TopicController {
       })
   @GetMapping(path = "/all/{tag}", produces = APPLICATION_JSON_VALUE)
   public List<TopicResponseDto> findAllByTegName(@PathVariable String tag) {
-    return topicService.findTopicsByTagName(tag);
+    String decodedTag = URLDecoder.decode(tag, UTF_8);
+    return topicService.findTopicsByTagName(decodedTag);
   }
 
   @Operation(summary = "Find all topics by topic name",

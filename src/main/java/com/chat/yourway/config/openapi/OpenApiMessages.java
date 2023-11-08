@@ -33,8 +33,9 @@ public class OpenApiMessages {
   public static final String TOPIC_NOT_ACCESS = "Topic operation not access";
   public static final String SUCCESSFULLY_UPDATED_TOPIC = "Topic successfully updated";
   public static final String INVALID_VALUE = "Invalid value of request object field";
-
   public static final String SUCCESSFULLY_FOUND_MESSAGE = "Message successfully found";
   public static final String SEARCH_TOPIC_VALIDATION = "Must contains only characters and digits";
+  public static final String OWNER_CANT_UNSUBSCRIBED = "Owner can't unsubscribed from topic";
+  public static final String RECIPIENT_EMAIL_NOT_EXIST = "Recipient email does not exist";
 
 }

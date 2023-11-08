@@ -20,6 +20,4 @@ public interface ContactRepository extends JpaRepository<Contact, Integer> {
 
   boolean existsByEmailIgnoreCase(String email);
 
-  boolean existsByNicknameIgnoreCase(String nickname);
-
 }

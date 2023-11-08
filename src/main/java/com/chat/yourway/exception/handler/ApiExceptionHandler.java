@@ -59,7 +59,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
       TokenNotFoundException.class,
       MessageNotFoundException.class,
       TopicSubscriberNotFoundException.class,
-      TopicNotFoundException.class
+      TopicNotFoundException.class,
+      ContactEmailNotExist.class
   })
   public ApiErrorResponseDto handleNotFoundException(RuntimeException exception) {
     return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
@@ -96,7 +97,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ResponseStatus(FORBIDDEN)
-  @ExceptionHandler(TopicAccessException.class)
+  @ExceptionHandler({
+      TopicAccessException.class,
+      OwnerCantUnsubscribedException.class
+  })
   public ApiErrorResponseDto handleForbiddenException(RuntimeException exception) {
     return new ApiErrorResponseDto(FORBIDDEN, exception.getMessage());
   }
