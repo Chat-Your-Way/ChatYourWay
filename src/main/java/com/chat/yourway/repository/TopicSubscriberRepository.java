@@ -39,4 +39,5 @@ public interface TopicSubscriberRepository extends JpaRepository<TopicSubscriber
       """)
   List<Contact> findAllActiveSubscribersByTopicId(Integer topicId);
 
+  boolean existsByTopicIdAndTopicCreatedBy(Integer topicId, String topicCreator);
 }
