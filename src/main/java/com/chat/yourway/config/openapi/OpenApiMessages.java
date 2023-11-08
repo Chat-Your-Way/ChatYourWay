@@ -35,5 +35,6 @@ public class OpenApiMessages {
   public static final String INVALID_VALUE = "Invalid value of request object field";
 
   public static final String SUCCESSFULLY_FOUND_MESSAGE = "Message successfully found";
+  public static final String SEARCH_TOPIC_VALIDATION = "Must contains only characters and digits";
 
 }

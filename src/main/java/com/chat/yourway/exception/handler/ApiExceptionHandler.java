@@ -24,6 +24,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,7 +88,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler({
       EmailSendingException.class,
       PasswordsAreNotEqualException.class,
-      MessageHasAlreadyReportedException.class
+      MessageHasAlreadyReportedException.class,
+      ConstraintViolationException.class
   })
   public ApiErrorResponseDto handleBadRequestException(RuntimeException exception) {
     return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
