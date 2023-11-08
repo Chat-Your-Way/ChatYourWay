@@ -15,6 +15,7 @@ import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_UPDAT
 import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_ACCESS;
 import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_FOUND;
 import static com.chat.yourway.config.openapi.OpenApiMessages.VALUE_NOT_UNIQUE;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
@@ -30,6 +31,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URLDecoder;
 import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -91,7 +93,7 @@ public class TopicController {
       })
   @PutMapping(path = "/update/{id}", produces = APPLICATION_JSON_VALUE)
   public TopicResponseDto update(@PathVariable Integer id,
-      @RequestBody TopicRequestDto topicRequestDto, Principal principal) {
+      @Valid @RequestBody TopicRequestDto topicRequestDto, Principal principal) {
     String email = principal.getName();
     return topicService.update(id, topicRequestDto, email);
   }
@@ -181,15 +183,16 @@ public class TopicController {
       })
   @GetMapping(path = "/all/{tag}", produces = APPLICATION_JSON_VALUE)
   public List<TopicResponseDto> findAllByTegName(@PathVariable String tag) {
-    return topicService.findTopicsByTagName(tag);
+    String decodedTag = URLDecoder.decode(tag, UTF_8);
+    return topicService.findTopicsByTagName(decodedTag);
   }
 
   @Operation(summary = "Find all topics by topic name",
-          responses = {
-                  @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                  @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
-                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-          })
+      responses = {
+          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
+          @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
+              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+      })
   @GetMapping(path = "/search", produces = APPLICATION_JSON_VALUE)
   public List<TopicResponseDto> findAllByTopicName(@RequestParam String topicName) {
     return topicService.findTopicsByTopicName(topicName);
