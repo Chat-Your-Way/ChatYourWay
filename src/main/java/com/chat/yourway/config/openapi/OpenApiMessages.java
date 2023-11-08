@@ -34,6 +34,7 @@ public class OpenApiMessages {
   public static final String SUCCESSFULLY_UPDATED_TOPIC = "Topic successfully updated";
   public static final String INVALID_VALUE = "Invalid value of request object field";
   public static final String SUCCESSFULLY_FOUND_MESSAGE = "Message successfully found";
+
   public static final String RECIPIENT_EMAIL_NOT_EXIST = "Recipient email does not exist";
 
 }

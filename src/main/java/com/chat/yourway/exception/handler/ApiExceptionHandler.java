@@ -97,6 +97,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   @ResponseStatus(FORBIDDEN)
   @ExceptionHandler({
       TopicAccessException.class
+
   })
   public ApiErrorResponseDto handleForbiddenException(RuntimeException exception) {
     return new ApiErrorResponseDto(FORBIDDEN, exception.getMessage());
