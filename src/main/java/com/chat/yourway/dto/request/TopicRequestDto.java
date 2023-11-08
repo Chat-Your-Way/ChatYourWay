@@ -2,6 +2,7 @@ package com.chat.yourway.dto.request;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -27,6 +28,6 @@ public class TopicRequestDto {
   @ArraySchema(schema = @Schema(description = "Tags", example = "#programming"), minItems = 1, uniqueItems = true)
   @NotEmpty(message = "Topic should has at least 1 tag")
   @NotNull(message = "Topic should has at least 1 tag")
-  private Set<String> tags;
+  private Set<@Valid TagRequestDto> tags;
 
 }
