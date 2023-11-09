@@ -16,14 +16,21 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
   List<Topic> findAllByTagName(String tagName);
 
   @Query(
-      value = """
+      value =
+          """
           SELECT *
           FROM chat.topic t
           WHERE to_tsvector('english', t.topic_name) @@ to_tsquery('english', :query)
-          """, nativeQuery = true)
+          """,
+      nativeQuery = true)
   List<Topic> findAllByTopicName(String query);
 
   Optional<Topic> findByTopicName(String name);
 
   List<Topic> findAllByIsPublicIsTrue();
+
+  @Query(
+      "select t from Topic t join fetch t.topicSubscribers ts "
+          + "where ts.contact.email = :contactEmail and ts.isFavouriteTopic = true")
+  List<Topic> findAllFavouriteTopicsByContactEmail(String contactEmail);
 }
