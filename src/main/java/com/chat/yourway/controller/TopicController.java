@@ -242,6 +242,10 @@ public class TopicController {
         @ApiResponse(
             responseCode = "404",
             description = TOPIC_NOT_FOUND,
+            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        @ApiResponse(
+            responseCode = "409",
+            description = USER_DID_NOT_SUBSCRIBED_TO_TOPIC,
             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -262,6 +266,10 @@ public class TopicController {
         @ApiResponse(
             responseCode = "404",
             description = TOPIC_NOT_FOUND,
+            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        @ApiResponse(
+            responseCode = "409",
+            description = USER_DID_NOT_SUBSCRIBED_TO_TOPIC,
             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
   @ResponseStatus(HttpStatus.NO_CONTENT)
