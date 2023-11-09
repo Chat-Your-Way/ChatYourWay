@@ -24,6 +24,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +59,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
       TokenNotFoundException.class,
       MessageNotFoundException.class,
       TopicSubscriberNotFoundException.class,
-      TopicNotFoundException.class
+      TopicNotFoundException.class,
+      ContactEmailNotExist.class
   })
   public ApiErrorResponseDto handleNotFoundException(RuntimeException exception) {
     return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
@@ -87,14 +89,18 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler({
       EmailSendingException.class,
       PasswordsAreNotEqualException.class,
-      MessageHasAlreadyReportedException.class
+      MessageHasAlreadyReportedException.class,
+      ConstraintViolationException.class
   })
   public ApiErrorResponseDto handleBadRequestException(RuntimeException exception) {
     return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
   }
 
   @ResponseStatus(FORBIDDEN)
-  @ExceptionHandler(TopicAccessException.class)
+  @ExceptionHandler({
+      TopicAccessException.class,
+      OwnerCantUnsubscribedException.class
+  })
   public ApiErrorResponseDto handleForbiddenException(RuntimeException exception) {
     return new ApiErrorResponseDto(FORBIDDEN, exception.getMessage());
   }

@@ -3,11 +3,11 @@
   <email_token
     token="24596e34-cc65-4dce-b374-7419fbfc18e5"
     message_type="ACTIVATE"
-    contact_id="1"
+    contact_id="11"
   />
   <email_token
     token="14135f97-f54d-4114-9384-ee39ed63cfdc"
     message_type="ACTIVATE"
-    contact_id="2"
+    contact_id="12"
   />
 </dataset>
