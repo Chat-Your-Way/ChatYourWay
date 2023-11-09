@@ -45,20 +45,20 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
     responseCode = "ErrorCode",
     description = "Error response",
     content =
-    @Content(
-        schema = @Schema(implementation = ApiErrorResponseDto.class),
-        mediaType = MediaType.APPLICATION_JSON_VALUE))
+        @Content(
+            schema = @Schema(implementation = ApiErrorResponseDto.class),
+            mediaType = MediaType.APPLICATION_JSON_VALUE))
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(NOT_FOUND)
   @ExceptionHandler({
-      ContactNotFoundException.class,
-      EmailTokenNotFoundException.class,
-      TokenNotFoundException.class,
-      MessageNotFoundException.class,
-      TopicSubscriberNotFoundException.class,
-      TopicNotFoundException.class
+    ContactNotFoundException.class,
+    EmailTokenNotFoundException.class,
+    TokenNotFoundException.class,
+    MessageNotFoundException.class,
+    TopicSubscriberNotFoundException.class,
+    TopicNotFoundException.class
   })
   public ApiErrorResponseDto handleNotFoundException(RuntimeException exception) {
     return new ApiErrorResponseDto(NOT_FOUND, exception.getMessage());
@@ -66,8 +66,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(CONFLICT)
   @ExceptionHandler({
-      ValueNotUniqException.class,
-      ContactAlreadySubscribedToTopicException.class
+    ValueNotUniqException.class,
+    ContactAlreadySubscribedToTopicException.class,
+    NotSubscribedTopicException.class
   })
   public ApiErrorResponseDto handleConflictException(RuntimeException exception) {
     return new ApiErrorResponseDto(CONFLICT, exception.getMessage());
@@ -75,9 +76,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(UNAUTHORIZED)
   @ExceptionHandler({
-      InvalidTokenException.class,
-      InvalidCredentialsException.class,
-      ExpiredJwtException.class
+    InvalidTokenException.class,
+    InvalidCredentialsException.class,
+    ExpiredJwtException.class
   })
   public ApiErrorResponseDto handleUnauthorizedException(RuntimeException exception) {
     return new ApiErrorResponseDto(UNAUTHORIZED, exception.getMessage());
@@ -85,9 +86,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(BAD_REQUEST)
   @ExceptionHandler({
-      EmailSendingException.class,
-      PasswordsAreNotEqualException.class,
-      MessageHasAlreadyReportedException.class
+    EmailSendingException.class,
+    PasswordsAreNotEqualException.class,
+    MessageHasAlreadyReportedException.class
   })
   public ApiErrorResponseDto handleBadRequestException(RuntimeException exception) {
     return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
