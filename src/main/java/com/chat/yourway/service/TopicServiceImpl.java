@@ -2,9 +2,11 @@ package com.chat.yourway.service;
 
 import static java.util.stream.Collectors.toSet;
 
+import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
+import com.chat.yourway.exception.ContactEmailNotExist;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
@@ -13,6 +15,7 @@ import com.chat.yourway.model.Tag;
 import com.chat.yourway.model.Topic;
 import com.chat.yourway.repository.TagRepository;
 import com.chat.yourway.repository.TopicRepository;
+import com.chat.yourway.service.interfaces.ContactService;
 import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import java.time.LocalDateTime;
@@ -36,6 +39,7 @@ public class TopicServiceImpl implements TopicService {
   private final TagRepository tagRepository;
   private final TopicMapper topicMapper;
   private final TopicSubscriberService topicSubscriberService;
+  private final ContactService contactService;
 
   @Transactional
   @Override
@@ -51,6 +55,7 @@ public class TopicServiceImpl implements TopicService {
   public TopicResponseDto createPrivate(TopicPrivateRequestDto topicPrivateDto, String email) {
     String sendTo = topicPrivateDto.getSendTo();
     log.trace("Started create private topic by sendTo: {} and creator email: {}", sendTo, email);
+    validateRecipientEmail(sendTo);
     String privateName = generatePrivateName(sendTo, email);
     TopicRequestDto topicRequestDto = new TopicRequestDto(privateName, new HashSet<>());
 
@@ -128,12 +133,15 @@ public class TopicServiceImpl implements TopicService {
 
   @Transactional
   @Override
-  public Set<Tag> addUniqTags(Set<String> tags) {
+  public Set<Tag> addUniqTags(Set<TagRequestDto> tags) {
     log.trace("Started addUniqTags tags: {}", tags);
 
-    Set<String> tagNames = tags.stream().map(tag -> tag.trim().toLowerCase()).collect(toSet());
 
-    Set<Tag> existingTags = tagRepository.findAllByNameIn(tags);
+    Set<String> tagNames = tags.stream()
+        .map(tag -> tag.getName().trim().toLowerCase())
+        .collect(toSet());
+
+    Set<Tag> existingTags = tagRepository.findAllByNameIn(tagNames);
     log.trace("Found existing tags: {}", existingTags);
 
     Set<String> existingTagNames = existingTags.stream().map(Tag::getName).collect(toSet());
@@ -242,4 +250,15 @@ public class TopicServiceImpl implements TopicService {
   private boolean isCreator(String email, Topic topic) {
     return topic.getCreatedBy().equals(email);
   }
+
+
+  private void validateRecipientEmail(String sendTo) {
+    if (!contactService.isEmailExists(sendTo)) {
+      log.error("Private topic cannot be created, recipient email={} does not exist", sendTo);
+      throw new ContactEmailNotExist(String.format(
+          "Private topic cannot be created because recipient email: %s does not exist", sendTo));
+    }
+  }
+
+
 }

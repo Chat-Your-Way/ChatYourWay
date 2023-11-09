@@ -46,6 +46,7 @@ public interface TopicSubscriberRepository extends JpaRepository<TopicSubscriber
       """)
   List<Contact> findAllActiveSubscribersByTopicId(Integer topicId);
 
+
   @Modifying
   @Query(
       nativeQuery = true,
@@ -60,4 +61,7 @@ public interface TopicSubscriberRepository extends JpaRepository<TopicSubscriber
       @Param("topicId") int topicId,
       @Param("contactEmail") String contactEmail,
       @Param("isFavouriteTopic") boolean isFavouriteTopic);
+
+  boolean existsByTopicIdAndTopicCreatedBy(Integer topicId, String topicCreator);
+
 }

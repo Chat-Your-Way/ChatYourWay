@@ -41,12 +41,17 @@ public class OpenApiMessages {
   public static final String TOPIC_NOT_ACCESS = "Topic operation not access";
   public static final String SUCCESSFULLY_UPDATED_TOPIC = "Topic successfully updated";
   public static final String INVALID_VALUE = "Invalid value of request object field";
-
   public static final String SUCCESSFULLY_FOUND_MESSAGE = "Message successfully found";
+
   public static final String SUCCESSFULLY_ADD_TOPIC_TO_FAVOURITE =
       "Topic added to favourite successfully";
   public static final String SUCCESSFULLY_REMOVE_TOPIC_FROM_FAVOURITE =
       "Topic removed from favourite successfully";
   public static final String USER_DID_NOT_SUBSCRIBED_TO_TOPIC =
           "User did not subscribe to topic";
+
+  public static final String OWNER_CANT_UNSUBSCRIBED = "Owner can't unsubscribed from topic";
+  public static final String RECIPIENT_EMAIL_NOT_EXIST = "Recipient email does not exist";
+
+
 }

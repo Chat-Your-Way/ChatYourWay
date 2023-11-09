@@ -28,7 +28,7 @@ public class ContactServiceImpl implements ContactService {
   @Override
   public Contact create(ContactRequestDto contactRequestDto) {
     log.trace("Started create contact, contact email: {}", contactRequestDto.getEmail());
-    if (contactRepository.existsByEmailIgnoreCase(contactRequestDto.getEmail())) {
+    if (isEmailExists(contactRequestDto.getEmail())) {
       throw new ValueNotUniqException(
           String.format("Email %s already in use", contactRequestDto.getEmail()));
     }
@@ -84,4 +84,10 @@ public class ContactServiceImpl implements ContactService {
     contact = contactRepository.save(contact);
     log.trace("Updated contact: {}", contact);
   }
+
+  @Override
+  public boolean isEmailExists(String email) {
+    return contactRepository.existsByEmailIgnoreCase(email);
+  }
+
 }

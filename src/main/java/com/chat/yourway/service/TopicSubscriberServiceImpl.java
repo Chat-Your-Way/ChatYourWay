@@ -4,6 +4,7 @@ import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
 import com.chat.yourway.exception.NotSubscribedTopicException;
 import com.chat.yourway.exception.TopicNotFoundException;
+import com.chat.yourway.exception.OwnerCantUnsubscribedException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.mapper.ContactMapper;
 import com.chat.yourway.repository.TopicRepository;
@@ -48,9 +49,15 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
     log.trace("Started unsubscribeFromTopic, contact email: {}, id: {}", email, id);
 
     if (!hasContactSubscribedToTopic(email, id)) {
-      log.warn("Contact email: {} wasn't subscribed to the topic id: {}", email, id);
+      log.warn("Contact email: {} wasn't unsubscribed from the topic id: {}", email, id);
       throw new TopicSubscriberNotFoundException(
-          String.format("Contact email: %s wasn't subscribed to the topic id: %s", email, id));
+          String.format("Contact email: %s wasn't unsubscribed from the topic id: %s", email, id));
+    }
+
+    if (isTopicCreator(id, email)) {
+      log.warn("Topic owner: {} can't unsubscribed from the topic id: {}", email, id);
+      throw new OwnerCantUnsubscribedException(
+          String.format("Topic owner: %s can't unsubscribed from the topic id: %s", email, id));
     }
 
     topicSubscriberRepository.unsubscribe(email, id);
@@ -106,5 +113,9 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
 
     topicSubscriberRepository.updateFavouriteTopicStatusByTopicIdAndContactEmail(
         topicId, contactEmail, isNotFavouriteTopic);
+
+  private boolean isTopicCreator(Integer topicId, String topicCreator) {
+    return topicSubscriberRepository.existsByTopicIdAndTopicCreatedBy(topicId, topicCreator);
+
   }
 }

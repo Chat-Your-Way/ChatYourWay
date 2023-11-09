@@ -1,5 +1,6 @@
 package com.chat.yourway.service.interfaces;
 
+import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
@@ -99,7 +100,7 @@ public interface TopicService {
    * @param tags A set of tag names to be added.
    * @return A set of tags that includes both the existing tags and the newly created unique tags.
    */
-  Set<Tag> addUniqTags(Set<String> tags);
+  Set<Tag> addUniqTags(Set<TagRequestDto> tags);
 
   /**
    * Search topics by topic name and return list of topics

@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TagResponseDto;
@@ -26,6 +27,7 @@ import com.chat.yourway.model.Topic;
 import com.chat.yourway.repository.TagRepository;
 import com.chat.yourway.repository.TopicRepository;
 import com.chat.yourway.service.TopicServiceImpl;
+import com.chat.yourway.service.interfaces.ContactService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -57,6 +59,8 @@ public class TopicServiceImplTest {
 
   @Spy
   TopicSubscriberService topicSubscriberService;
+  @Mock
+  ContactService contactService;
 
   @Spy
   @InjectMocks
@@ -79,8 +83,8 @@ public class TopicServiceImplTest {
     String topicName = topic.getTopicName();
     String email = topic.getCreatedBy();
     Set<Tag> expectedTags = topic.getTags();
-    Set<String> newTags = expectedTags.stream()
-        .map(Tag::getName)
+    Set<TagRequestDto> newTags = expectedTags.stream()
+        .map(tag -> new TagRequestDto(tag.getName()))
         .collect(Collectors.toSet());
     TopicRequestDto topicRequestDto = new TopicRequestDto(topicName, newTags);
 
@@ -104,9 +108,11 @@ public class TopicServiceImplTest {
     topic.setTopicName("abc@gmail.com<->test-topic@gmail.com");
     topic.setIsPublic(false);
     String email = topic.getCreatedBy();
-    TopicPrivateRequestDto topicPrivateRequestDto = new TopicPrivateRequestDto("abc@gmail.com");
+    String sentTo = "abc@gmail.com";
+    TopicPrivateRequestDto topicPrivateRequestDto = new TopicPrivateRequestDto(sentTo);
 
     when(topicRepository.save(any(Topic.class))).thenReturn(topic);
+    when(contactService.isEmailExists("abc@gmail.com")).thenReturn(true);
 
     // When
     TopicResponseDto topicResponseDto = topicService.createPrivate(topicPrivateRequestDto, email);
@@ -124,7 +130,8 @@ public class TopicServiceImplTest {
     Topic topic = getTopics().get(0);
     String topicName = topic.getTopicName();
     String email = topic.getCreatedBy();
-    TopicRequestDto topicRequestDto = new TopicRequestDto(topicName, Set.of("tag1", "tag2"));
+    var tags = Set.of(new TagRequestDto("tag1"), new TagRequestDto("tag2"));
+    TopicRequestDto topicRequestDto = new TopicRequestDto(topicName, tags);
 
     when(topicRepository.existsByTopicName(topicName)).thenReturn(true);
 
@@ -141,8 +148,8 @@ public class TopicServiceImplTest {
     String topicName = topic.getTopicName();
     String email = topic.getCreatedBy();
     Set<Tag> expectedTags = topic.getTags();
-    Set<String> newTags = expectedTags.stream()
-        .map(Tag::getName)
+    Set<TagRequestDto> newTags = expectedTags.stream()
+        .map(tag -> new TagRequestDto(tag.getName()))
         .collect(Collectors.toSet());
     TopicRequestDto topicRequestDto = new TopicRequestDto(topicName, newTags);
 
@@ -168,7 +175,8 @@ public class TopicServiceImplTest {
     Topic topic = getTopics().get(0);
     String topicName = topic.getTopicName();
     String email = topic.getCreatedBy();
-    TopicRequestDto topicRequestDto = new TopicRequestDto(topicName, Set.of("tag1", "tag2"));
+    var tags = Set.of(new TagRequestDto("tag1"), new TagRequestDto("tag2"));
+    TopicRequestDto topicRequestDto = new TopicRequestDto(topicName, tags);
 
     when(topicRepository.findById(NOT_EXISTED_TOPIC_ID)).thenReturn(Optional.empty());
 
@@ -184,7 +192,8 @@ public class TopicServiceImplTest {
     Topic topic = getTopics().get(0);
     Integer topicId = topic.getId();
     String topicName = topic.getTopicName();
-    TopicRequestDto topicRequestDto = new TopicRequestDto(topicName, Set.of("tag1", "tag2"));
+    var tags = Set.of(new TagRequestDto("tag1"), new TagRequestDto("tag2"));
+    TopicRequestDto topicRequestDto = new TopicRequestDto(topicName, tags);
 
     when(topicRepository.findById(topicId)).thenReturn(Optional.of(topic));
 
@@ -201,7 +210,8 @@ public class TopicServiceImplTest {
     Integer topicId = topic.getId();
     String topicName = topic.getTopicName();
     String email = topic.getCreatedBy();
-    TopicRequestDto topicRequestDto = new TopicRequestDto(topicName, Set.of("tag1", "tag2"));
+    var tags = Set.of(new TagRequestDto("tag1"), new TagRequestDto("tag2"));
+    TopicRequestDto topicRequestDto = new TopicRequestDto(topicName, tags);
 
     when(topicRepository.findById(topicId)).thenReturn(Optional.of(topic));
     when(topicRepository.existsByTopicName(topicName)).thenReturn(true);
@@ -232,7 +242,7 @@ public class TopicServiceImplTest {
   @DisplayName("addUniqTags should return an empty set when input tags are empty")
   public void addUniqTags_shouldReturnEmptySet_whenInputTagsEmpty() {
     // Given
-    Set<String> emptyTags = Collections.emptySet();
+    Set<TagRequestDto> emptyTags = Collections.emptySet();
 
     // When
     Set<Tag> result = topicService.addUniqTags(emptyTags);
@@ -246,6 +256,9 @@ public class TopicServiceImplTest {
   public void addUniqTags_shouldReturnExistingTags_whenAllTagsExist() {
     // Given
     Set<String> tags = Set.of("tag1", "tag2", "tag3");
+    Set<TagRequestDto> tagRequestDtos = tags.stream()
+        .map(TagRequestDto::new)
+        .collect(Collectors.toSet());
 
     Set<Tag> existingTags = tags.stream()
         .map(Tag::new)
@@ -254,7 +267,7 @@ public class TopicServiceImplTest {
     when(tagRepository.findAllByNameIn(tags)).thenReturn(existingTags);
 
     // When
-    Set<Tag> result = topicService.addUniqTags(tags);
+    Set<Tag> result = topicService.addUniqTags(tagRequestDtos);
 
     // Then
     assertEquals(existingTags, result);
@@ -269,6 +282,10 @@ public class TopicServiceImplTest {
     inputTags.add("tag3");
     inputTags.add("tag4");
 
+    Set<TagRequestDto> tagRequestDtos = inputTags.stream()
+        .map(TagRequestDto::new)
+        .collect(Collectors.toSet());
+
     Set<Tag> existingTags = savedTags.stream()
         .map(Tag::new)
         .collect(Collectors.toSet());
@@ -281,7 +298,7 @@ public class TopicServiceImplTest {
     when(tagRepository.saveAll(anySet())).thenReturn(newTags.stream().toList());
 
     // When
-    Set<Tag> result = topicService.addUniqTags(inputTags);
+    Set<Tag> result = topicService.addUniqTags(tagRequestDtos);
 
     // Then
     existingTags.addAll(newTags);
@@ -295,6 +312,10 @@ public class TopicServiceImplTest {
     // Given
     Set<String> inputTags = Set.of("tag1", "tag2", "tag3", "tag4");
 
+    Set<TagRequestDto> tagRequestDtos = inputTags.stream()
+        .map(TagRequestDto::new)
+        .collect(Collectors.toSet());
+
     Set<Tag> newTags = inputTags.stream()
         .map(Tag::new)
         .collect(Collectors.toSet());
@@ -303,7 +324,7 @@ public class TopicServiceImplTest {
     when(tagRepository.saveAll(anySet())).thenReturn(newTags.stream().toList());
 
     // When
-    Set<Tag> result = topicService.addUniqTags(inputTags);
+    Set<Tag> result = topicService.addUniqTags(tagRequestDtos);
 
     // Then
     assertEquals(newTags, result);

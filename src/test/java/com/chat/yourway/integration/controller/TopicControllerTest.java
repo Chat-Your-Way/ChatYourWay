@@ -11,11 +11,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TagResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
+import com.chat.yourway.exception.OwnerCantUnsubscribedException;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
@@ -40,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -112,15 +115,18 @@ public class TopicControllerTest {
   public void createPrivate_shouldCreateNewPrivateTopic() throws Exception {
     // Given
     String sentFrom = "vasil@gmail.com";
-    String sendTo = "anton@gmail.com";
+    Contact recipient = getContacts().get(0);
+    String sendTo = recipient.getEmail();
     TopicPrivateRequestDto topicRequestDto = new TopicPrivateRequestDto(sendTo);
 
-    mockMvc
-        .perform(
-            post(URI + "/create/private")
-                .content(objectMapper.writeValueAsString(topicRequestDto))
-                .principal(new TestingAuthenticationToken(sentFrom, null))
-                .contentType(APPLICATION_JSON))
+
+    contactRepository.save(recipient);
+
+    mockMvc.perform(post(URI + "/create/private")
+            .content(objectMapper.writeValueAsString(topicRequestDto))
+            .principal(new TestingAuthenticationToken(sentFrom, null))
+            .contentType(APPLICATION_JSON))
+
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isNumber())
@@ -287,12 +293,16 @@ public class TopicControllerTest {
     updatedTopicRequestDto.setTopicName("Updated Topic");
     updatedTopicRequestDto.setTags(new HashSet<>(getTags()));
 
-    mockMvc
-        .perform(
-            put(URI + "/update/{id}", topicId)
-                .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
-                .principal(new TestingAuthenticationToken(userEmail, null))
-                .contentType(APPLICATION_JSON))
+
+    Set<String> expectedTags = getTags().stream()
+        .map(TagRequestDto::getName)
+        .collect(Collectors.toSet());
+
+    mockMvc.perform(put(URI + "/update/{id}", topicId)
+            .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isNumber())
@@ -302,7 +312,7 @@ public class TopicControllerTest {
     Set<TagResponseDto> updatedTags = topicResponseDto.getTags();
 
     assertThat(updatedTags).isNotEmpty();
-    assertThat(updatedTags).extracting(TagResponseDto::getName).containsAll(getTags());
+    assertThat(updatedTags).extracting(TagResponseDto::getName).containsAll(expectedTags);
   }
 
   @Test
@@ -418,7 +428,28 @@ public class TopicControllerTest {
                     .isInstanceOf(TopicSubscriberNotFoundException.class));
   }
 
-  // -----------------------------------
+
+  @Test
+  @DisplayName("unsubscribe should Return OwnerCantUnsubscribedException")
+  public void unsubscribe_shouldReturnOwnerCantUnsubscribedException() throws Exception {
+    // Given
+    Contact savedContact = contactRepository.save(getContacts().get(0));
+    Topic topic = getTopics().get(0);
+    topic.setCreatedBy(savedContact.getEmail());
+    Topic savedTopic = topicRepository.save(topic);
+    Integer topicId = savedTopic.getId();
+    String userEmail = savedContact.getEmail();
+    topicSubscriberService.subscribeToTopicById(userEmail, topicId);
+
+    mockMvc.perform(patch(URI + "/unsubscribe/{topicId}", topicId)
+            .principal(new TestingAuthenticationToken(userEmail, null))
+            .contentType(APPLICATION_JSON))
+        .andExpect(status().isForbidden())
+        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
+            OwnerCantUnsubscribedException.class));
+  }
+
+  //-----------------------------------
   //               GET
   // -----------------------------------
 
@@ -619,8 +650,8 @@ public class TopicControllerTest {
   //         Private methods
   // -----------------------------------
 
-  private List<String> getTags() {
-    return List.of("#tag1", "#tag2");
+  private List<TagRequestDto> getTags() {
+    return List.of(new TagRequestDto("#tag1"), new TagRequestDto("#tag2"));
   }
 
   private List<Topic> getTopics() {

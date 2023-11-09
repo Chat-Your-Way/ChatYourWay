@@ -49,4 +49,12 @@ public interface ContactService {
    * @param editContactProfileRequestDto Request object for changing data
    * */
   void updateContactProfile(EditContactProfileRequestDto editContactProfileRequestDto, UserDetails userDetails);
+
+  /**
+   * Check is contact with email exist in repository
+   *
+   * @param email Email of contact
+   * @return true if contact with email exists in repository
+   */
+  boolean isEmailExists(String email);
 }
