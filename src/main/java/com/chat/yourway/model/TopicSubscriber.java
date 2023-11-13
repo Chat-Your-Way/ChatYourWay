@@ -46,4 +46,7 @@ public class TopicSubscriber {
   @Column(name = "unsubscribe_at")
   private LocalDateTime unsubscribeAt;
 
+  @Column(name = "last_message_id")
+  private int lastMessageId;
+
 }

@@ -8,6 +8,7 @@ import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -43,22 +44,32 @@ public interface TopicSubscriberRepository extends JpaRepository<TopicSubscriber
 
   @Modifying
   @Query(value = """
-      UPDATE chat.topic_subscriber ts set ts.last_message_id = :last_message_id
-      from ts join chat.contact c on c.id = ts.subscriber_id 
-      WHERE ts.topic_id = :topicId AND c.email = :subEmail
-      """, nativeQuery = true)
+    UPDATE chat.topic_subscriber ts
+    SET ts.last_message_id = :lastMessageId
+    FROM chat.contact c
+    WHERE ts.topic_id = :topicId 
+    AND ts.contact_id = c.id
+    AND c.email = :subEmail
+    """, nativeQuery = true)
   void setLastMessageByOneSubscriber(String subEmail, Integer lastMessageId, Integer topicId);
 
   @Modifying
   @Query(value = """
-      UPDATE chat.topic_subscriber ts set ts.last_message_id = :last_message_id
-      from ts join chat.contact c on c.id = ts.subscriber_id 
-      WHERE ts.topic_id = :topicId AND c.email in :subEmails
-      """, nativeQuery = true)
-  void setLastMessageByManySubscribers(Set<String> subEmails, Integer lastMessageId, Integer topicId);
-
+    UPDATE chat.topic_subscriber ts
+    SET ts.last_message_id = :lastMessageId
+    WHERE ts.topic_id = :topicId 
+    AND EXISTS (
+        SELECT 1
+        FROM chat.contact c
+        WHERE ts.subscriber_id = c.id
+        AND c.email IN :subEmails
+    )
+    """, nativeQuery = true)
+  void setLastMessageByManySubscribers(@Param("subEmails") Set<String> subEmails,
+                                       @Param("lastMessageId") Integer lastMessageId,
+                                       @Param("topicId") Integer topicId);
   @Query(value = """
-      SELECT ts.subscriber_id from ts join chat.contact c on c.id = ts.subscriber_id 
+      SELECT ts.subscriber_id from topic_subscriber ts join chat.contact c on c.id = ts.contact_id 
       WHERE ts.topic_id = :topicId AND c.email not in :subEmails
       """, nativeQuery = true)
   List<Integer> findAllSubIdsWhoNotInSubEmails(Set<String> subEmails, Integer topicId);
