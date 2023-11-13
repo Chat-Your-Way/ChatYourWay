@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
 
+import com.chat.yourway.service.interfaces.ContactService;
 import com.chat.yourway.service.interfaces.TopicService;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseOperation;
@@ -27,15 +28,16 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 @SpringBootTest
 @TestExecutionListeners(
     value = {
-        TransactionalTestExecutionListener.class,
-        DirtiesContextTestExecutionListener.class,
-        DependencyInjectionTestExecutionListener.class,
-        DbUnitTestExecutionListener.class,
-        MockitoTestExecutionListener.class,
-        ResetMocksTestExecutionListener.class
+      TransactionalTestExecutionListener.class,
+      DirtiesContextTestExecutionListener.class,
+      DependencyInjectionTestExecutionListener.class,
+      DbUnitTestExecutionListener.class,
+      MockitoTestExecutionListener.class,
+      ResetMocksTestExecutionListener.class
     })
 public class TopicServiceImplTest {
   @Autowired TopicService topicService;
+  @Autowired ContactService contactService;
 
   @Test
   @SneakyThrows
@@ -52,6 +54,28 @@ public class TopicServiceImplTest {
 
     // When
     var resultList = topicService.findTopicsByTopicName(topicName);
+
+    // Then
+    assertThat(resultList.size())
+        .withFailMessage("Expecting size of list of topics equals to " + expectedSize)
+        .isEqualTo(expectedSize);
+  }
+
+  @Test
+  @DatabaseSetup(
+      value = "/dataset/favourite-topics-of-contact.xml",
+      type = DatabaseOperation.INSERT)
+  @DatabaseTearDown(
+      value = "/dataset/favourite-topics-of-contact.xml",
+      type = DatabaseOperation.DELETE)
+  @DisplayName("should return list of favourite topics when user made request")
+  public void shouldReturnListOfFavouriteTopics_whenUserMadeRequest() {
+    var contactEmail = "vasil1@gmail.com";
+    var contact = contactService.findByEmail(contactEmail);
+    var expectedSize = 1;
+
+    // When
+    var resultList = topicService.findAllFavouriteTopics(contact);
 
     // Then
     assertThat(resultList.size())

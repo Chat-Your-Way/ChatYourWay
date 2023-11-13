@@ -59,23 +59,15 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc(addFilters = false)
 public class TopicControllerTest {
 
-  @Autowired
-  private TopicService topicService;
-  @Autowired
-  private TopicRepository topicRepository;
-  @Autowired
-  private TopicSubscriberRepository topicSubscriberRepository;
-  @Autowired
-  private ContactRepository contactRepository;
-  @Autowired
-  private TopicSubscriberService topicSubscriberService;
-  @Autowired
-  private TagRepository tagRepository;
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private TopicService topicService;
+  @Autowired private TopicRepository topicRepository;
+  @Autowired private TopicSubscriberRepository topicSubscriberRepository;
+  @Autowired private ContactRepository contactRepository;
+  @Autowired private TopicSubscriberService topicSubscriberService;
+  @Autowired private TagRepository tagRepository;
+  @Autowired private ObjectMapper objectMapper;
 
-  @Autowired
-  MockMvc mockMvc;
+  @Autowired MockMvc mockMvc;
 
   private static final String URI = "/topics";
   private final Integer NOT_EXISTED_TOPIC_ID = 99;
@@ -88,9 +80,9 @@ public class TopicControllerTest {
     tagRepository.deleteAll();
   }
 
-  //-----------------------------------
+  // -----------------------------------
   //               POST
-  //-----------------------------------
+  // -----------------------------------
 
   @Test
   @DisplayName("create should create a new topic")
@@ -101,10 +93,12 @@ public class TopicControllerTest {
     topicRequestDto.setTopicName(newTopic.getTopicName());
     topicRequestDto.setTags(new HashSet<>(getTags()));
 
-    mockMvc.perform(post(URI + "/create")
-            .content(objectMapper.writeValueAsString(topicRequestDto))
-            .principal(new TestingAuthenticationToken(newTopic.getCreatedBy(), null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            post(URI + "/create")
+                .content(objectMapper.writeValueAsString(topicRequestDto))
+                .principal(new TestingAuthenticationToken(newTopic.getCreatedBy(), null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isNumber())
@@ -125,12 +119,14 @@ public class TopicControllerTest {
     String sendTo = recipient.getEmail();
     TopicPrivateRequestDto topicRequestDto = new TopicPrivateRequestDto(sendTo);
 
+
     contactRepository.save(recipient);
 
     mockMvc.perform(post(URI + "/create/private")
             .content(objectMapper.writeValueAsString(topicRequestDto))
             .principal(new TestingAuthenticationToken(sentFrom, null))
             .contentType(APPLICATION_JSON))
+
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isNumber())
@@ -153,13 +149,17 @@ public class TopicControllerTest {
     topicRequestDto.setTopicName(duplicateTopicName);
     topicRequestDto.setTags(new HashSet<>(getTags()));
 
-    mockMvc.perform(post(URI + "/create")
-            .content(objectMapper.writeValueAsString(topicRequestDto))
-            .principal(new TestingAuthenticationToken(existingTopic.getCreatedBy(), null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            post(URI + "/create")
+                .content(objectMapper.writeValueAsString(topicRequestDto))
+                .principal(new TestingAuthenticationToken(existingTopic.getCreatedBy(), null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isConflict())
-        .andExpect(result ->
-            assertThat(result.getResolvedException()).isInstanceOf(ValueNotUniqException.class));
+        .andExpect(
+            result ->
+                assertThat(result.getResolvedException())
+                    .isInstanceOf(ValueNotUniqException.class));
   }
 
   @Test
@@ -170,10 +170,12 @@ public class TopicControllerTest {
     topicRequestDto.setTopicName("Updated Topic");
     topicRequestDto.setTags(new HashSet<>(getTags()));
 
-    mockMvc.perform(post(URI + "/create")
-            .content(objectMapper.writeValueAsString(topicRequestDto))
-            .principal(new TestingAuthenticationToken("user@gmail.com", null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            post(URI + "/create")
+                .content(objectMapper.writeValueAsString(topicRequestDto))
+                .principal(new TestingAuthenticationToken("user@gmail.com", null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isNumber())
@@ -195,10 +197,12 @@ public class TopicControllerTest {
     updatedTopicRequestDto.setTopicName(updatedTopicName);
     updatedTopicRequestDto.setTags(new HashSet<>(getTags()));
 
-    mockMvc.perform(put(URI + "/update/{id}", topicId)
-            .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
-            .principal(new TestingAuthenticationToken(userEmail, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            put(URI + "/update/{id}", topicId)
+                .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
+                .principal(new TestingAuthenticationToken(userEmail, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$.id").value(topicId))
@@ -226,22 +230,28 @@ public class TopicControllerTest {
     updatedTopicRequestDto.setTopicName("Updated Topic");
     updatedTopicRequestDto.setTags(new HashSet<>(getTags()));
 
-    mockMvc.perform(put(URI + "/update/{id}", topicId)
-            .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
-            .principal(new TestingAuthenticationToken(unauthorizedUserEmail, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            put(URI + "/update/{id}", topicId)
+                .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
+                .principal(new TestingAuthenticationToken(unauthorizedUserEmail, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isForbidden())
-        .andExpect(result ->
-            assertThat(result.getResolvedException()).isInstanceOf(TopicAccessException.class));
+        .andExpect(
+            result ->
+                assertThat(result.getResolvedException()).isInstanceOf(TopicAccessException.class));
   }
 
   @Test
   @DisplayName("update_should return TopicNotFoundException when topic does not exist")
   public void update_shouldReturnTopicNotFoundExceptionWhenTopicDoesNotExist() throws Exception {
-    mockMvc.perform(get(URI + "/{id}", NOT_EXISTED_TOPIC_ID).contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(get(URI + "/{id}", NOT_EXISTED_TOPIC_ID).contentType(APPLICATION_JSON))
         .andExpect(status().isNotFound())
-        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
-            TopicNotFoundException.class));
+        .andExpect(
+            result ->
+                assertThat(result.getResolvedException())
+                    .isInstanceOf(TopicNotFoundException.class));
   }
 
   @Test
@@ -258,13 +268,17 @@ public class TopicControllerTest {
     updatedTopicRequestDto.setTopicName(savedTopic1.getTopicName());
     updatedTopicRequestDto.setTags(new HashSet<>(getTags()));
 
-    mockMvc.perform(put(URI + "/update/{id}", topic2Id)
-            .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
-            .principal(new TestingAuthenticationToken(savedTopic2Email, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            put(URI + "/update/{id}", topic2Id)
+                .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
+                .principal(new TestingAuthenticationToken(savedTopic2Email, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isConflict())
-        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
-            ValueNotUniqException.class));
+        .andExpect(
+            result ->
+                assertThat(result.getResolvedException())
+                    .isInstanceOf(ValueNotUniqException.class));
   }
 
   @Test
@@ -280,6 +294,7 @@ public class TopicControllerTest {
     updatedTopicRequestDto.setTopicName("Updated Topic");
     updatedTopicRequestDto.setTags(new HashSet<>(getTags()));
 
+
     Set<String> expectedTags = getTags().stream()
         .map(TagRequestDto::getName)
         .collect(Collectors.toSet());
@@ -288,6 +303,7 @@ public class TopicControllerTest {
             .content(objectMapper.writeValueAsString(updatedTopicRequestDto))
             .principal(new TestingAuthenticationToken(userEmail, null))
             .contentType(APPLICATION_JSON))
+
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isNumber())
@@ -309,13 +325,16 @@ public class TopicControllerTest {
     Integer topicId = savedTopic.getId();
     String userEmail = savedContact.getEmail();
 
-    mockMvc.perform(post(URI + "/subscribe/{topicId}", topicId)
-            .principal(new TestingAuthenticationToken(userEmail, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            post(URI + "/subscribe/{topicId}", topicId)
+                .principal(new TestingAuthenticationToken(userEmail, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
     assertThat(
-        topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(userEmail,
-            topicId)).isTrue();
+            topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(
+                userEmail, topicId))
+        .isTrue();
   }
 
   @Test
@@ -325,13 +344,16 @@ public class TopicControllerTest {
     Contact savedContact = contactRepository.save(getContacts().get(0));
     String userEmail = savedContact.getEmail();
 
-    mockMvc.perform(post(URI + "/subscribe/{topicId}", NOT_EXISTED_TOPIC_ID)
-            .principal(new TestingAuthenticationToken(userEmail, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            post(URI + "/subscribe/{topicId}", NOT_EXISTED_TOPIC_ID)
+                .principal(new TestingAuthenticationToken(userEmail, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
     assertThat(
-        topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(userEmail,
-            NOT_EXISTED_TOPIC_ID)).isFalse();
+            topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(
+                userEmail, NOT_EXISTED_TOPIC_ID))
+        .isFalse();
   }
 
   @Test
@@ -342,24 +364,29 @@ public class TopicControllerTest {
     Contact savedContact = contactRepository.save(getContacts().get(0));
     Integer topicId = savedTopic.getId();
     String userEmail = savedContact.getEmail();
-    topicSubscriberRepository.save(TopicSubscriber.builder()
-        .contact(savedContact)
-        .topic(savedTopic)
-        .subscribeAt(LocalDateTime.now())
-        .build());
+    topicSubscriberRepository.save(
+        TopicSubscriber.builder()
+            .contact(savedContact)
+            .topic(savedTopic)
+            .subscribeAt(LocalDateTime.now())
+            .isFavouriteTopic(false)
+            .build());
 
-    mockMvc.perform(post(URI + "/subscribe/{topicId}", topicId)
-            .principal(new TestingAuthenticationToken(userEmail, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            post(URI + "/subscribe/{topicId}", topicId)
+                .principal(new TestingAuthenticationToken(userEmail, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isConflict())
-        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
-            ContactAlreadySubscribedToTopicException.class));
-
+        .andExpect(
+            result ->
+                assertThat(result.getResolvedException())
+                    .isInstanceOf(ContactAlreadySubscribedToTopicException.class));
   }
 
-  //-----------------------------------
+  // -----------------------------------
   //               PATCH
-  //-----------------------------------
+  // -----------------------------------
 
   @Test
   @DisplayName("unsubscribe should unsubscribe from the topic successfully")
@@ -371,13 +398,16 @@ public class TopicControllerTest {
     String userEmail = savedContact.getEmail();
     topicSubscriberService.subscribeToTopicById(userEmail, topicId);
 
-    mockMvc.perform(patch(URI + "/unsubscribe/{topicId}", topicId)
-            .principal(new TestingAuthenticationToken(userEmail, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            patch(URI + "/unsubscribe/{topicId}", topicId)
+                .principal(new TestingAuthenticationToken(userEmail, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
     assertThat(
-        topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(userEmail,
-            topicId)).isFalse();
+            topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(
+                userEmail, topicId))
+        .isFalse();
   }
 
   @Test
@@ -387,13 +417,18 @@ public class TopicControllerTest {
     Contact savedContact = contactRepository.save(getContacts().get(0));
     String userEmail = savedContact.getEmail();
 
-    mockMvc.perform(patch(URI + "/unsubscribe/{topicId}", NOT_EXISTED_TOPIC_ID)
-            .principal(new TestingAuthenticationToken(userEmail, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            patch(URI + "/unsubscribe/{topicId}", NOT_EXISTED_TOPIC_ID)
+                .principal(new TestingAuthenticationToken(userEmail, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isNotFound())
-        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
-            TopicSubscriberNotFoundException.class));
+        .andExpect(
+            result ->
+                assertThat(result.getResolvedException())
+                    .isInstanceOf(TopicSubscriberNotFoundException.class));
   }
+
 
   @Test
   @DisplayName("unsubscribe should Return OwnerCantUnsubscribedException")
@@ -417,7 +452,7 @@ public class TopicControllerTest {
 
   //-----------------------------------
   //               GET
-  //-----------------------------------
+  // -----------------------------------
 
   @Test
   @DisplayName("findTopicById should return topic by topicId")
@@ -426,7 +461,8 @@ public class TopicControllerTest {
     Topic savedTopic = topicRepository.save(getTopics().get(0));
     Integer topicId = savedTopic.getId();
 
-    mockMvc.perform(get(URI + "/{id}", topicId).contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(get(URI + "/{id}", topicId).contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isNumber())
@@ -441,10 +477,13 @@ public class TopicControllerTest {
   @DisplayName("findTopicById should return TopicNotFoundException")
   public void findTopicById_shouldReturnTopicNotFoundException() throws Exception {
 
-    mockMvc.perform(get(URI + "/{id}", NOT_EXISTED_TOPIC_ID).contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(get(URI + "/{id}", NOT_EXISTED_TOPIC_ID).contentType(APPLICATION_JSON))
         .andExpect(status().isNotFound())
-        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
-            TopicNotFoundException.class));
+        .andExpect(
+            result ->
+                assertThat(result.getResolvedException())
+                    .isInstanceOf(TopicNotFoundException.class));
   }
 
   @Test
@@ -453,7 +492,8 @@ public class TopicControllerTest {
     // Given
     topicRepository.deleteAll();
 
-    mockMvc.perform(get(URI + "/all"))
+    mockMvc
+        .perform(get(URI + "/all"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(content().json("[]"));
@@ -465,7 +505,8 @@ public class TopicControllerTest {
     // Given
     List<Topic> savedTopics = topicRepository.saveAll(getTopics());
 
-    mockMvc.perform(get(URI + "/all").contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(get(URI + "/all").contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$[0].id").isNumber())
@@ -493,9 +534,11 @@ public class TopicControllerTest {
     topicSubscriberService.subscribeToTopicById(email1, topicId);
     topicSubscriberService.subscribeToTopicById(email2, topicId);
 
-    mockMvc.perform(get(URI + "/subscribers/{topicId}", topicId)
-            .principal(new TestingAuthenticationToken(email1, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            get(URI + "/subscribers/{topicId}", topicId)
+                .principal(new TestingAuthenticationToken(email1, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$[0].id").isNumber())
@@ -509,7 +552,8 @@ public class TopicControllerTest {
   }
 
   @Test
-  @DisplayName("findAllByTagByName should return list of topics with expected size when user chose by tag name")
+  @DisplayName(
+      "findAllByTagByName should return list of topics with expected size when user chose by tag name")
   public void findAllByTagByName_shouldReturnListOfTopicsWithExpectedSize_WhenUserChoseByTagId()
       throws Exception {
     // Given
@@ -520,8 +564,8 @@ public class TopicControllerTest {
     topic.setTags(tags);
     topicRepository.save(topic);
 
-    mockMvc.perform(get(URI + "/all/{tag}", tag.getName())
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(get(URI + "/all/{tag}", tag.getName()).contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$.length()").value(1));
@@ -533,8 +577,8 @@ public class TopicControllerTest {
     // Given
     topicRepository.deleteAll();
 
-    mockMvc.perform(get(URI + "/search")
-            .param("topicName", "NotExistsName"))
+    mockMvc
+        .perform(get(URI + "/search").param("topicName", "NotExistsName"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(content().json("[]"));
@@ -546,9 +590,8 @@ public class TopicControllerTest {
     // Given
     List<Topic> savedTopics = topicRepository.saveAll(getTopics());
 
-    mockMvc.perform(get(URI + "/search")
-            .param("topicName", "topic")
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(get(URI + "/search").param("topicName", "topic").contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentType(APPLICATION_JSON))
         .andExpect(jsonPath("$[0].id").isNumber())
@@ -564,9 +607,9 @@ public class TopicControllerTest {
         .andExpect(jsonPath("$[*].topicSubscribers").isArray());
   }
 
-  //-----------------------------------
+  // -----------------------------------
   //               DELETE
-  //-----------------------------------
+  // -----------------------------------
 
   @Test
   @DisplayName("deleteById should delete topic by id and creator successfully")
@@ -576,9 +619,11 @@ public class TopicControllerTest {
     Integer topicId = savedTopic.getId();
     String userEmail = savedTopic.getCreatedBy();
 
-    mockMvc.perform(delete(URI + "/{id}", topicId)
-            .principal(new TestingAuthenticationToken(userEmail, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            delete(URI + "/{id}", topicId)
+                .principal(new TestingAuthenticationToken(userEmail, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
     assertThat(topicRepository.findById(topicId)).isNotPresent();
   }
@@ -591,65 +636,71 @@ public class TopicControllerTest {
     Integer topicId = savedTopic.getId();
     String userEmail = "newuser@gmail.com";
 
-    mockMvc.perform(delete(URI + "/{id}", topicId)
-            .principal(new TestingAuthenticationToken(userEmail, null))
-            .contentType(APPLICATION_JSON))
+    mockMvc
+        .perform(
+            delete(URI + "/{id}", topicId)
+                .principal(new TestingAuthenticationToken(userEmail, null))
+                .contentType(APPLICATION_JSON))
         .andExpect(status().isForbidden())
-        .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(
-            TopicAccessException.class));
+        .andExpect(
+            result ->
+                assertThat(result.getResolvedException()).isInstanceOf(TopicAccessException.class));
   }
 
-  //-----------------------------------
+  // -----------------------------------
   //         Private methods
-  //-----------------------------------
+  // -----------------------------------
 
   private List<TagRequestDto> getTags() {
     return List.of(new TagRequestDto("#tag1"), new TagRequestDto("#tag2"));
   }
 
   private List<Topic> getTopics() {
-    Topic topic1 = Topic.builder()
-        .topicName("new Topic 1")
-        .isPublic(true)
-        .createdBy("user1@gmail.com")
-        .createdAt(LocalDateTime.parse("2023-09-18T22:38:29.65851"))
-        .tags(new HashSet<>())
-        .topicSubscribers(new HashSet<>())
-        .build();
+    Topic topic1 =
+        Topic.builder()
+            .topicName("new Topic 1")
+            .isPublic(true)
+            .createdBy("user1@gmail.com")
+            .createdAt(LocalDateTime.parse("2023-09-18T22:38:29.65851"))
+            .tags(new HashSet<>())
+            .topicSubscribers(new HashSet<>())
+            .build();
 
-    Topic topic2 = Topic.builder()
-        .topicName("new Topic 2")
-        .isPublic(true)
-        .createdBy("user2@gmail.com")
-        .createdAt(LocalDateTime.parse("2023-09-18T23:30:29.65851"))
-        .tags(new HashSet<>())
-        .topicSubscribers(new HashSet<>())
-        .build();
+    Topic topic2 =
+        Topic.builder()
+            .topicName("new Topic 2")
+            .isPublic(true)
+            .createdBy("user2@gmail.com")
+            .createdAt(LocalDateTime.parse("2023-09-18T23:30:29.65851"))
+            .tags(new HashSet<>())
+            .topicSubscribers(new HashSet<>())
+            .build();
 
     return Arrays.asList(topic1, topic2);
   }
 
   private List<Contact> getContacts() {
-    Contact contact1 = Contact.builder()
-        .nickname("nickname")
-        .avatarId((byte) 1)
-        .email("contact@gmail.com")
-        .isActive(true)
-        .isPrivate(true)
-        .password("123456789")
-        .role(Role.USER)
-        .build();
+    Contact contact1 =
+        Contact.builder()
+            .nickname("nickname")
+            .avatarId((byte) 1)
+            .email("contact@gmail.com")
+            .isActive(true)
+            .isPrivate(true)
+            .password("123456789")
+            .role(Role.USER)
+            .build();
 
-    Contact contact2 = Contact.builder()
-        .nickname("nickname2")
-        .avatarId((byte) 2)
-        .email("contact2@gmail.com")
-        .isActive(true)
-        .isPrivate(true)
-        .password("0000000")
-        .role(Role.USER)
-        .build();
+    Contact contact2 =
+        Contact.builder()
+            .nickname("nickname2")
+            .avatarId((byte) 2)
+            .email("contact2@gmail.com")
+            .isActive(true)
+            .isPrivate(true)
+            .password("0000000")
+            .role(Role.USER)
+            .build();
     return Arrays.asList(contact1, contact2);
   }
-
 }
