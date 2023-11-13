@@ -5,6 +5,7 @@ import static com.chat.yourway.config.openapi.OpenApiMessages.ALREADY_SUBSCRIBED
 import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_UNAUTHORIZED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_WASNT_SUBSCRIBED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.INVALID_VALUE;
+import static com.chat.yourway.config.openapi.OpenApiMessages.SEARCH_TOPIC_VALIDATION;
 import static com.chat.yourway.config.openapi.OpenApiMessages.OWNER_CANT_UNSUBSCRIBED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.RECIPIENT_EMAIL_NOT_EXIST;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_CREATED_TOPIC;
@@ -32,6 +33,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import java.net.URLDecoder;
 import java.security.Principal;
 import java.util.List;
@@ -39,12 +41,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/topics")
 @RequiredArgsConstructor
 @Tag(name = "Topic")
+@Validated
 public class TopicController {
 
   private final TopicService topicService;
@@ -237,12 +241,17 @@ public class TopicController {
   @Operation(summary = "Find all topics by topic name",
       responses = {
           @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
+          @ApiResponse(responseCode = "400", description = SEARCH_TOPIC_VALIDATION,
+              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
           @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
   @GetMapping(path = "/search", produces = APPLICATION_JSON_VALUE)
-  public List<TopicResponseDto> findAllByTopicName(@RequestParam String topicName) {
-    return topicService.findTopicsByTopicName(topicName);
+  public List<TopicResponseDto> findAllByTopicName(
+      @Pattern(regexp = "^[a-zA-Z0-9а-яА-ЯІіЇї]*$", message = SEARCH_TOPIC_VALIDATION)
+      @RequestParam String topicName) {
+    String decodeTopicName = URLDecoder.decode(topicName, UTF_8);
+    return topicService.findTopicsByTopicName(decodeTopicName);
   }
 
   @Operation(

@@ -195,7 +195,7 @@ public class TopicControllerTest {
 
     TopicRequestDto updatedTopicRequestDto = new TopicRequestDto();
     updatedTopicRequestDto.setTopicName(updatedTopicName);
-    updatedTopicRequestDto.setTags(new HashSet<>());
+    updatedTopicRequestDto.setTags(new HashSet<>(getTags()));
 
     mockMvc
         .perform(
@@ -209,7 +209,7 @@ public class TopicControllerTest {
         .andExpect(jsonPath("$.topicName").value(updatedTopicName))
         .andExpect(jsonPath("$.createdBy").value(userEmail))
         .andExpect(jsonPath("$.createdAt").isNotEmpty())
-        .andExpect(jsonPath("$.tags").isEmpty())
+        .andExpect(jsonPath("$.tags").isArray())
         .andExpect(jsonPath("$.topicSubscribers").isEmpty());
 
     // Verify
@@ -228,7 +228,7 @@ public class TopicControllerTest {
 
     TopicRequestDto updatedTopicRequestDto = new TopicRequestDto();
     updatedTopicRequestDto.setTopicName("Updated Topic");
-    updatedTopicRequestDto.setTags(new HashSet<>());
+    updatedTopicRequestDto.setTags(new HashSet<>(getTags()));
 
     mockMvc
         .perform(
@@ -266,6 +266,7 @@ public class TopicControllerTest {
 
     TopicRequestDto updatedTopicRequestDto = new TopicRequestDto();
     updatedTopicRequestDto.setTopicName(savedTopic1.getTopicName());
+    updatedTopicRequestDto.setTags(new HashSet<>(getTags()));
 
     mockMvc
         .perform(
