@@ -316,4 +316,15 @@ public class TopicController {
       @AuthenticationPrincipal UserDetails userDetails) {
     return topicService.findAllFavouriteTopics(userDetails);
   }
+
+  @Operation(summary = "Find all subscribers who online by topic",
+          responses = {
+                  @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
+                  @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
+                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+          })
+  @GetMapping(path = "/{id}/contacts/online", produces = APPLICATION_JSON_VALUE)
+  public List<ContactResponseDto> findAllOnlineContactsByTopicId(@PathVariable("id") Integer topicId) {
+    return topicSubscriberService.findAllOnlineContactsByTopicId(topicId);
+  }
 }

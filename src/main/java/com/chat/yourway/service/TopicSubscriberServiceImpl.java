@@ -8,6 +8,7 @@ import com.chat.yourway.exception.OwnerCantUnsubscribedException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.mapper.ContactMapper;
 import com.chat.yourway.repository.TopicRepository;
+import com.chat.yourway.repository.OnlineContactRepository;
 import com.chat.yourway.repository.TopicSubscriberRepository;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
 
@@ -26,6 +27,7 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
   private final TopicRepository topicRepository;
   private final TopicSubscriberRepository topicSubscriberRepository;
   private final ContactMapper contactMapper;
+  private final OnlineContactRepository onlineContactRepository;
 
   @Transactional
   @Override
@@ -113,9 +115,18 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
 
     topicSubscriberRepository.updateFavouriteTopicStatusByTopicIdAndContactEmail(
         topicId, contactEmail, isNotFavouriteTopic);
+  }
+
+  @Override
+  public List<ContactResponseDto> findAllOnlineContactsByTopicId(Integer topicId) {
+    return topicSubscriberRepository.findAllActiveSubscribersByTopicId(topicId).stream()
+            .filter(c -> onlineContactRepository.contains(c.getEmail()))
+            .map(contactMapper::toResponseDto)
+            .toList();
+  }
 
   private boolean isTopicCreator(Integer topicId, String topicCreator) {
     return topicSubscriberRepository.existsByTopicIdAndTopicCreatedBy(topicId, topicCreator);
+  }
 
   }
-}
