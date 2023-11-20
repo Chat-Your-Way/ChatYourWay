@@ -79,6 +79,7 @@ public class TopicServiceImpl implements TopicService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public TopicResponseDto findById(Integer id) {
     log.trace("Started findById: {}", id);
 

@@ -6,6 +6,7 @@ import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.MessageHasAlreadyReportedException;
 import com.chat.yourway.exception.MessageNotFoundException;
+import com.chat.yourway.exception.MessagePermissionDeniedException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.mapper.MessageMapper;
 import com.chat.yourway.mapper.TopicMapper;
@@ -20,6 +21,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -61,9 +63,15 @@ public class MessageServiceImpl implements MessageService {
   @Override
   public MessageResponseDto createPrivate(MessagePrivateRequestDto message, String email) {
     String sendTo = message.getSendTo();
+
     log.trace("Creating private message from contact email: {} to recipient: {}", email, sendTo);
     String privateName = topicService.generatePrivateName(sendTo, email);
     TopicResponseDto topic = topicService.findByName(privateName);
+
+    if (topicSubscriberService.hasProhibitionSendingPrivateMessages(topic.getId())) {
+      throw new MessagePermissionDeniedException(
+          "You do not have permission for sending message to private topic");
+    }
 
     Message savedMessage = messageRepository.save(Message.builder()
         .sentFrom(email)

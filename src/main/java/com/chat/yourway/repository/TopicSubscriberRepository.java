@@ -46,7 +46,6 @@ public interface TopicSubscriberRepository extends JpaRepository<TopicSubscriber
       """)
   List<Contact> findAllActiveSubscribersByTopicId(Integer topicId);
 
-
   @Modifying
   @Query(
       nativeQuery = true,
@@ -64,4 +63,23 @@ public interface TopicSubscriberRepository extends JpaRepository<TopicSubscriber
 
   boolean existsByTopicIdAndTopicCreatedBy(Integer topicId, String topicCreator);
 
+  @Modifying
+  @Query(
+      nativeQuery = true,
+      value =
+          "UPDATE chat.topic_subscriber "
+              + "SET is_permitted_sending_message = :isPermittedSendingPrivateMessage "
+              + "FROM chat.contact c "
+              + "WHERE contact_id = c.id "
+              + "AND topic_id = :topicId "
+              + "AND c.email = :contactEmail")
+  void updatePermissionSendingPrivateMessageByTopicIdAndContactEmail(
+      @Param("topicId") int topicId,
+      @Param("contactEmail") String contactEmail,
+      @Param("isPermittedSendingPrivateMessage") boolean isPermittedSendingPrivateMessage);
+
+  @Query(
+      "SELECT CASE WHEN COUNT(ts) > 0 then true else false end from TopicSubscriber ts " +
+              "where ts.topic.id = :topicId and ts.isPermittedSendingMessage = false")
+  boolean checkIfExistProhibitionSendingPrivateMessage(@Param("topicId") Integer topicId);
 }

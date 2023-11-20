@@ -51,4 +51,7 @@ public class TopicSubscriber {
 
   @Column(name = "is_favourite_topic")
   private boolean isFavouriteTopic;
+
+  @Column(name = "is_permitted_sending_message")
+  private boolean isPermittedSendingMessage;
 }
