@@ -5,7 +5,6 @@ import com.chat.yourway.exception.NotSubscribedTopicException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
-import com.chat.yourway.model.TopicSubscriber;
 import com.chat.yourway.service.interfaces.ContactService;
 import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
