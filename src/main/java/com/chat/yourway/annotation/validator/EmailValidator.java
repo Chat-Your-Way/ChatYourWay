@@ -10,7 +10,7 @@ public class EmailValidator implements ConstraintValidator<EmailValidation, Stri
   private static final int MIN_LENGTH = 6;
   private static final int MAX_LENGTH = 255;
   private static final Pattern EMAIL_PATTERN =
-      Pattern.compile("[A-Za-z0-9.\\-_]+@[a-z]+\\.[a-z]{2,3}");
+      Pattern.compile("[A-Za-z0-9.\\-_]+@[A-Za-z]+\\.[A-Za-z]{2,3}");
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
