@@ -33,4 +33,6 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
       "select t from Topic t join fetch t.topicSubscribers ts "
           + "where ts.contact.email = :contactEmail and ts.isFavouriteTopic = true")
   List<Topic> findAllFavouriteTopicsByContactEmail(String contactEmail);
+
+  boolean existsByIdAndIsPublic(int topicId, boolean isPublic);
 }
