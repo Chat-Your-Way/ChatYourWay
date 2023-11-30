@@ -101,6 +101,15 @@ public class MessageServiceImpl implements MessageService {
     return messageMapper.toListResponseDto(messages);
   }
 
+  @Override
+  public int countMessagesBetweenTimestampByTopicId(Integer topicId, String sentFrom,
+      LocalDateTime timestamp) {
+    log.trace("Started countMessagesBetweenTimestampByTopicId [{}]", topicId);
+
+    return messageRepository.countMessagesBetweenTimestampByTopicId(topicId, sentFrom, timestamp,
+        LocalDateTime.now());
+  }
+
   private void validateSubscription(Integer topicId, String email) {
     log.trace("Validating subscription of contact email: {} to topic ID: {}", email, topicId);
     if (!topicSubscriberService.hasContactSubscribedToTopic(email, topicId)) {
