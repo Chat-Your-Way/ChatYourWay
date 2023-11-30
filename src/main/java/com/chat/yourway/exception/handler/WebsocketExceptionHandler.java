@@ -18,13 +18,13 @@ public class WebsocketExceptionHandler {
       TopicNotFoundException.class,
       TopicSubscriberNotFoundException.class
   })
-  @SendToUser("/specific")
+  @SendToUser("/specific/error")
   public MessageErrorResponseDto<String> handleException(RuntimeException e) {
     return new MessageErrorResponseDto<>(e.getMessage());
   }
 
   @MessageExceptionHandler(MethodArgumentNotValidException.class)
-  @SendToUser("/specific")
+  @SendToUser("/specific/error")
   public MessageErrorResponseDto<List<String>> handleValidationException(
       MethodArgumentNotValidException e) {
     List<FieldError> fieldErrors = Objects.requireNonNull(e.getBindingResult()).getFieldErrors();
