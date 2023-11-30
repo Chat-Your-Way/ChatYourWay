@@ -106,7 +106,7 @@ public class ChatControllerTest {
 
     // Send message to topic
     byte[] messageBytes = objectMapper.writeValueAsBytes(messageRequestDto);
-    session.send("/app/topic/" + topicId, messageBytes);
+    session.send("/app/topic/public/" + topicId, messageBytes);
 
     // Then
     MessageResponseDto messageResponseDto = resultKeeper.get(3, SECONDS);
@@ -123,6 +123,7 @@ public class ChatControllerTest {
   @DisplayName("sendToContact should return correct received private message from self to self")
   void sendToContact_shouldReturnCorrectReceivedPrivateMessageFromSelfToSelf() {
     // Given
+    int topicId = 14;
     MessagePrivateRequestDto messageRequestDto = new MessagePrivateRequestDto();
     messageRequestDto.setSendTo("vasil@gmail.com");
     messageRequestDto.setContent("Hi Vasil!");
@@ -130,12 +131,12 @@ public class ChatControllerTest {
     CompletableFuture<MessageResponseDto> resultKeeper = new CompletableFuture<>();
 
     // Subscribe to private contact
-    session.subscribe("/user/specific",
+    session.subscribe("/topic/" + topicId,
         new TestStompFrameHandler<>(resultKeeper, objectMapper, MessageResponseDto.class));
 
     // Send private message to contact
     byte[] messageBytes = objectMapper.writeValueAsBytes(messageRequestDto);
-    session.send("/app/private", messageBytes);
+    session.send("/app/topic/private/" + topicId, messageBytes);
 
     // Then
     MessageResponseDto messageResponseDto = resultKeeper.get(3, SECONDS);
@@ -157,11 +158,8 @@ public class ChatControllerTest {
     CompletableFuture<MessageResponseDto[]> resultKeeper = new CompletableFuture<>();
 
     // Subscribe to topic
-    session.subscribe("/topic/" + topicId,
+    session.subscribe("/user/topic/" + topicId,
         new TestStompFrameHandler<>(resultKeeper, objectMapper, MessageResponseDto[].class));
-
-    // Send to topic
-    session.send("/app/get/messages/" + topicId, new byte[0]);
 
     // Then
     MessageResponseDto[] messageResponseDtos = resultKeeper.get(3, SECONDS);

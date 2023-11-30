@@ -1,14 +1,16 @@
 package com.chat.yourway.service;
 
+import com.chat.yourway.config.websocket.WebsocketProperties;
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.service.interfaces.ChatMessageService;
+import com.chat.yourway.service.interfaces.ChatNotificationService;
+import com.chat.yourway.service.interfaces.ContactEventService;
 import com.chat.yourway.service.interfaces.MessageService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,52 +20,58 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ChatMessageServiceImpl implements ChatMessageService {
 
+  private final WebsocketProperties properties;
   private final SimpMessagingTemplate simpMessagingTemplate;
   private final MessageService messageService;
-
-  @Value("${socket.dest-prefixes}")
-  private String[] destPrefixes;
+  private final ContactEventService contactEventService;
+  private final ChatNotificationService chatNotificationService;
 
   @Transactional
   @Override
-  public MessageResponseDto sendToTopic(Integer topicId, MessagePublicRequestDto message,
+  public MessageResponseDto sendToPublicTopic(Integer topicId, MessagePublicRequestDto message,
       String email) {
-    log.trace("Started contact email: {} sendToTopic id: {}", email, topicId);
+    log.trace("Started contact email: [{}] sendToTopic id: [{}]", email, topicId);
     MessageResponseDto messageResponseDto = messageService.createPublic(topicId, message, email);
 
-    simpMessagingTemplate.convertAndSend(toTopicDestination(topicId), messageResponseDto);
+    sendToTopic(topicId, messageResponseDto);
 
-    log.trace("{} sent message to topic id: {}", email, topicId);
+    log.trace("Contact [{}] sent message to topic id: [{}]", email, topicId);
     return messageResponseDto;
   }
 
   @Transactional
   @Override
-  public MessageResponseDto sendToContact(MessagePrivateRequestDto message, String email) {
+  public MessageResponseDto sendToPrivateTopic(Integer topicId, MessagePrivateRequestDto message,
+      String email) {
     String sendTo = message.getSendTo();
-    log.trace("Started contact email: {} sendToContact email: {}", email, sendTo);
+    log.trace("Started contact email: [{}] sendToPrivateTopic email: [{}]", email, sendTo);
     MessageResponseDto messageResponseDto = messageService.createPrivate(message, email);
 
-    simpMessagingTemplate.convertAndSendToUser(sendTo, destPrefixes[1], messageResponseDto);
+    sendToTopic(topicId, messageResponseDto);
 
-    log.trace("{} sent message to {}", email, sendTo);
+    log.trace("Contact [{}] sent message to [{}]", email, sendTo);
     return messageResponseDto;
   }
 
   @Override
-  public List<MessageResponseDto> getMessages(Integer topicId) {
-    log.trace("Started getMessages for topicId={}", topicId);
+  public List<MessageResponseDto> sendMessageHistoryByTopicId(Integer topicId, String email) {
+    log.trace("Started sendMessageHistoryByTopicId = [{}]", topicId);
 
     List<MessageResponseDto> messages = messageService.findAllByTopicId(topicId);
-    simpMessagingTemplate.convertAndSend(toTopicDestination(topicId), messages);
+    simpMessagingTemplate.convertAndSendToUser(email, toTopicDestination(topicId), messages);
 
-    log.trace("All messages send to topicId={}", topicId);
-
+    log.trace("Message history was sent to topicId = [{}]", topicId);
     return messages;
   }
 
+  private void sendToTopic(Integer topicId, MessageResponseDto messageDto) {
+    contactEventService.setLastMessageToAllTopicSubscribers(topicId, messageDto.getContent());
+    simpMessagingTemplate.convertAndSend(toTopicDestination(topicId), messageDto);
+    chatNotificationService.notifyTopicSubscribers(topicId);
+  }
+
   private String toTopicDestination(Integer topicId) {
-    return destPrefixes[0] + "/" + topicId;
+    return properties.getTopicPrefix() + "/" + topicId;
   }
 
 }
