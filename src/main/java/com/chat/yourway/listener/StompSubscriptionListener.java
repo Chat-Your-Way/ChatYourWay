@@ -32,6 +32,8 @@ public class StompSubscriptionListener {
   private final ChatNotificationService chatNotificationService;
 
   private static String lastMessage;
+  private static final String USER_DESTINATION = "/user";
+  private static final String SLASH = "/";
 
   @EventListener
   public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {
@@ -39,17 +41,20 @@ public class StompSubscriptionListener {
     String email = getEmail(event);
 
     try {
-      if (destination.startsWith("/user" + getTopicDestination())) {
+      if (isPrivateTopicDestination(destination)) {
         chatMessageService.sendMessageHistoryByTopicId(getTopicId(event), email);
       }
-      if (destination.startsWith(getTopicDestination())) {
+
+      if (isTopicDestination(destination)) {
         lastMessage = contactEventService.getByTopicIdAndEmail(getTopicId(event), email)
             .getLastMessage();
         var contactEvent = new ContactEvent(email, getTopicId(event), SUBSCRIBED,
             getTimestamp(event), lastMessage);
         contactEventService.save(contactEvent);
       }
+
       chatNotificationService.notifyTopicSubscribers(getTopicId(event));
+
     } catch (NumberFormatException e) {
       log.warn("Contact [{}] subscribe to destination [{}] without topic id", email, destination);
     }
@@ -63,16 +68,19 @@ public class StompSubscriptionListener {
     String email = getEmail(event);
 
     try {
-      if (destination.startsWith(getTopicDestination())) {
+      if (isTopicDestination(destination)) {
         var contactEvent = new ContactEvent(email, getTopicId(event), UNSUBSCRIBED,
             getTimestamp(event), lastMessage);
         contactEventService.save(contactEvent);
       }
+
       chatNotificationService.notifyTopicSubscribers(getTopicId(event));
+
     } catch (NumberFormatException e) {
       log.warn("Contact [{}] unsubscribe from destination [{}] without topic id", email,
           destination);
     }
+
     log.info("Contact [{}] unsubscribe from [{}]", email, destination);
   }
 
@@ -93,20 +101,36 @@ public class StompSubscriptionListener {
   private Integer getTopicId(AbstractSubProtocolEvent event) throws NumberFormatException {
     String destination = getDestination(event);
 
-    if (destination.startsWith(getNotifyDestination())) {
+    if (isNotificationDestination(destination)) {
       return Integer.valueOf(destination.substring(getNotifyDestination().length()));
-    } else if (destination.startsWith("/user" + getTopicDestination())) {
-      return Integer.valueOf(destination.substring(("/user" + getTopicDestination()).length()));
+    } else if (isPrivateTopicDestination(destination)) {
+      return Integer.valueOf(destination.substring(getPrivateTopicDestination().length()));
     }
     return Integer.valueOf(destination.substring(getTopicDestination().length()));
   }
 
   private String getTopicDestination() {
-    return properties.getTopicPrefix() + "/";
+    return properties.getTopicPrefix() + SLASH;
   }
 
   private String getNotifyDestination() {
-    return "/user" + properties.getNotifyPrefix() + "/";
+    return USER_DESTINATION + properties.getNotifyPrefix() + SLASH;
+  }
+
+  private String getPrivateTopicDestination() {
+    return USER_DESTINATION + getTopicDestination();
+  }
+
+  private boolean isTopicDestination(String destination) {
+    return destination.startsWith(getTopicDestination());
+  }
+
+  private boolean isPrivateTopicDestination(String destination) {
+    return destination.startsWith(getPrivateTopicDestination());
+  }
+
+  private boolean isNotificationDestination(String destination) {
+    return destination.startsWith(getNotifyDestination());
   }
 
 }
