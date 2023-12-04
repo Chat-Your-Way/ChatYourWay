@@ -179,6 +179,11 @@ public class TopicServiceImpl implements TopicService {
         topicRepository.findAllFavouriteTopicsByContactEmail(contactEmail));
   }
 
+  @Override
+  public List<TopicResponseDto> findPopularPublicTopics() {
+    return topicMapper.toListResponseDto(topicRepository.findPopularPublicTopics());
+  }
+
   private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email) {
     String topicName = topicRequestDto.getTopicName();
     validateName(topicName);

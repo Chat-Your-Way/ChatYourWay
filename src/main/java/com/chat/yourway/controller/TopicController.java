@@ -378,4 +378,14 @@ public class TopicController {
       @PathVariable("topic-id") int topicId, @AuthenticationPrincipal UserDetails userDetails) {
     topicSubscriberService.permitSendingPrivateMessages(topicId, userDetails);
   }
+
+  @Operation(
+          summary = "List of popular topics",
+          responses = {
+                  @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC)
+          })
+  @GetMapping(path = "/popular/public")
+  public List<TopicResponseDto>findAllPopularPublicTopics() {
+    return topicService.findPopularPublicTopics();
+  }
 }

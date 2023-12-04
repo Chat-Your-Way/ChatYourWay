@@ -35,4 +35,14 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
   List<Topic> findAllFavouriteTopicsByContactEmail(String contactEmail);
 
   boolean existsByIdAndIsPublic(int topicId, boolean isPublic);
+
+  @Query(nativeQuery = true, value =
+          "SELECT t.*, COUNT(ts.id) AS ts_count, COUNT(m.id) AS m_count " +
+                  "FROM topic t " +
+                  "JOIN topic_subscriber ts ON t.id = ts.topic_id " +
+                  "JOIN message m ON t.id = m.topic_id " +
+                  "WHERE t.is_public = true " +
+                  "GROUP BY t.id " +
+                  "ORDER BY ts_count DESC, m_count DESC")
+  List<Topic> findPopularPublicTopics();
 }

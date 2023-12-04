@@ -8,6 +8,7 @@ import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Tag;
+import com.chat.yourway.model.Topic;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
@@ -127,4 +128,17 @@ public interface TopicService {
    * @return A list of {@code TopicResponseDto} objects representing the user's favorite topics.
    */
   List<TopicResponseDto> findAllFavouriteTopics(UserDetails userDetails);
+
+
+  /**
+   * Retrieves a list of popular public topics.
+   * <p>
+   * This method returns a list of {@code TopicResponseDto} objects representing popular topics
+   * that are marked as public. The popularity is determined by the number of subscribers and messages
+   * associated with each topic.
+   *
+   * @return A list of {@code TopicResponseDto} objects representing popular public topics.
+   * @see TopicResponseDto
+   */
+  List<TopicResponseDto> findPopularPublicTopics();
 }
