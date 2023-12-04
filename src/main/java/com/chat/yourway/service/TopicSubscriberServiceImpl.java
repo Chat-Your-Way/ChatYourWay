@@ -113,7 +113,6 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
     topicSubscriberRepository.updateFavouriteTopicStatusByTopicIdAndContactEmail(
         topicId, contactEmail, isNotFavouriteTopic);
   }
-  }
 
   @Override
   @Transactional
