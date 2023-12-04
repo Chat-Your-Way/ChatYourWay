@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <contact
+            id="199"
+            nickname="Vasil"
+            password="$2a$10$b9SjqPefZMJRK8WPQEbmP.BBcsqSXey2dCRa0dsRnydFY.GiPjWty"
+            is_active="true"
+            is_private="true"
+            email="vasil1@gmail.com"
+            role="USER"
+            avatar_id="1"
+    />
+
+    <topic
+            id="111"
+            topic_name="Programming topic1"
+            created_by="anton@gmail.com"
+            created_at="2023-09-19 23:43:51.236336"
+            is_public="true"
+    />
+    <topic
+            id="112"
+            topic_name="Another topic1"
+            created_by="vasil@gmail.com"
+            created_at="2023-10-01 16:31:35.344509"
+            is_public="true"
+    />
+    <topic
+            id="113"
+            topic_name="Not subscribed topic1"
+            created_by="anton@gmail.com"
+            created_at="2023-09-19 23:43:51.236336"
+            is_public="true"
+    />
+
+    <topic_subscriber
+            id="11"
+            contact_id="199"
+            topic_id="111"
+            subscribe_at="2023-09-21 22:53:12.818683"
+            is_favourite_topic="true"
+    />
+    <topic_subscriber
+            id="12"
+            contact_id="199"
+            topic_id="112"
+            subscribe_at="2023-10-01 16:31:35.283240"
+            is_favourite_topic="false"
+    />
+
+</dataset>

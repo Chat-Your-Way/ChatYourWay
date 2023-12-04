@@ -102,4 +102,52 @@ public class AuthenticationControllerTest {
     // Then
     response.andExpect(status().isConflict()).andExpect(content().contentType(APPLICATION_JSON));
   }
+
+  @Test
+  @SneakyThrows
+  @DisplayName("should register new contact when user inputted uppercase email")
+  @DatabaseSetup(value = "/dataset/contacts.xml", type = DatabaseOperation.INSERT)
+  @DatabaseTearDown(value = "/dataset/contacts.xml", type = DatabaseOperation.DELETE)
+  public void shouldRegisterNewContact_whenUserInputtedUppercaseEmail() {
+    // Given
+    var nickname = "username12345";
+    var password = "User12346*";
+    var avatarId = (byte) 1;
+    var request = new ContactRequestDto(nickname, "NEWEMAIL54@GMAIL.COM", avatarId, password);
+
+    // When
+    var response =
+        mockMvc.perform(
+            post(URI + "/register")
+                .header("Referer", REFERER)
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(APPLICATION_JSON));
+
+    // Then
+    response.andExpect(status().isCreated()).andExpect(content().contentType(APPLICATION_JSON));
+  }
+
+  @Test
+  @SneakyThrows
+  @DisplayName("should return status code 409 when user inputted existed uppercase email")
+  @DatabaseSetup(value = "/dataset/contacts.xml", type = DatabaseOperation.INSERT)
+  @DatabaseTearDown(value = "/dataset/contacts.xml", type = DatabaseOperation.DELETE)
+  public void shouldReturnStatusCode409_whenUserInputtedExistedUppercaseEmail() {
+    // Given
+    var nickname = "username12345";
+    var password = "User12346*";
+    var avatarId = (byte) 1;
+    var request = new ContactRequestDto(nickname, "NEWEMAIL@GMAIL.COM", avatarId, password);
+
+    // When
+    var response =
+        mockMvc.perform(
+            post(URI + "/register")
+                .header("Referer", REFERER)
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(APPLICATION_JSON));
+
+    // Then
+    response.andExpect(status().isConflict()).andExpect(content().contentType(APPLICATION_JSON));
+  }
 }

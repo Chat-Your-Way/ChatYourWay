@@ -28,7 +28,10 @@ public class TopicSubscriber {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "topic_subscriber_seq_gen")
-  @SequenceGenerator(name = "topic_subscriber_seq_gen", sequenceName = "chat.topic_subscriber_id_seq", allocationSize = 1)
+  @SequenceGenerator(
+      name = "topic_subscriber_seq_gen",
+      sequenceName = "chat.topic_subscriber_id_seq",
+      allocationSize = 1)
   private Integer id;
 
   @ManyToOne
@@ -46,4 +49,9 @@ public class TopicSubscriber {
   @Column(name = "unsubscribe_at")
   private LocalDateTime unsubscribeAt;
 
+  @Column(name = "is_favourite_topic")
+  private boolean isFavouriteTopic;
+
+  @Column(name = "is_permitted_sending_message")
+  private boolean isPermittedSendingMessage;
 }

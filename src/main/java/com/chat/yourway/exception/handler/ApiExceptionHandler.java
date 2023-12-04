@@ -46,9 +46,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
     responseCode = "ErrorCode",
     description = "Error response",
     content =
-    @Content(
-        schema = @Schema(implementation = ApiErrorResponseDto.class),
-        mediaType = MediaType.APPLICATION_JSON_VALUE))
+        @Content(
+            schema = @Schema(implementation = ApiErrorResponseDto.class),
+            mediaType = MediaType.APPLICATION_JSON_VALUE))
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -68,8 +68,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(CONFLICT)
   @ExceptionHandler({
-      ValueNotUniqException.class,
-      ContactAlreadySubscribedToTopicException.class
+    ValueNotUniqException.class,
+    ContactAlreadySubscribedToTopicException.class,
+    NotSubscribedTopicException.class
   })
   public ApiErrorResponseDto handleConflictException(RuntimeException exception) {
     return new ApiErrorResponseDto(CONFLICT, exception.getMessage());
@@ -77,9 +78,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(UNAUTHORIZED)
   @ExceptionHandler({
-      InvalidTokenException.class,
-      InvalidCredentialsException.class,
-      ExpiredJwtException.class
+    InvalidTokenException.class,
+    InvalidCredentialsException.class,
+    ExpiredJwtException.class
   })
   public ApiErrorResponseDto handleUnauthorizedException(RuntimeException exception) {
     return new ApiErrorResponseDto(UNAUTHORIZED, exception.getMessage());

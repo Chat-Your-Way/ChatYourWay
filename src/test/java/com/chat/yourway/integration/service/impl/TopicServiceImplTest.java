@@ -1,10 +1,12 @@
 package com.chat.yourway.integration.service.impl;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
 
+import com.chat.yourway.service.interfaces.ContactService;
 import com.chat.yourway.service.interfaces.TopicService;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseOperation;
@@ -27,15 +29,16 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 @SpringBootTest
 @TestExecutionListeners(
     value = {
-        TransactionalTestExecutionListener.class,
-        DirtiesContextTestExecutionListener.class,
-        DependencyInjectionTestExecutionListener.class,
-        DbUnitTestExecutionListener.class,
-        MockitoTestExecutionListener.class,
-        ResetMocksTestExecutionListener.class
+      TransactionalTestExecutionListener.class,
+      DirtiesContextTestExecutionListener.class,
+      DependencyInjectionTestExecutionListener.class,
+      DbUnitTestExecutionListener.class,
+      MockitoTestExecutionListener.class,
+      ResetMocksTestExecutionListener.class
     })
 public class TopicServiceImplTest {
   @Autowired TopicService topicService;
+  @Autowired ContactService contactService;
 
   @Test
   @SneakyThrows
@@ -57,5 +60,62 @@ public class TopicServiceImplTest {
     assertThat(resultList.size())
         .withFailMessage("Expecting size of list of topics equals to " + expectedSize)
         .isEqualTo(expectedSize);
+  }
+
+  @Test
+  @DatabaseSetup(
+      value = "/dataset/favourite-topics-of-contact.xml",
+      type = DatabaseOperation.INSERT)
+  @DatabaseTearDown(
+      value = "/dataset/favourite-topics-of-contact.xml",
+      type = DatabaseOperation.DELETE)
+  @DisplayName("should return list of favourite topics when user made request")
+  public void shouldReturnListOfFavouriteTopics_whenUserMadeRequest() {
+    var contactEmail = "vasil1@gmail.com";
+    var contact = contactService.findByEmail(contactEmail);
+    var expectedSize = 1;
+
+    // When
+    var resultList = topicService.findAllFavouriteTopics(contact);
+
+    // Then
+    assertThat(resultList.size())
+        .withFailMessage("Expecting size of list of topics equals to " + expectedSize)
+        .isEqualTo(expectedSize);
+  }
+
+  @Test
+  @DatabaseSetup(
+          value = "/dataset/popular-topic-dataset.xml",
+          type = DatabaseOperation.INSERT)
+  @DatabaseTearDown(
+          value = "/dataset/popular-topic-dataset.xml",
+          type = DatabaseOperation.DELETE)
+  @DisplayName("should return list of popular topics when user made request")
+  public void shouldReturnListOfPopularTopics_whenUserMadeRequest() {
+    // Given
+    var firstPlaceTopicId = 3000;
+    var secondPlaceTopicId = 3001;
+    var thirdPlaceTopicId = 3002;
+    var expectedSize = 3;
+
+    // When
+    var resultList = topicService.findPopularPublicTopics();
+    var firstPlaceTopic = resultList.get(0);
+    var secondPlaceTopic = resultList.get(1);
+    var thirdPlaceTopic = resultList.get(2);
+
+    // Then
+    assertAll(
+            () -> assertThat(resultList.size())
+                    .withFailMessage("Expecting size of the list of topics to be " + expectedSize)
+                    .isEqualTo(expectedSize),
+            () -> assertThat(firstPlaceTopic.getId())
+                    .isEqualTo(firstPlaceTopicId),
+            () -> assertThat(secondPlaceTopic.getId())
+                    .isEqualTo(secondPlaceTopicId),
+            () -> assertThat(thirdPlaceTopic.getId())
+                    .isEqualTo(thirdPlaceTopicId)
+    );
   }
 }

@@ -48,19 +48,17 @@ public class Topic {
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       schema = "chat",
       name = "topic_tag",
       joinColumns = @JoinColumn(name = "topic_id"),
-      inverseJoinColumns = @JoinColumn(name = "tag_id")
-  )
+      inverseJoinColumns = @JoinColumn(name = "tag_id"))
   private Set<Tag> tags;
 
-  @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   private Set<TopicSubscriber> topicSubscribers;
 
   @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<Message> messages;
-
 }

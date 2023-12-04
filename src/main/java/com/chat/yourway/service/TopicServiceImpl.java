@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,6 +79,7 @@ public class TopicServiceImpl implements TopicService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public TopicResponseDto findById(Integer id) {
     log.trace("Started findById: {}", id);
 
@@ -135,6 +137,7 @@ public class TopicServiceImpl implements TopicService {
   public Set<Tag> addUniqTags(Set<TagRequestDto> tags) {
     log.trace("Started addUniqTags tags: {}", tags);
 
+
     Set<String> tagNames = tags.stream()
         .map(tag -> tag.getName().trim().toLowerCase())
         .collect(toSet());
@@ -142,14 +145,13 @@ public class TopicServiceImpl implements TopicService {
     Set<Tag> existingTags = tagRepository.findAllByNameIn(tagNames);
     log.trace("Found existing tags: {}", existingTags);
 
-    Set<String> existingTagNames = existingTags.stream()
-        .map(Tag::getName)
-        .collect(toSet());
+    Set<String> existingTagNames = existingTags.stream().map(Tag::getName).collect(toSet());
 
-    Set<Tag> uniqueTags = tagNames.stream()
-        .filter(tag -> !existingTagNames.contains(tag))
-        .map(Tag::new)
-        .collect(toSet());
+    Set<Tag> uniqueTags =
+        tagNames.stream()
+            .filter(tag -> !existingTagNames.contains(tag))
+            .map(Tag::new)
+            .collect(toSet());
     log.trace("Creating new uniq tags: {}", uniqueTags);
 
     List<Tag> savedTags = tagRepository.saveAll(uniqueTags);
@@ -167,9 +169,19 @@ public class TopicServiceImpl implements TopicService {
 
   @Override
   public String generatePrivateName(String sendTo, String email) {
-    return Stream.of(sendTo, email)
-        .sorted()
-        .collect(Collectors.joining("-"));
+    return Stream.of(sendTo, email).sorted().collect(Collectors.joining("-"));
+  }
+
+  @Override
+  public List<TopicResponseDto> findAllFavouriteTopics(UserDetails userDetails) {
+    String contactEmail = userDetails.getUsername();
+    return topicMapper.toListResponseDto(
+        topicRepository.findAllFavouriteTopicsByContactEmail(contactEmail));
+  }
+
+  @Override
+  public List<TopicResponseDto> findPopularPublicTopics() {
+    return topicMapper.toListResponseDto(topicRepository.findPopularPublicTopics());
   }
 
   private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email) {
@@ -180,13 +192,14 @@ public class TopicServiceImpl implements TopicService {
 
     if (topic == null) {
       log.trace("Create new topic");
-      topic = Topic.builder()
-          .topicName(topicName)
-          .isPublic(isPublic(email, topicName))
-          .createdBy(email)
-          .createdAt(LocalDateTime.now())
-          .tags(tags)
-          .build();
+      topic =
+          Topic.builder()
+              .topicName(topicName)
+              .isPublic(isPublic(email, topicName))
+              .createdBy(email)
+              .createdAt(LocalDateTime.now())
+              .tags(tags)
+              .build();
     } else {
       log.trace("Update topic");
       topic.setTopicName(topicName);
@@ -202,19 +215,24 @@ public class TopicServiceImpl implements TopicService {
   }
 
   private Topic getTopic(Integer topicId) {
-    return topicRepository.findById(topicId)
-        .orElseThrow(() -> {
-          log.warn("Topic id: {} wasn't found", topicId);
-          return new TopicNotFoundException(String.format("Topic id: %s wasn't found", topicId));
-        });
+    return topicRepository
+        .findById(topicId)
+        .orElseThrow(
+            () -> {
+              log.warn("Topic id: {} wasn't found", topicId);
+              return new TopicNotFoundException(
+                  String.format("Topic id: %s wasn't found", topicId));
+            });
   }
 
   private Topic getTopicByName(String name) {
-    return topicRepository.findByTopicName(name)
-        .orElseThrow(() -> {
-          log.warn("Topic name: {} wasn't found", name);
-          return new TopicNotFoundException(String.format("Topic name: %s wasn't found", name));
-        });
+    return topicRepository
+        .findByTopicName(name)
+        .orElseThrow(
+            () -> {
+              log.warn("Topic name: {} wasn't found", name);
+              return new TopicNotFoundException(String.format("Topic name: %s wasn't found", name));
+            });
   }
 
   private void validateName(String topicName) {
@@ -239,6 +257,7 @@ public class TopicServiceImpl implements TopicService {
     return topic.getCreatedBy().equals(email);
   }
 
+
   private void validateRecipientEmail(String sendTo) {
     if (!contactService.isEmailExists(sendTo)) {
       log.error("Private topic cannot be created, recipient email={} does not exist", sendTo);
@@ -246,5 +265,6 @@ public class TopicServiceImpl implements TopicService {
           "Private topic cannot be created because recipient email: %s does not exist", sendTo));
     }
   }
+
 
 }
