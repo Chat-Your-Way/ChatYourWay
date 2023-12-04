@@ -14,5 +14,8 @@ public class WebsocketProperties {
   private String[] destPrefixes;
   private String appPrefix;
   private String endpoint;
+  private String topicPrefix;
+  private String notifyPrefix;
+  private String errorPrefix;
 
 }

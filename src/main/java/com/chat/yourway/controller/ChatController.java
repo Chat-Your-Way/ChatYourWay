@@ -5,14 +5,12 @@ import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.service.interfaces.ChatMessageService;
 import jakarta.validation.Valid;
-import java.util.List;
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
-
-import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
@@ -20,22 +18,18 @@ public class ChatController {
 
   private final ChatMessageService chatMessageService;
 
-  @MessageMapping("/topic/{topicId}")
-  public MessageResponseDto sendToTopic(@DestinationVariable Integer topicId,
+  @MessageMapping("/topic/public/{topicId}")
+  public MessageResponseDto sendToPublicTopic(@DestinationVariable Integer topicId,
       @Valid @Payload MessagePublicRequestDto message, Principal principal) {
     String email = principal.getName();
-    return chatMessageService.sendToTopic(topicId, message, email);
+    return chatMessageService.sendToPublicTopic(topicId, message, email);
   }
 
-  @MessageMapping("/private")
-  public MessageResponseDto sendToContact(@Valid @Payload MessagePrivateRequestDto message,
-      Principal principal) {
+  @MessageMapping("/topic/private/{topicId}")
+  public MessageResponseDto sendToPrivateTopic(@DestinationVariable Integer topicId,
+      @Valid @Payload MessagePrivateRequestDto message, Principal principal) {
     String email = principal.getName();
-    return chatMessageService.sendToContact(message, email);
+    return chatMessageService.sendToPrivateTopic(topicId, message, email);
   }
 
-  @MessageMapping("/get/messages/{topicId}")
-  public List<MessageResponseDto> getMessages(@DestinationVariable Integer topicId) {
-    return chatMessageService.getMessages(topicId);
-  }
 }
