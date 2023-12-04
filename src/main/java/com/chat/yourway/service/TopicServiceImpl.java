@@ -79,6 +79,7 @@ public class TopicServiceImpl implements TopicService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public TopicResponseDto findById(Integer id) {
     log.trace("Started findById: {}", id);
 
@@ -176,6 +177,11 @@ public class TopicServiceImpl implements TopicService {
     String contactEmail = userDetails.getUsername();
     return topicMapper.toListResponseDto(
         topicRepository.findAllFavouriteTopicsByContactEmail(contactEmail));
+  }
+
+  @Override
+  public List<TopicResponseDto> findPopularPublicTopics() {
+    return topicMapper.toListResponseDto(topicRepository.findPopularPublicTopics());
   }
 
   private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email) {

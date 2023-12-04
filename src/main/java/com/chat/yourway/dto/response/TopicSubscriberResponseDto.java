@@ -20,4 +20,6 @@ public class TopicSubscriberResponseDto {
 
   private LocalDateTime unsubscribeAt;
 
+  private boolean isPermittedSendingMessage;
+
 }

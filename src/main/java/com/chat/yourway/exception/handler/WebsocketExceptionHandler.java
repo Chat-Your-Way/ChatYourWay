@@ -1,6 +1,7 @@
 package com.chat.yourway.exception.handler;
 
 import com.chat.yourway.dto.response.MessageErrorResponseDto;
+import com.chat.yourway.exception.MessagePermissionDeniedException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import java.util.List;
@@ -16,7 +17,8 @@ public class WebsocketExceptionHandler {
 
   @MessageExceptionHandler({
       TopicNotFoundException.class,
-      TopicSubscriberNotFoundException.class
+      TopicSubscriberNotFoundException.class,
+      MessagePermissionDeniedException.class
   })
   @SendToUser("/specific/error")
   public MessageErrorResponseDto<String> handleException(RuntimeException e) {

@@ -113,6 +113,48 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
     topicSubscriberRepository.updateFavouriteTopicStatusByTopicIdAndContactEmail(
         topicId, contactEmail, isNotFavouriteTopic);
   }
+  }
+
+  @Override
+  @Transactional
+  public void permitSendingPrivateMessages(Integer topicId, UserDetails userDetails) {
+    boolean isPermittedSendingPrivateMessage = true;
+
+    changePermissionSendingPrivateMessages(topicId, userDetails, isPermittedSendingPrivateMessage);
+  }
+
+  @Override
+  @Transactional
+  public void prohibitSendingPrivateMessages(Integer topicId, UserDetails userDetails) {
+    boolean isPermittedSendingPrivateMessage = false;
+
+    changePermissionSendingPrivateMessages(topicId, userDetails, isPermittedSendingPrivateMessage);
+  }
+
+  @Override
+  public boolean hasProhibitionSendingPrivateMessages(Integer topicId) {
+    return topicSubscriberRepository.checkIfExistProhibitionSendingPrivateMessage(topicId);
+  }
+
+  private void changePermissionSendingPrivateMessages(
+      Integer topicId, UserDetails userDetails, boolean isPermittedSendingPrivateMessage) {
+    String contactEmail = userDetails.getUsername();
+    boolean isPublicTopic = false;
+
+    if (!topicRepository.existsById(topicId)) {
+      throw new TopicNotFoundException(String.format("Topic with id [%d] is not found.", topicId));
+    } else if (!topicRepository.existsByIdAndIsPublic(topicId, isPublicTopic)) {
+      throw new TopicNotFoundException(
+          String.format("Private topic with id [%d] is not found.", topicId));
+    } else if (!topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(
+        contactEmail, topicId)) {
+      throw new NotSubscribedTopicException(
+          "You cannot change permission of sending private messages because you did not subscribe before");
+    }
+
+    topicSubscriberRepository.updatePermissionSendingPrivateMessageByTopicIdAndContactEmail(
+        topicId, contactEmail, isPermittedSendingPrivateMessage);
+  }
 
   private boolean isTopicCreator(Integer topicId, String topicCreator) {
     return topicSubscriberRepository.existsByTopicIdAndTopicCreatedBy(topicId, topicCreator);

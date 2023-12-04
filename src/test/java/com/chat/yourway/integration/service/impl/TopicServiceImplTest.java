@@ -1,6 +1,7 @@
 package com.chat.yourway.integration.service.impl;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
@@ -81,5 +82,40 @@ public class TopicServiceImplTest {
     assertThat(resultList.size())
         .withFailMessage("Expecting size of list of topics equals to " + expectedSize)
         .isEqualTo(expectedSize);
+  }
+
+  @Test
+  @DatabaseSetup(
+          value = "/dataset/popular-topic-dataset.xml",
+          type = DatabaseOperation.INSERT)
+  @DatabaseTearDown(
+          value = "/dataset/popular-topic-dataset.xml",
+          type = DatabaseOperation.DELETE)
+  @DisplayName("should return list of popular topics when user made request")
+  public void shouldReturnListOfPopularTopics_whenUserMadeRequest() {
+    // Given
+    var firstPlaceTopicId = 3000;
+    var secondPlaceTopicId = 3001;
+    var thirdPlaceTopicId = 3002;
+    var expectedSize = 3;
+
+    // When
+    var resultList = topicService.findPopularPublicTopics();
+    var firstPlaceTopic = resultList.get(0);
+    var secondPlaceTopic = resultList.get(1);
+    var thirdPlaceTopic = resultList.get(2);
+
+    // Then
+    assertAll(
+            () -> assertThat(resultList.size())
+                    .withFailMessage("Expecting size of the list of topics to be " + expectedSize)
+                    .isEqualTo(expectedSize),
+            () -> assertThat(firstPlaceTopic.getId())
+                    .isEqualTo(firstPlaceTopicId),
+            () -> assertThat(secondPlaceTopic.getId())
+                    .isEqualTo(secondPlaceTopicId),
+            () -> assertThat(thirdPlaceTopic.getId())
+                    .isEqualTo(thirdPlaceTopicId)
+    );
   }
 }
