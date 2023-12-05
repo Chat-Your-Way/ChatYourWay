@@ -38,9 +38,9 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
 
   @Query(nativeQuery = true, value =
           "SELECT t.*, COUNT(ts.id) AS ts_count, COUNT(m.id) AS m_count " +
-                  "FROM topic t " +
-                  "JOIN topic_subscriber ts ON t.id = ts.topic_id " +
-                  "JOIN message m ON t.id = m.topic_id " +
+                  "FROM chat.topic t " +
+                  "JOIN chat.topic_subscriber ts ON t.id = ts.topic_id " +
+                  "JOIN chat.message m ON t.id = m.topic_id " +
                   "WHERE t.is_public = true " +
                   "GROUP BY t.id " +
                   "ORDER BY ts_count DESC, m_count DESC")

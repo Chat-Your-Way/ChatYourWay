@@ -8,6 +8,7 @@
             is_active="true"
             is_private="true"
             email="user@gmail.com"
+            is_permitted_sending_private_message="true"
             role="USER"
     />
     <contact
@@ -18,6 +19,7 @@
             is_active="true"
             is_private="true"
             email="NEWEMAIL@GMAIL.COM"
+            is_permitted_sending_private_message="true"
             role="USER"
     />
 

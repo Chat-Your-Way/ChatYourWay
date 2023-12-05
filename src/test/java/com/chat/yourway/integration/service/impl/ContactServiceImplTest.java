@@ -104,4 +104,133 @@ public class ContactServiceImplTest {
         verify(existingContact, never()).setNickname(anyString());
         verify(existingContact, never()).setAvatarId(anyByte());
     }
+
+    @Test
+    @DisplayName("should get contact profile when user is exist")
+    @DatabaseSetup(value = "/dataset/contacts.xml", type = DatabaseOperation.INSERT)
+    @DatabaseTearDown(value = "/dataset/contacts.xml", type = DatabaseOperation.DELETE)
+    public void shouldGetContactProfile_whenUserIsExist() {
+        // Given
+        var email = "user@gmail.com";
+        var userDetails = Mockito.mock(UserDetails.class);
+
+        when(userDetails.getUsername()).thenReturn(email);
+
+        // When
+        contactService.getContactProfile(userDetails);
+        var foundContact = contactRepository.findByEmailIgnoreCase(email).get();
+
+        // Then
+        assertAll(
+                () -> assertThat(foundContact)
+                        .withFailMessage("Expecting nickname is present")
+                        .extracting(Contact::getNickname)
+                        .isNotNull(),
+                () -> assertThat(foundContact)
+                        .withFailMessage("Expecting avatar id is present")
+                        .extracting(Contact::getAvatarId)
+                        .isNotNull(),
+                () -> assertThat(foundContact)
+                        .withFailMessage("Expecting permission of sending private message is present")
+                        .extracting(Contact::isPermittedSendingPrivateMessage)
+                        .isNotNull());
+    }
+
+    @Test
+    @DisplayName(
+            "should throw ContactNotFoundException when contact profile is not exist")
+    @DatabaseSetup(value = "/dataset/contacts.xml", type = DatabaseOperation.INSERT)
+    @DatabaseTearDown(value = "/dataset/contacts.xml", type = DatabaseOperation.DELETE)
+    public void shouldThrowContactNotFoundException_whenContactProfileIsNotExist() {
+        // Given
+        var email = "test@example.com";
+        var existingContact = Mockito.mock(Contact.class);
+        var userDetails = Mockito.mock(UserDetails.class);
+
+        when(userDetails.getUsername()).thenReturn(email);
+
+        // When
+        assertThrows(
+                ContactNotFoundException.class,
+                () -> contactService.getContactProfile(userDetails));
+
+        // Then
+        verify(existingContact, never()).setNickname(anyString());
+        verify(existingContact, never()).setAvatarId(anyByte());
+        verify(existingContact, never()).setPermittedSendingPrivateMessage(anyBoolean());
+    }
+
+
+    @Test
+    @DatabaseSetup(
+            value = "/dataset/permission-sending-message-in-private-topic.xml",
+            type = DatabaseOperation.INSERT)
+    @DatabaseTearDown(
+            value = "/dataset/permission-sending-message-in-private-topic.xml",
+            type = DatabaseOperation.DELETE)
+    @DisplayName(
+            "should successfully permit sending private messages when user change permission")
+    public void shouldSuccessfullyPermitSendingPrivateMessages_whenUserChangePermission() {
+        // Given
+        var contactEmail = "vasil299@gmail.com";
+        var contact = contactService.findByEmail(contactEmail);
+
+        // When
+        contactService.permitSendingPrivateMessages(contact);
+
+        // Then
+        var result = contactService.findByEmail(contactEmail);
+
+        assertThat(result)
+                .extracting(Contact::isPermittedSendingPrivateMessage)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @DatabaseSetup(
+            value = "/dataset/permission-sending-message-in-private-topic.xml",
+            type = DatabaseOperation.INSERT)
+    @DatabaseTearDown(
+            value = "/dataset/permission-sending-message-in-private-topic.xml",
+            type = DatabaseOperation.DELETE)
+    @DisplayName(
+            "should successfully prohibit sending private messages when user change permission")
+    public void shouldSuccessfullyProhibitSendingPrivateMessages_whenUserChangePermission() {
+        // Given
+        var contactEmail = "vasil299@gmail.com";
+        var contact = contactService.findByEmail(contactEmail);
+
+        // When
+        contactService.prohibitSendingPrivateMessages(contact);
+
+        // Then
+        var result = contactService.findByEmail(contactEmail);
+
+        assertThat(result)
+                .extracting(Contact::isPermittedSendingPrivateMessage)
+                .isEqualTo(false);
+    }
+
+    @Test
+    @DatabaseSetup(
+            value = "/dataset/permission-sending-message-in-private-topic.xml",
+            type = DatabaseOperation.INSERT)
+    @DatabaseTearDown(
+            value = "/dataset/permission-sending-message-in-private-topic.xml",
+            type = DatabaseOperation.DELETE)
+    @DisplayName(
+            "should throw ContactNotFoundException when user change permission")
+    public void shouldThrowContactNotFoundException_whenUserChangePermission() {
+        // Given
+        var contactEmail = "vasil2929@gmail.com";
+        Contact contact = new Contact();
+
+        contact.setEmail(contactEmail);
+
+        // When
+        // Then
+        assertThrows(
+                ContactNotFoundException.class,
+                () -> contactService.permitSendingPrivateMessages(contact));
+    }
 }

@@ -2,6 +2,7 @@ package com.chat.yourway.service.interfaces;
 
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
+import com.chat.yourway.dto.response.ContactProfileResponseDto;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
@@ -57,4 +58,33 @@ public interface ContactService {
    * @return true if contact with email exists in repository
    */
   boolean isEmailExists(String email);
+
+  /**
+   * Retrieves the contact profile information for a given user.
+   *
+   * This method fetches and returns a ContactProfileResponseDto containing details
+   * such as contact information, preferences, and other relevant data for the specified user.
+   *
+   * @param userDetails The UserDetails object representing the user for whom the contact profile
+   *                    information is to be retrieved.
+   * @return A ContactProfileResponseDto containing the contact profile information for the user.
+   *
+   * @see UserDetails
+   * @see ContactProfileResponseDto
+   */
+  ContactProfileResponseDto getContactProfile(UserDetails userDetails);
+
+  /**
+   * Permits the sending of private messages for private topics to the given user.
+   *
+   * @param userDetails  the UserDetails object representing the user
+   */
+  void permitSendingPrivateMessages(UserDetails userDetails);
+
+  /**
+   * Prohibits the sending of private messages for private topics to the given user.
+   *
+   * @param userDetails  the UserDetails object representing the user
+   */
+  void prohibitSendingPrivateMessages(UserDetails userDetails);
 }
