@@ -8,30 +8,35 @@ import java.util.List;
 public interface ChatMessageService {
 
   /**
-   * Sends a message to the chat topic.
+   * Sends a message to the public topic.
+   *
+   * @param topicId                 The id of the topic.
+   * @param messagePublicRequestDto The received message details.
+   * @param email                   The email of the sender.
+   * @return {@link MessageResponseDto} is the sent message.
+   */
+  MessageResponseDto sendToPublicTopic(Integer topicId,
+      MessagePublicRequestDto messagePublicRequestDto,
+      String email);
+
+  /**
+   * Sends a message to the private topic.
    *
    * @param topicId                  The id of the topic.
    * @param messagePrivateRequestDto The received message details.
    * @param email                    The email of the sender.
    * @return {@link MessageResponseDto} is the sent message.
    */
-  MessageResponseDto sendToTopic(Integer topicId, MessagePublicRequestDto messagePrivateRequestDto,
-      String email);
+  MessageResponseDto sendToPrivateTopic(Integer topicId,
+      MessagePrivateRequestDto messagePrivateRequestDto, String email);
 
   /**
-   * Sends a message to the specific contact.
-   *
-   * @param messagePrivateRequestDto The received message details.
-   * @param email                    The email of the sender.
-   * @return {@link MessageResponseDto} is the sent message.
-   */
-  MessageResponseDto sendToContact(MessagePrivateRequestDto messagePrivateRequestDto, String email);
-
-  /**
-   * Get all messages by topic id.
+   * Send messageHistory by topic id.
    *
    * @param topicId The id of the topic.
-   * @return {@link MessageResponseDto} is the all got messages.
+   * @param email   The email of the sender.
+   * @return list topic messages.
    */
-  List<MessageResponseDto> getMessages(Integer topicId);
+  List<MessageResponseDto> sendMessageHistoryByTopicId(Integer topicId, String email);
+
 }

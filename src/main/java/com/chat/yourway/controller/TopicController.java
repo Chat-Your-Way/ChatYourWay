@@ -1,21 +1,23 @@
 package com.chat.yourway.controller;
 
-import static com.chat.yourway.config.openapi.OpenApiMessages.*;
 import static com.chat.yourway.config.openapi.OpenApiMessages.ALREADY_SUBSCRIBED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_UNAUTHORIZED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_WASNT_SUBSCRIBED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.INVALID_VALUE;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SEARCH_TOPIC_VALIDATION;
 import static com.chat.yourway.config.openapi.OpenApiMessages.OWNER_CANT_UNSUBSCRIBED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.RECIPIENT_EMAIL_NOT_EXIST;
+import static com.chat.yourway.config.openapi.OpenApiMessages.SEARCH_TOPIC_VALIDATION;
+import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_ADD_TOPIC_TO_FAVOURITE;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_CREATED_TOPIC;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_DELETE_TOPIC;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_FOUND_TOPIC;
+import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_REMOVE_TOPIC_FROM_FAVOURITE;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_SUBSCRIBED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_UNSUBSCRIBED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_UPDATED_TOPIC;
 import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_ACCESS;
 import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_FOUND;
+import static com.chat.yourway.config.openapi.OpenApiMessages.USER_DID_NOT_SUBSCRIBED_TO_TOPIC;
 import static com.chat.yourway.config.openapi.OpenApiMessages.VALUE_NOT_UNIQUE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -42,7 +44,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/topics")

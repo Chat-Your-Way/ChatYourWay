@@ -1,9 +1,13 @@
 package com.chat.yourway.integration.service.impl;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import com.chat.yourway.dto.response.TopicSubscriberResponseDto;
 import com.chat.yourway.exception.NotSubscribedTopicException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
+import com.chat.yourway.listener.StompConnectionListener;
 import com.chat.yourway.service.interfaces.ContactService;
 import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
@@ -23,9 +27,6 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 @ExtendWith({PostgresExtension.class, RedisExtension.class})
 @SpringBootTest
 @TestExecutionListeners(
@@ -41,6 +42,8 @@ public class TopicSubscriberServiceImplTest {
   @Autowired TopicService topicService;
   @Autowired ContactService contactService;
   @Autowired TopicSubscriberService topicSubscriberService;
+  @Autowired
+  StompConnectionListener stompConnectionListener;
 
   @Test
   @DatabaseSetup(

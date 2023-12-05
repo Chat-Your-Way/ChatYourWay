@@ -8,82 +8,91 @@
 <body>
 <div>
   <h1>WebSocket Chat Test Client</h1>
+
   <div>
+    <label for="getTopicNotification"> /user/specific/notify/{id}
+      <input type="number" id="getTopicNotification" placeholder="Enter topic id">
+    </label>
 
-    <div>
-      <label for="subscribeToTopic">
-        <input type="number" id="subscribeToTopic" placeholder="Enter topic id">
-      </label>
-
-      <button onclick="subscribeToTopic()">Subscribe</button>
-    </div>
-    <br/>
-    <div>
-      <label for="message">
-        <input type="text" id="message" placeholder="Enter your message">
-      </label>
-
-      <button onclick="sendMessage()">Send to Topic</button>
-    </div>
-    <br/>
-    <div>
-      <label for="privateMessage">
-        <input type="text" id="privateMessage" placeholder="Enter your message">
-      </label>
-
-      <label for="sendToContact">
-        <input type="text" id="sendToContact" placeholder="Enter contact email"/>
-      </label>
-
-      <button onclick="sendPrivateMessage()">Send to Contact</button>
-    </div>
-
-    <br/>
-    <br/>
-
-    <div id="messages"></div>
-
+    <button onclick="subscribeToNotificationFromTopic(document.getElementById('getTopicNotification').value)">Get notification</button>
   </div>
+  <br/>
+
+  <div id="notification"></div>
+  <br/>
+
+  <div>
+    <label for="subscribeToTopic"> /topic/{id}
+      <input type="number" id="subscribeToTopic" placeholder="Enter topic id">
+    </label>
+
+    <button onclick="subscribeToTopic()">Subscribe</button>
+  </div>
+  <br/>
+  <div>
+    <label for="message">
+      <input type="text" id="message" placeholder="Enter your message">
+    </label>
+
+    <button onclick="sendToPublicTopic()">Send to public Topic</button>
+  </div>
+  <br/>
+
+  <div>
+    <label for="privateMessage">
+      <input type="text" id="privateMessage" placeholder="Enter your message">
+    </label>
+
+    <label for="sendToContact">
+      <input type="text" id="sendToContact" placeholder="Enter contact email"/>
+    </label>
+
+    <button onclick="sendToPrivateTopic()">Send to Contact</button>
+  </div>
+
+  <br/>
+  <br/>
+
+  <div id="messages"></div>
+
 </div>
 
 <script>
   const socket = new SockJS('/chat');
   const stompClient = Stomp.over(socket);
-  const toUserDest = '/user/specific';
-  const toTopicDest = '/topic/';
-  const sendToTopicDest = "/app/topic/";
-  const sendToUserDest = "/app/private";
-  const getMessagesDest = '/app/get/messages/';
+  const subToTopicDest = '/topic/';
+  const subToError = '/user/specific/error';
+  const subToNotificationDest = '/user/specific/notify/';
+  const sendToPublicTopicDest = "/app/topic/public/";
+  const sendToPrivateTopicDest = "/app/topic/private/";
 
   stompClient.connect({}, function (frame) {
     console.log('Connected: ' + frame);
 
-    subscribeToTopic();
-    subscribeToUser();
+    subscribeToError();
   });
 
-  function subscribeToUser() {
-    stompClient.subscribe(toUserDest, function (message) {
-      console.log(message.body);
-      showMessage(JSON.parse(message.body));
+  function subscribeToMessageHistory(){
+    let topicId = document.getElementById('subscribeToTopic').value;
+
+    stompClient.subscribe('/user' + subToTopicDest + topicId, function (messages) {
+      let parseMessage = JSON.parse(messages.body);
+
+      parseMessage.forEach(function (message) {
+        showMessage(message);
+      });
+
     });
   }
 
   function subscribeToTopic() {
     let topicId = document.getElementById('subscribeToTopic').value;
+    subscribeToMessageHistory();
 
-    stompClient.subscribe(toTopicDest + topicId, function (messages) {
-      let parseMessage = JSON.parse(messages.body);
-      if (Array.isArray(parseMessage)) {
-        parseMessage.forEach(function (message) {
-          showMessage(message);
-        });
-      } else {
+      stompClient.subscribe(subToTopicDest + topicId, function (messages) {
+        let parseMessage = JSON.parse(messages.body);
         showMessage(parseMessage);
-      }
-    });
-
-    getMessageHistory(topicId);
+      });
   }
 
   function showMessage(message) {
@@ -91,24 +100,45 @@
     response.innerText += ('>>> ' + JSON.stringify(message) + '\n');
   }
 
-  function getMessageHistory(topicId) {
-    stompClient.send(getMessagesDest + topicId);
+  function showNotification(notificationMessage) {
+    let response = document.getElementById('notification');
+    response.innerText = JSON.stringify(notificationMessage);
   }
 
-  function sendMessage() {
-    let message = document.getElementById('message').value;
+  function subscribeToNotificationFromTopic(topicId) {
+    stompClient.subscribe(subToNotificationDest + topicId, function (messages) {
+      let notificationMessage = JSON.parse(messages.body);
+      console.log(notificationMessage);
+      showNotification(notificationMessage);
+    });
+  }
+
+  function subscribeToError() {
+    stompClient.subscribe(subToError, function (messages) {
+      let errorMessage = JSON.parse(messages.body);
+      console.log(errorMessage);
+      showMessage(errorMessage);
+    });
+  }
+
+  function sendToPublicTopic() {
     let topicId = document.getElementById('subscribeToTopic').value;
-    stompClient.send(sendToTopicDest + topicId, {},
-        JSON.stringify({'sendTo': topicId, 'content': message}));
+    let message = document.getElementById('message').value;
+    let request = JSON.stringify({'content': message});
+    let response = document.getElementById('messages');
+
+    stompClient.send(sendToPublicTopicDest + topicId, {}, request);
+    response.innerText += ('<<< ' + request + '\n');
   }
 
-  function sendPrivateMessage() {
+  function sendToPrivateTopic() {
+    let topicId = document.getElementById('subscribeToTopic').value;
     let message = document.getElementById('privateMessage').value;
     let sendTo = document.getElementById('sendToContact').value;
     let request = JSON.stringify({'sendTo': sendTo, 'content': message});
     let response = document.getElementById('messages');
 
-    stompClient.send(sendToUserDest, {}, request);
+    stompClient.send(sendToPrivateTopicDest + topicId, {}, request);
     response.innerText += ('<<< ' + request + '\n');
   }
 </script>

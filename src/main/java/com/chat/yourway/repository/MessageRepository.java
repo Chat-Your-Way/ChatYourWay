@@ -1,6 +1,7 @@
 package com.chat.yourway.repository;
 
 import com.chat.yourway.model.Message;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -28,6 +29,16 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
           nativeQuery = true)
   void saveReportFromContactToMessage(String email, Integer messageId);
 
-
   List<Message> findAllByTopicId(Integer topic_id);
+
+  @Query(value = """
+      SELECT COUNT(*)
+      FROM Message m
+      WHERE m.timestamp
+      BETWEEN :timestamp AND :current_timestamp
+      AND m.topic.id = :topicId
+      AND NOT m.sentFrom = :sentFrom
+      """)
+  Integer countMessagesBetweenTimestampByTopicId(Integer topicId, String sentFrom, LocalDateTime timestamp, LocalDateTime current_timestamp);
+
 }
