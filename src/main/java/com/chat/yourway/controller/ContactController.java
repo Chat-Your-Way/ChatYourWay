@@ -28,70 +28,95 @@ public class ContactController {
 
   private final ContactService contactService;
 
-  @Operation(summary = "Edit contact profile",
+  @Operation(
+      summary = "Edit contact profile",
       responses = {
-          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_UPDATED_CONTACT_PROFILE),
-          @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-          @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+        @ApiResponse(responseCode = "200", description = SUCCESSFULLY_UPDATED_CONTACT_PROFILE),
+        @ApiResponse(
+            responseCode = "404",
+            description = CONTACT_NOT_FOUND,
+            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        @ApiResponse(
+            responseCode = "403",
+            description = CONTACT_UNAUTHORIZED,
+            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       },
-      requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-          content = @Content(schema = @Schema(implementation = EditContactProfileRequestDto.class),
-              examples = @ExampleObject(value = OpenApiExamples.EDIT_CONTACT_PROFILE,
-                  description = "Edit Contact profile"))))
-  @PatchMapping(path = "/profile", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              content =
+                  @Content(
+                      schema = @Schema(implementation = EditContactProfileRequestDto.class),
+                      examples =
+                          @ExampleObject(
+                              value = OpenApiExamples.EDIT_CONTACT_PROFILE,
+                              description = "Edit Contact profile"))))
+  @PatchMapping(
+      path = "/profile",
+      consumes = APPLICATION_JSON_VALUE,
+      produces = APPLICATION_JSON_VALUE)
   public void editContactProfile(
       @Valid @RequestBody EditContactProfileRequestDto editContactProfileRequestDto,
       @AuthenticationPrincipal UserDetails userDetails) {
     contactService.updateContactProfile(editContactProfileRequestDto, userDetails);
   }
 
-  @Operation(summary = "Get contact profile",
-          responses = {
-                  @ApiResponse(responseCode = "200", description = SUCCESSFULLY_RECEIVED_CONTACT_PROFILE),
-                  @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
-                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                  @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
-                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-          })
+  @Operation(
+      summary = "Get contact profile",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = SUCCESSFULLY_RECEIVED_CONTACT_PROFILE,
+            content = @Content(schema = @Schema(implementation = ContactProfileResponseDto.class))),
+        @ApiResponse(
+            responseCode = "404",
+            description = CONTACT_NOT_FOUND,
+            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        @ApiResponse(
+            responseCode = "403",
+            description = CONTACT_UNAUTHORIZED,
+            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+      })
   @GetMapping(path = "/profile", produces = APPLICATION_JSON_VALUE)
   public ContactProfileResponseDto getContactProfile(
-          @AuthenticationPrincipal UserDetails userDetails) {
+      @AuthenticationPrincipal UserDetails userDetails) {
     return contactService.getContactProfile(userDetails);
   }
 
   @Operation(
-          summary = "Prohibit sending private message",
-          responses = {
-                  @ApiResponse(responseCode = "200", description = SUCCESSFULLY_PROHIBITED_SENDING_PRIVATE_MESSAGES),
-                  @ApiResponse(
-                          responseCode = "403",
-                          description = CONTACT_UNAUTHORIZED,
-                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                  @ApiResponse(
-                          responseCode = "404",
-                          description = CONTACT_NOT_FOUND,
-                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-          })
+      summary = "Prohibit sending private message",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = SUCCESSFULLY_PROHIBITED_SENDING_PRIVATE_MESSAGES),
+        @ApiResponse(
+            responseCode = "403",
+            description = CONTACT_UNAUTHORIZED,
+            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        @ApiResponse(
+            responseCode = "404",
+            description = CONTACT_NOT_FOUND,
+            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+      })
   @PatchMapping(path = "/message/send/prohibit")
   public void prohibitSendingPrivateMessages(@AuthenticationPrincipal UserDetails userDetails) {
     contactService.prohibitSendingPrivateMessages(userDetails);
   }
 
   @Operation(
-          summary = "Permit sending private message",
-          responses = {
-                  @ApiResponse(responseCode = "200", description = SUCCESSFULLY_PERMITTED_SENDING_PRIVATE_MESSAGES),
-                  @ApiResponse(
-                          responseCode = "403",
-                          description = CONTACT_UNAUTHORIZED,
-                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                  @ApiResponse(
-                          responseCode = "404",
-                          description = CONTACT_NOT_FOUND,
-                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-          })
+      summary = "Permit sending private message",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = SUCCESSFULLY_PERMITTED_SENDING_PRIVATE_MESSAGES),
+        @ApiResponse(
+            responseCode = "403",
+            description = CONTACT_UNAUTHORIZED,
+            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        @ApiResponse(
+            responseCode = "404",
+            description = CONTACT_NOT_FOUND,
+            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+      })
   @PatchMapping(path = "/message/send/permit")
   public void permitSendingPrivateMessages(@AuthenticationPrincipal UserDetails userDetails) {
     contactService.permitSendingPrivateMessages(userDetails);

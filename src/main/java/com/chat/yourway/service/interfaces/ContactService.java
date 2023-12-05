@@ -61,7 +61,6 @@ public interface ContactService {
 
   /**
    * Retrieves the contact profile information for a given user.
-   *
    * This method fetches and returns a ContactProfileResponseDto containing details
    * such as contact information, preferences, and other relevant data for the specified user.
    *

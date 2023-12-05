@@ -1,6 +1,5 @@
 package com.chat.yourway.integration.service.impl;
 
-import com.chat.yourway.dto.response.TopicSubscriberResponseDto;
 import com.chat.yourway.exception.NotSubscribedTopicException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.integration.extension.PostgresExtension;
