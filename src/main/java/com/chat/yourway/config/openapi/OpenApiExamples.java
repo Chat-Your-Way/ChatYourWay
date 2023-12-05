@@ -31,4 +31,10 @@ public class OpenApiExamples {
       "avatarId": 2
       }""";
 
+  public static final String GET_CONTACT_PROFILE = """
+      {
+      "nickname": "JohnDoe",
+      "email": "johndoe@gmail.com",
+      "avatarId": 2
+      }""";
 }
