@@ -30,5 +30,4 @@ public class OpenApiExamples {
       "nickname": "editNickname",
       "avatarId": 2
       }""";
-
 }

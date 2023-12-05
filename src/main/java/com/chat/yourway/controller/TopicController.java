@@ -346,58 +346,14 @@ public class TopicController {
   }
 
   @Operation(
-      summary = "Prohibit sending private message",
-      responses = {
-        @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-        @ApiResponse(
-            responseCode = "403",
-            description = CONTACT_UNAUTHORIZED,
-            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-        @ApiResponse(
-            responseCode = "404",
-            description = TOPIC_NOT_FOUND,
-            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-        @ApiResponse(
-            responseCode = "409",
-            description = USER_DID_NOT_SUBSCRIBED_TO_TOPIC,
-            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-      })
-  @GetMapping(path = "/{topic-id}/message/send/prohibit")
-  public void prohibitSendingPrivateMessages(
-      @PathVariable("topic-id") int topicId, @AuthenticationPrincipal UserDetails userDetails) {
-    topicSubscriberService.prohibitSendingPrivateMessages(topicId, userDetails);
-  }
-
-  @Operation(
-      summary = "Permit sending private message",
-      responses = {
-        @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-        @ApiResponse(
-            responseCode = "403",
-            description = CONTACT_UNAUTHORIZED,
-            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-        @ApiResponse(
-            responseCode = "404",
-            description = TOPIC_NOT_FOUND,
-            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-        @ApiResponse(
-            responseCode = "409",
-            description = USER_DID_NOT_SUBSCRIBED_TO_TOPIC,
-            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-      })
-  @GetMapping(path = "/{topic-id}/message/send/permit")
-  public void permitSendingPrivateMessages(
-      @PathVariable("topic-id") int topicId, @AuthenticationPrincipal UserDetails userDetails) {
-    topicSubscriberService.permitSendingPrivateMessages(topicId, userDetails);
-  }
-
-  @Operation(
           summary = "List of popular topics",
           responses = {
                   @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC)
           })
   @GetMapping(path = "/popular/public")
-  public List<TopicResponseDto>findAllPopularPublicTopics() {
+  public List<TopicResponseDto> findAllPopularPublicTopics() {
     return topicService.findPopularPublicTopics();
   }
+
+
 }

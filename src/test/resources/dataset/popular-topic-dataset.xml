@@ -9,6 +9,7 @@
             email="vasil3000@gmail.com"
             role="USER"
             avatar_id="1"
+            is_permitted_sending_private_message="true"
     />
     <contact
             id="3001"
@@ -19,6 +20,7 @@
             email="nick3001@gmail.com"
             role="USER"
             avatar_id="1"
+            is_permitted_sending_private_message="true"
     />
     <contact
             id="3002"
@@ -29,6 +31,7 @@
             email="donni3002@gmail.com"
             role="USER"
             avatar_id="1"
+            is_permitted_sending_private_message="true"
     />
 
     <topic

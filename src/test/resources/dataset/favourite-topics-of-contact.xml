@@ -9,6 +9,7 @@
             email="vasil1@gmail.com"
             role="USER"
             avatar_id="1"
+            is_permitted_sending_private_message="true"
     />
 
     <topic
