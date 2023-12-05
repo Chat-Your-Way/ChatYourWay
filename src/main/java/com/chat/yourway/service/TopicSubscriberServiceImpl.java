@@ -3,14 +3,13 @@ package com.chat.yourway.service;
 import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
 import com.chat.yourway.exception.NotSubscribedTopicException;
-import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.OwnerCantUnsubscribedException;
+import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.mapper.ContactMapper;
 import com.chat.yourway.repository.TopicRepository;
 import com.chat.yourway.repository.TopicSubscriberRepository;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
-
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -159,4 +158,5 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
   private boolean isTopicCreator(Integer topicId, String topicCreator) {
     return topicSubscriberRepository.existsByTopicIdAndTopicCreatedBy(topicId, topicCreator);
   }
+
 }

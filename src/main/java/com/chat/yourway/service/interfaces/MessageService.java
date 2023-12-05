@@ -7,6 +7,7 @@ import com.chat.yourway.exception.MessageHasAlreadyReportedException;
 import com.chat.yourway.exception.MessageNotFoundException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MessageService {
@@ -40,8 +41,8 @@ public interface MessageService {
    * Reports a message identified by its unique message ID, indicating a violation or inappropriate
    * content, associated with the provided user details.
    *
-   * @param messageId   The unique identifier of the message to be reported.
-   * @param email       The email of the user reporting the message.
+   * @param messageId The unique identifier of the message to be reported.
+   * @param email     The email of the user reporting the message.
    * @throws MessageNotFoundException           If messageId is null or negative, or userDetails is
    *                                            null.
    * @throws MessageHasAlreadyReportedException If the user reporting the message does not have the
@@ -57,4 +58,15 @@ public interface MessageService {
    * ID.
    */
   List<MessageResponseDto> findAllByTopicId(Integer topicId);
+
+  /**
+   * Count saved messages by topic id and sander email between current time and set timestamp.
+   *
+   * @param topicId   topic id.
+   * @param sentFrom  sender email.
+   * @param timestamp set timestamp.
+   * @return number of counted messages.
+   */
+  int countMessagesBetweenTimestampByTopicId(Integer topicId, String sentFrom,
+      LocalDateTime timestamp);
 }
