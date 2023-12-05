@@ -9,6 +9,7 @@
             email="vasil299@gmail.com"
             role="USER"
             avatar_id="1"
+            is_permitted_sending_private_message="true"
     />
     <contact
             id="912"
@@ -19,7 +20,20 @@
             email="anton912@gmail.com"
             role="USER"
             avatar_id="7"
+            is_permitted_sending_private_message="true"
     />
+    <contact
+            id="7777"
+            nickname="Anton"
+            password="$2a$10$aerCnzmFriFrD2XqAgd8Huc/ywG/me8s/t4jC/eH8GlIaR3RcABZ2"
+            is_active="true"
+            is_private="true"
+            email="anton777@gmail.com"
+            role="USER"
+            avatar_id="7"
+            is_permitted_sending_private_message="false"
+    />
+
     <topic
             id="211"
             topic_name="Programming topic22"
@@ -47,20 +61,17 @@
             contact_id="1299"
             topic_id="211"
             subscribe_at="2023-09-21 22:53:12.818683"
-            is_permitted_sending_message="true"
     />
     <topic_subscriber
             id="612"
             contact_id="1299"
             topic_id="212"
             subscribe_at="2023-10-01 16:31:35.283240"
-            is_permitted_sending_message="false"
     />
     <topic_subscriber
             id="613"
             contact_id="912"
             topic_id="211"
             subscribe_at="2023-09-21 22:53:12.818683"
-            is_permitted_sending_message="true"
     />
 </dataset>

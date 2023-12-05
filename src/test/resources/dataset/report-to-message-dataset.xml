@@ -9,6 +9,7 @@
             is_private="true"
             email="user@gmail.com"
             role="USER"
+            is_permitted_sending_private_message="true"
     />
     <contact
             id="2"
@@ -19,6 +20,7 @@
             is_private="true"
             email="user2@gmail.com"
             role="USER"
+            is_permitted_sending_private_message="true"
     />
     <contact
             id="3"
@@ -29,6 +31,7 @@
             is_private="true"
             email="user3@gmail.com"
             role="USER"
+            is_permitted_sending_private_message="true"
     />
 
     <topic

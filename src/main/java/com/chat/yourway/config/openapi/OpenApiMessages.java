@@ -25,6 +25,8 @@ public class OpenApiMessages {
       "Contact successfully restored password";
   public static final String SUCCESSFULLY_UPDATED_CONTACT_PROFILE =
       "Contact profile successfully updated";
+  public static final String SUCCESSFULLY_RECEIVED_CONTACT_PROFILE =
+          "Contact profile successfully received";
   public static final String SUCCESSFULLY_REPORTED_MESSAGE = "Message is reported successfully";
   public static final String MESSAGE_NOT_FOUND = "Message wasn't found in repository";
   public static final String MESSAGE_HAS_ALREADY_REPORTED = "You have already made report";
@@ -42,7 +44,8 @@ public class OpenApiMessages {
   public static final String SUCCESSFULLY_UPDATED_TOPIC = "Topic successfully updated";
   public static final String INVALID_VALUE = "Invalid value of request object field";
   public static final String SUCCESSFULLY_FOUND_MESSAGE = "Message successfully found";
-
+  public static final String SUCCESSFULLY_PERMITTED_SENDING_PRIVATE_MESSAGES = "Successfully permitted sending private messages";
+  public static final String SUCCESSFULLY_PROHIBITED_SENDING_PRIVATE_MESSAGES = "Successfully prohibited sending private messages";
 
   public static final String SUCCESSFULLY_ADD_TOPIC_TO_FAVOURITE =
       "Topic added to favourite successfully";

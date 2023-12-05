@@ -2,9 +2,8 @@ package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
-import com.chat.yourway.exception.ContactNotFoundException;
-import com.chat.yourway.exception.PasswordsAreNotEqualException;
-import com.chat.yourway.exception.ValueNotUniqException;
+import com.chat.yourway.dto.response.ContactProfileResponseDto;
+import com.chat.yourway.exception.*;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Role;
 import com.chat.yourway.repository.ContactRepository;
@@ -90,4 +89,50 @@ public class ContactServiceImpl implements ContactService {
     return contactRepository.existsByEmailIgnoreCase(email);
   }
 
+  @Override
+  public ContactProfileResponseDto getContactProfile(UserDetails userDetails) {
+    String email = userDetails.getUsername();
+    Contact contact =
+        contactRepository
+            .findByEmailIgnoreCase(email)
+            .orElseThrow(
+                () -> new ContactNotFoundException(String.format("Email %s wasn't found", email)));
+    ContactProfileResponseDto responseDto = new ContactProfileResponseDto();
+
+    responseDto.setNickname(contact.getNickname());
+    responseDto.setAvatarId(contact.getAvatarId());
+    responseDto.setEmail(email);
+    responseDto.setHasPermissionSendingPrivateMessage(contact.isPermittedSendingPrivateMessage());
+
+    return responseDto;
+  }
+
+  @Override
+  @Transactional
+  public void permitSendingPrivateMessages(UserDetails userDetails) {
+    boolean isPermittedSendingPrivateMessage = true;
+
+    changePermissionSendingPrivateMessages(userDetails, isPermittedSendingPrivateMessage);
+  }
+
+  @Override
+  @Transactional
+  public void prohibitSendingPrivateMessages(UserDetails userDetails) {
+    boolean isPermittedSendingPrivateMessage = false;
+
+    changePermissionSendingPrivateMessages(userDetails, isPermittedSendingPrivateMessage);
+  }
+
+  private void changePermissionSendingPrivateMessages(
+      UserDetails userDetails, boolean isPermittedSendingPrivateMessage) {
+    String contactEmail = userDetails.getUsername();
+
+    if (!contactRepository.existsByEmailIgnoreCase(contactEmail)) {
+      throw new ContactNotFoundException(
+          String.format("Contact with email [%s] is not found.", contactEmail));
+    }
+
+    contactRepository.updatePermissionSendingPrivateMessageByContactEmail(
+        contactEmail, isPermittedSendingPrivateMessage);
+  }
 }

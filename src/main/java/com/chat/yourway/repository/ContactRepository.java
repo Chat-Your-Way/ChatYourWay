@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
+
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -20,4 +22,14 @@ public interface ContactRepository extends JpaRepository<Contact, Integer> {
 
   boolean existsByEmailIgnoreCase(String email);
 
+  @Modifying
+  @Query(
+          nativeQuery = true,
+          value =
+                  "UPDATE chat.contact "
+                          + "SET is_permitted_sending_private_message = :isPermittedSendingPrivateMessage "
+                          + "WHERE email = :contactEmail")
+  void updatePermissionSendingPrivateMessageByContactEmail(
+          @Param("contactEmail") String contactEmail,
+          @Param("isPermittedSendingPrivateMessage") boolean isPermittedSendingPrivateMessage);
 }

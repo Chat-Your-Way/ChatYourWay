@@ -50,6 +50,9 @@ public class Contact implements UserDetails {
   @Column(name = "role", nullable = false, length = 32)
   private Role role;
 
+  @Column(name = "is_permitted_sending_private_message")
+  private boolean isPermittedSendingPrivateMessage;
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(new SimpleGrantedAuthority(role.name()));

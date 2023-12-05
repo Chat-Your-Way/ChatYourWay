@@ -9,6 +9,7 @@
     email="vasil@gmail.com"
     role="USER"
     avatar_id="1"
+    is_permitted_sending_private_message="true"
   />
   <contact
     id="1112"
@@ -19,5 +20,6 @@
     email="anton@gmail.com"
     role="USER"
     avatar_id="7"
+    is_permitted_sending_private_message="true"
   />
 </dataset>

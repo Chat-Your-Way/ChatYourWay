@@ -25,4 +25,5 @@ public class ContactResponseDto {
 
   private Boolean isPrivate;
 
+  private boolean isPermittedSendingPrivateMessage;
 }

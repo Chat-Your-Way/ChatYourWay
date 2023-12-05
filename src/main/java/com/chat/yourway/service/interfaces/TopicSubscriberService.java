@@ -69,22 +69,6 @@ public interface TopicSubscriberService {
 
 
   /**
-   * Permits the sending of private messages for a specific topic to the given user.
-   *
-   * @param topicId      the ID of the topic for which private message sending is permitted
-   * @param userDetails  the UserDetails object representing the user
-   */
-  void permitSendingPrivateMessages(Integer topicId, UserDetails userDetails);
-
-  /**
-   * Prohibits the sending of private messages for a specific topic to the given user.
-   *
-   * @param topicId      the ID of the topic for which private message sending is prohibited
-   * @param userDetails  the UserDetails object representing the user
-   */
-  void prohibitSendingPrivateMessages(Integer topicId, UserDetails userDetails);
-
-  /**
    * Checks if sending private messages for a specific topic is prohibited for the given user.
    *
    * @param topicId      the ID of the topic to check for prohibition
