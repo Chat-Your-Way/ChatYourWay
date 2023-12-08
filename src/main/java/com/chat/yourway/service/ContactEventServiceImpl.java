@@ -21,11 +21,14 @@ public class ContactEventServiceImpl implements ContactEventService {
 
   @Override
   public void save(ContactEvent contactEvent) {
+    log.trace("ContactEvent [{}] was saved", contactEvent);
     contactEventRedisRepository.save(contactEvent);
   }
 
   @Override
   public ContactEvent getByTopicIdAndEmail(Integer topicId, String email) {
+    log.trace("Started getByTopicIdAndEmail, topicId [{}], email [{}]", topicId, email);
+
     return contactEventRedisRepository.findById(email + "_" + topicId)
         .orElse(new ContactEvent(email, topicId, ONLINE, LocalDateTime.now(), ""));
   }
@@ -58,11 +61,15 @@ public class ContactEventServiceImpl implements ContactEventService {
   }
 
   @Override
-  public void setLastMessageToAllTopicSubscribers(Integer topicId, String message){
+  public void setLastMessageToAllTopicSubscribers(Integer topicId, String message) {
+    log.trace("Started setLastMessageToAllTopicSubscribers, topic id [{}], last message [{}]",
+        topicId, message);
+
     List<ContactEvent> events = getAllByTopicId(topicId).stream()
         .peek(e -> e.setLastMessage(message))
         .toList();
 
+    log.trace("Last message [{}] was set to all topic id [{}] subscribers", message, topicId);
     contactEventRedisRepository.saveAll(events);
   }
 
