@@ -1,6 +1,8 @@
 package com.chat.yourway.integration.controller;
 
 import static com.chat.yourway.model.Role.USER;
+import static com.chat.yourway.model.event.EventType.ONLINE;
+import static com.chat.yourway.model.event.EventType.SUBSCRIBED;
 import static com.chat.yourway.model.token.TokenType.BEARER;
 import static com.github.springtestdbunit.annotation.DatabaseOperation.CLEAN_INSERT;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -8,17 +10,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
+import com.chat.yourway.dto.response.MessageNotificationResponseDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.integration.controller.websocketclient.TestStompFrameHandler;
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
 import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.model.token.Token;
+import com.chat.yourway.repository.ContactEventRedisRepository;
 import com.chat.yourway.repository.TokenRedisRepository;
 import com.chat.yourway.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +40,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener;
 import org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
@@ -64,6 +72,9 @@ public class ChatControllerTest {
 
   @Autowired
   private TokenRedisRepository tokenRedisRepository;
+
+  @Autowired
+  private ContactEventRedisRepository contactEventRedisRepository;
 
   @Autowired
   private JwtService jwtService;
@@ -174,6 +185,63 @@ public class ChatControllerTest {
         .contains("hello Vasil!", "hello Anton!");
   }
 
+  @Test
+  @SneakyThrows
+  @DisplayName("notifyTopicSubscribers should notify topic subscribers if subscribe event")
+  void notifyTopicSubscribers_shouldNotifyTopicSubscribersIfSubscribeEvent() {
+    // Given
+    int topicId = 12;
+    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), "Hi");
+    saveContactEvent(event);
+    //Stored subscription results for testing
+    CompletableFuture<MessageNotificationResponseDto[]> resultKeeper = new CompletableFuture<>();
+
+    // Subscribe to notification
+    session.subscribe("/user/specific/notify/" + topicId,
+        new TestStompFrameHandler<>(resultKeeper, objectMapper,
+            MessageNotificationResponseDto[].class));
+
+    // Then
+    var notifications = resultKeeper.get(3, SECONDS);
+    assertThat(notifications).isNotNull();
+    assertThat(notifications).extracting("email").contains("vasil@gmail.com");
+    assertThat(notifications).extracting("topicId").contains(topicId);
+    assertThat(notifications).extracting("status").contains(ONLINE);
+    assertThat(notifications).extracting("unreadMessages").isNotNull();
+    assertThat(notifications).extracting("lastRead").isNotNull();
+    assertThat(notifications).extracting("lastMessage").isNotNull();
+  }
+
+  @Test
+  @SneakyThrows
+  @DisplayName("notifyTopicSubscribers should notify topic subscribers if any contact subscribed to topic")
+  void notifyTopicSubscribers_shouldNotifyTopicSubscribersIfAnyContactSubscribedToTopic() {
+    // Given
+    int topicId = 12;
+    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), "Hi");
+    saveContactEvent(event);
+    //Stored subscription results for testing
+    CompletableFuture<MessageNotificationResponseDto[]> resultKeeper = new CompletableFuture<>();
+
+    // Subscribe to topic
+    session.subscribe("/topic/" + topicId, getFrameHandler());
+
+    // Subscribe to notification
+    session.subscribe("/user/specific/notify/" + topicId,
+        new TestStompFrameHandler<>(resultKeeper, objectMapper,
+            MessageNotificationResponseDto[].class));
+
+    // Then
+    var notifications = resultKeeper.get(3, SECONDS);
+    assertThat(notifications).isNotNull();
+    assertThat(notifications).extracting("email").contains("vasil@gmail.com");
+    assertThat(notifications).extracting("topicId").contains(topicId);
+    assertThat(notifications).extracting("status").contains(SUBSCRIBED);
+    assertThat(notifications).extracting("unreadMessages").contains(0);
+    assertThat(notifications).extracting("lastRead").isNotNull();
+    assertThat(notifications).extracting("lastMessage").isNotNull();
+  }
+
   //-----------------------------------
   //         Private methods
   //-----------------------------------
@@ -200,6 +268,10 @@ public class ChatControllerTest {
         .build());
   }
 
+  private void saveContactEvent(ContactEvent contactEvent) {
+    contactEventRedisRepository.save(contactEvent);
+  }
+
   private StompSession createWebSocketSession(String URL, WebSocketHttpHeaders headers) {
     WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
     var connectSession = stompClient.connectAsync(URL, headers, new StompSessionHandlerAdapter() {
@@ -211,6 +283,21 @@ public class ChatControllerTest {
     });
     // Wait for the connection to be established
     return connectSession.join();
+  }
+
+  @NotNull
+  private static StompFrameHandler getFrameHandler() {
+    return new StompFrameHandler() {
+      @Override
+      public @NotNull Type getPayloadType(@NotNull StompHeaders headers) {
+        return byte[].class;
+      }
+
+      @Override
+      public void handleFrame(@NotNull StompHeaders headers, Object payload) {
+
+      }
+    };
   }
 
 }
