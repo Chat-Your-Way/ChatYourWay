@@ -25,9 +25,11 @@ public class TopicRequestDto {
   @Size(min = 2, max = 70, message = "Name length should be from 2 to 70 symbols")
   private String topicName;
 
-  @ArraySchema(schema = @Schema(description = "Tags", example = "#programming"), minItems = 1, uniqueItems = true)
+  @ArraySchema(schema = @Schema(description = "Tags", example = "#programming"),
+      minItems = 1, maxItems = 5, uniqueItems = true)
   @NotEmpty(message = "Topic should has at least 1 tag")
   @NotNull(message = "Topic should has at least 1 tag")
+  @Size(max = 5, message = "Topic should has maximum 5 tags")
   private Set<@Valid TagRequestDto> tags;
 
 }
