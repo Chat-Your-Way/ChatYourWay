@@ -1,5 +1,6 @@
 package com.chat.yourway.security;
 
+import com.chat.yourway.exception.TokenNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +22,22 @@ public class LogoutService implements LogoutHandler {
   public void logout(HttpServletRequest request, HttpServletResponse response,
       Authentication auth) {
     log.trace("Started logout");
+
     final String token = jwtService.extractToken(request);
+    final String email = jwtService.extractEmail(token);
 
-    var storedToken = tokenService.findByToken(token);
-
-    storedToken.setExpired(true);
-    storedToken.setRevoked(true);
-    tokenService.saveToken(storedToken);
+    try {
+      var storedToken = tokenService.findByToken(token);
+      storedToken.setExpired(true);
+      storedToken.setRevoked(true);
+      tokenService.saveToken(storedToken);
+    } catch (TokenNotFoundException e) {
+      log.warn(e.getMessage());
+    }
 
     SecurityContextHolder.clearContext();
-    log.info("Logout for contact email: {}", storedToken.email);
+
+    log.info("Contact email [{}] successfully logged out", email);
   }
 
 }
