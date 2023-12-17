@@ -2,6 +2,7 @@ package com.chat.yourway.security;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import com.chat.yourway.config.security.SecurityJwtProperties;
 import com.chat.yourway.exception.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -15,31 +16,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtService {
 
-  @Value("${security.jwt.token-type}")
-  private String tokenType;
-  @Value("${security.jwt.secret-key}")
-  private String secretKey;
-
-  @Value("${security.jwt.expiration}")
-  private long jwtExpiration;
-
-  @Value("${security.jwt.refresh-token.expiration}")
-  private long refreshExpiration;
+  private final SecurityJwtProperties jwtProperties;
 
   public String extractEmail(String token) {
     return extractClaim(token, Claims::getSubject);
-  }
-
-  public String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-    return buildToken(extraClaims, userDetails, jwtExpiration);
   }
 
   public String generateAccessToken(UserDetails userDetails) {
@@ -47,15 +36,18 @@ public class JwtService {
   }
 
   public String generateRefreshToken(UserDetails userDetails) {
-    return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+    return buildToken(new HashMap<>(), userDetails, jwtProperties.getRefreshExpiration());
   }
 
   public String extractToken(HttpServletRequest request) {
     final String authHeader = request.getHeader(AUTHORIZATION);
+    final String tokenType = jwtProperties.getTokenType();
     final String tokenTypePrefix = tokenType + " ";
 
     if (isNotValidTokenType(authHeader, tokenTypePrefix)) {
-      throw new InvalidTokenException("Invalid token type");
+      log.warn("Invalid token type, token type should be [{}]", tokenType);
+      throw new InvalidTokenException(
+          "Invalid token type, token type should be [" + tokenType + "]");
     }
     return authHeader.substring(tokenTypePrefix.length());
   }
@@ -66,9 +58,13 @@ public class JwtService {
     return email.equals(usernameEmail) && !isTokenExpired(token);
   }
 
-  public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+  private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
     final Claims claims = extractAllClaims(token);
     return claimsResolver.apply(claims);
+  }
+
+  private String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    return buildToken(extraClaims, userDetails, jwtProperties.getExpiration());
   }
 
   private boolean isNotValidTokenType(String authHeader, String tokenTypePrefix) {
@@ -105,7 +101,7 @@ public class JwtService {
   }
 
   private Key getSigningKey() {
-    byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+    byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecretKey());
     return Keys.hmacShaKeyFor(keyBytes);
   }
 }
