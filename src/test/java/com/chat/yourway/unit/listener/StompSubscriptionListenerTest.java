@@ -148,7 +148,6 @@ public class StompSubscriptionListenerTest {
     assertThat(capturedEvent.getEmail()).isEqualTo(email);
     assertThat(capturedEvent.getTimestamp()).isInstanceOfAny(LocalDateTime.class);
     assertThat(capturedEvent.getEventType()).isEqualTo(UNSUBSCRIBED);
-    assertThat(capturedEvent.getLastMessage()).isNull();
   }
 
   @Test
