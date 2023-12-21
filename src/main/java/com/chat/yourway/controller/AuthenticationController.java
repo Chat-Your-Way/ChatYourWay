@@ -6,6 +6,7 @@ import static com.chat.yourway.config.openapi.OpenApiMessages.EMAIL_TOKEN_NOT_FO
 import static com.chat.yourway.config.openapi.OpenApiMessages.ERR_SENDING_EMAIL;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_ACTIVATED_ACCOUNT;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_AUTHORIZATION;
+import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_LOGGED_OUT;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_REFRESHED_TOKEN;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_REGISTERED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.VALUE_NOT_UNIQUE;
@@ -16,6 +17,7 @@ import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.response.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
+import com.chat.yourway.security.LogoutService;
 import com.chat.yourway.service.interfaces.ActivateAccountService;
 import com.chat.yourway.service.interfaces.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,10 +27,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,6 +43,7 @@ public class AuthenticationController {
 
   private final AuthenticationService authService;
   private final ActivateAccountService activateAccountService;
+  private final LogoutService logoutService;
 
   @Operation(summary = "Registration a new contact",
       responses = {
@@ -56,7 +61,7 @@ public class AuthenticationController {
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
   public AuthResponseDto register(@Valid @RequestBody ContactRequestDto request,
-                                  @RequestHeader(HttpHeaders.REFERER) String clientHost) {
+      @RequestHeader(HttpHeaders.REFERER) String clientHost) {
     return authService.register(request, clientHost);
   }
 
@@ -103,6 +108,19 @@ public class AuthenticationController {
   @PostMapping(path = "/activate", produces = APPLICATION_JSON_VALUE)
   public void activateAccount(@RequestParam(name = "Email token") String token) {
     activateAccountService.activateAccount(token);
+  }
+
+  @Operation(summary = "Logout",
+      responses = {
+          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_LOGGED_OUT,
+              content = @Content),
+          @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
+              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+      })
+  @PostMapping("/logout")
+  public void logout(HttpServletRequest request, HttpServletResponse response,
+      Authentication auth) {
+    logoutService.logout(request, response, auth);
   }
 
 }

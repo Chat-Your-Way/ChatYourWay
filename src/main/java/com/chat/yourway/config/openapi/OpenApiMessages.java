@@ -26,7 +26,7 @@ public class OpenApiMessages {
   public static final String SUCCESSFULLY_UPDATED_CONTACT_PROFILE =
       "Contact profile successfully updated";
   public static final String SUCCESSFULLY_RECEIVED_CONTACT_PROFILE =
-          "Contact profile successfully received";
+      "Contact profile successfully received";
   public static final String SUCCESSFULLY_REPORTED_MESSAGE = "Message is reported successfully";
   public static final String MESSAGE_NOT_FOUND = "Message wasn't found in repository";
   public static final String MESSAGE_HAS_ALREADY_REPORTED = "You have already made report";
@@ -52,11 +52,11 @@ public class OpenApiMessages {
   public static final String SUCCESSFULLY_REMOVE_TOPIC_FROM_FAVOURITE =
       "Topic removed from favourite successfully";
   public static final String USER_DID_NOT_SUBSCRIBED_TO_TOPIC =
-          "User did not subscribe to topic";
+      "User did not subscribe to topic";
 
   public static final String SEARCH_TOPIC_VALIDATION = "Must contains only characters and digits";
   public static final String OWNER_CANT_UNSUBSCRIBED = "Owner can't unsubscribed from topic";
   public static final String RECIPIENT_EMAIL_NOT_EXIST = "Recipient email does not exist";
-
+  public static final String SUCCESSFULLY_LOGGED_OUT = "Successfully logged out";
 
 }

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -274,6 +275,37 @@ public class MessageServiceImplTest {
     assertNotNull(result);
     assertTrue(result.isEmpty());
     verify(messageRepository, times(1)).findAllByTopicId(nonExistentTopicId);
+  }
+
+  @Test
+  @DisplayName("countMessagesBetweenTimestampByTopicId should return amount of messages")
+  public void countMessagesBetweenTimestampByTopicId_shouldReturnAmountOfMessages() {
+    // Given
+    int topicId = 1;
+    String sentFrom = "vasil@gmail.com";
+    LocalDateTime timestamp = LocalDateTime.now();
+    int countedMessages = 5;
+
+    when(messageRepository.countMessagesBetweenTimestampByTopicId(
+        eq(topicId),
+        eq(sentFrom),
+        eq(timestamp),
+        any(LocalDateTime.class)))
+        .thenReturn(countedMessages);
+
+    // When
+    int result = messageService.countMessagesBetweenTimestampByTopicId(topicId, sentFrom, timestamp);
+
+    // Then
+    assertEquals(countedMessages, result, "Should return the expected count");
+
+    // Verify
+    verify(messageRepository, times(1))
+        .countMessagesBetweenTimestampByTopicId(
+            eq(topicId),
+            eq(sentFrom),
+            eq(timestamp),
+            any(LocalDateTime.class));
   }
 
   //-----------------------------------

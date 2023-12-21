@@ -7,20 +7,24 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.chat.yourway.dto.response.ApiErrorResponseDto;
-import com.chat.yourway.exception.*;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
+import com.chat.yourway.exception.ContactEmailNotExist;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.EmailSendingException;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.exception.InvalidCredentialsException;
 import com.chat.yourway.exception.InvalidTokenException;
+import com.chat.yourway.exception.MessageHasAlreadyReportedException;
+import com.chat.yourway.exception.MessageNotFoundException;
+import com.chat.yourway.exception.NotSubscribedTopicException;
+import com.chat.yourway.exception.OwnerCantUnsubscribedException;
 import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.TokenNotFoundException;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
-import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,12 +33,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.lang.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -46,9 +50,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
     responseCode = "ErrorCode",
     description = "Error response",
     content =
-        @Content(
-            schema = @Schema(implementation = ApiErrorResponseDto.class),
-            mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @Content(
+        schema = @Schema(implementation = ApiErrorResponseDto.class),
+        mediaType = MediaType.APPLICATION_JSON_VALUE))
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -68,9 +72,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(CONFLICT)
   @ExceptionHandler({
-    ValueNotUniqException.class,
-    ContactAlreadySubscribedToTopicException.class,
-    NotSubscribedTopicException.class
+      ValueNotUniqException.class,
+      ContactAlreadySubscribedToTopicException.class,
+      NotSubscribedTopicException.class
   })
   public ApiErrorResponseDto handleConflictException(RuntimeException exception) {
     return new ApiErrorResponseDto(CONFLICT, exception.getMessage());
@@ -78,9 +82,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ResponseStatus(UNAUTHORIZED)
   @ExceptionHandler({
-    InvalidTokenException.class,
-    InvalidCredentialsException.class,
-    ExpiredJwtException.class
+      InvalidTokenException.class,
+      InvalidCredentialsException.class,
+      JwtException.class
   })
   public ApiErrorResponseDto handleUnauthorizedException(RuntimeException exception) {
     return new ApiErrorResponseDto(UNAUTHORIZED, exception.getMessage());
