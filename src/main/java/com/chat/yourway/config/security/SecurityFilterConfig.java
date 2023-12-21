@@ -51,7 +51,10 @@ public class SecurityFilterConfig {
       "/ws/**", "/chat/**",
 
       //Other
-      "/*"
+      "/*",
+
+      //Change password
+      "/change/password/**"
   };
 
   @Bean
