@@ -15,6 +15,10 @@ public class PasswordValidator implements ConstraintValidator<PasswordValidation
       Pattern.compile(".*[!@#$%^&*_\\-+=~?].*");
   private static final Pattern PASSWORD_UPPER_CASE_PATTERN = Pattern.compile(".*[A-Z].*");
   private static final Pattern PASSWORD_DIGIT_PATTERN = Pattern.compile(".*\\d.*");
+  private static final Pattern PASSWORD_FORBIDEN_SYMBOLS_PATTERN =
+      Pattern.compile(".*[<>;/.:'(),\\[\\]\"].*");
+  private static final Pattern PASSWORD_FORBIDEN_CYRILLIC_LETTERS_PATTERN =
+      Pattern.compile(".*[а-яА-ЯІіЇї].*");
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
@@ -35,7 +39,17 @@ public class PasswordValidator implements ConstraintValidator<PasswordValidation
               .buildConstraintViolationWithTemplate("The password must not be longer than 12 characters.")
               .addConstraintViolation();
       return false;
-    } else if (!PASSWORD_SPECIAL_SYMBOLS_PATTERN.matcher(value).matches()) {
+    }  else if (PASSWORD_FORBIDEN_SYMBOLS_PATTERN.matcher(value).matches()) {
+      context
+          .buildConstraintViolationWithTemplate("Password should not include symbols [< > ; / . : ' [ ] ( ) , ]")
+          .addConstraintViolation();
+      return false;
+    } else if (PASSWORD_FORBIDEN_CYRILLIC_LETTERS_PATTERN.matcher(value).matches()) {
+      context
+          .buildConstraintViolationWithTemplate("Password should not include cyrillic letters")
+          .addConstraintViolation();
+      return false;
+    }else if (!PASSWORD_SPECIAL_SYMBOLS_PATTERN.matcher(value).matches()) {
       context
               .buildConstraintViolationWithTemplate("Password must include at least 1 special symbol: [! @ # $ % ^ & * _ - + = ~ ?]")
               .addConstraintViolation();
