@@ -142,7 +142,24 @@ class PasswordValidationValidatorTest {
   @Test
   public void shouldFailValidator_whenUserInputPasswordWithForbiddenSymbols() {
     // Given
-    var password = "<Password!";
+    var password1 = "<Password!";
+    var password2 = "hjj;^33N";
+
+    // When
+    var isValid1 = passwordValidator.isValid(password1, context);
+    var isValid2 = passwordValidator.isValid(password2, context);
+
+    // Then
+    assertFalse(isValid1);
+    assertFalse(isValid2);
+  }
+
+  @DisplayName(
+      "PasswordValidator should fail validator when user input password with cyrillic letters")
+  @Test
+  public void shouldFailValidator_whenUserInputPasswordWithCyrillicLetters() {
+    // Given
+    var password = "Ася_77";
 
     // When
     var isValid = passwordValidator.isValid(password, context);
