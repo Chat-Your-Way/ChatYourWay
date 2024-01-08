@@ -38,16 +38,19 @@ class NicknameValidationValidatorTest {
     var nicknameFirstExample = "user123";
     var nicknameSecondExample = "Username123";
     var nicknameThirdExample = "abcd1234";
+    var nicknameWithSymbol = "Nickname!";
 
     // When
     var isValidFirstExample = nicknameValidator.isValid(nicknameFirstExample, context);
     var isValidSecondExample = nicknameValidator.isValid(nicknameSecondExample, context);
     var isValidThirdExample = nicknameValidator.isValid(nicknameThirdExample, context);
+    var isValid4Example = nicknameValidator.isValid(nicknameWithSymbol, context);
 
     // Then
     assertTrue(isValidFirstExample);
     assertTrue(isValidSecondExample);
     assertTrue(isValidThirdExample);
+    assertTrue(isValid4Example);
   }
 
   @DisplayName(
@@ -73,7 +76,7 @@ class NicknameValidationValidatorTest {
   public void shouldFailValidator_whenUserInputNicknameWithInvalidCharacters() {
     // Given
     var nicknameFirstExample = "user 123";
-    var nicknameSecondExample = "user@123";
+    var nicknameSecondExample = "user)123";
 
     // When
     var isValidFirstExample = nicknameValidator.isValid(nicknameFirstExample, context);
