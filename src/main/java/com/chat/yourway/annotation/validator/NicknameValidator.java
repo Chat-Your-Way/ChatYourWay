@@ -10,7 +10,8 @@ import static com.chat.yourway.annotation.constant.ValidatorConstant.PATTERN_SPA
 
 public class NicknameValidator implements ConstraintValidator<NicknameValidation, String> {
 
-  private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9а-яА-ЯІіЇї]{4,20}$");
+  private static final Pattern NICKNAME_PATTERN = Pattern.compile(
+      "^[a-zA-Z0-9а-яА-ЯІіЇї!@#$%^&*_\\-+=~?]{4,20}$");
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
@@ -23,13 +24,15 @@ public class NicknameValidator implements ConstraintValidator<NicknameValidation
       return false;
     } else if (!NICKNAME_PATTERN.matcher(value).matches()) {
       context
-          .buildConstraintViolationWithTemplate("The nickname is invalid")
+          .buildConstraintViolationWithTemplate(
+              "The nickname should be 4-20 characters long and include only letters, numbers or "
+              + "symbols [! @ # $ % ^ & * _ - + = ~ ?]")
           .addConstraintViolation();
       return false;
     } else if (PATTERN_SPACE.matcher(value).matches()) {
       context
-              .buildConstraintViolationWithTemplate("The nickname should not include space")
-              .addConstraintViolation();
+          .buildConstraintViolationWithTemplate("The nickname should not include space")
+          .addConstraintViolation();
       return false;
     }
 
