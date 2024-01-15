@@ -9,8 +9,11 @@
 <div>
   <h1>WebSocket Chat Test Client</h1>
 
+  <p style="font-style: italic">
+    Get topic notification [/user/specific/notify/{id}]
+  </p>
   <div>
-    <label for="getTopicNotification"> /user/specific/notify/{id}
+    <label for="getTopicNotification">
       <input type="number" id="getTopicNotification" placeholder="Enter topic id">
     </label>
 
@@ -21,14 +24,34 @@
   <div id="notification"></div>
   <br/>
 
+  <p style="font-style: italic">
+    Subscribe to topic [/topic/{id}]
+  </p>
   <div>
-    <label for="subscribeToTopic"> /topic/{id}
+    <label for="subscribeToTopic">
       <input type="number" id="subscribeToTopic" placeholder="Enter topic id">
     </label>
 
     <button onclick="subscribeToTopic()">Subscribe</button>
   </div>
-  <br/>
+
+  <p style="font-style: italic">
+    Get message history [/app/history/topic/{id}]
+  </p>
+    <div>
+      <label for="page">
+        <input type="number" id="page" placeholder="Enter page">
+      </label>
+      <label for="pageSize">
+        <input type="number" id="pageSize" placeholder="Enter pageSize">
+      </label>
+
+    <button onclick="getHistoryTopic()">GetMessageHistory</button>
+  </div>
+
+  <p style="font-style: italic">
+    Send message to public topic [/app/topic/public/{topicId}]
+  </p>
   <div>
     <label for="message">
       <input type="text" id="message" placeholder="Enter your message">
@@ -36,8 +59,10 @@
 
     <button onclick="sendToPublicTopic()">Send to public Topic</button>
   </div>
-  <br/>
 
+  <p style="font-style: italic">
+    Send message to private topic [/app/topic/private/{topicId}]
+  </p>
   <div>
     <label for="privateMessage">
       <input type="text" id="privateMessage" placeholder="Enter your message">
@@ -65,6 +90,7 @@
   const subToNotificationDest = '/user/specific/notify/';
   const sendToPublicTopicDest = "/app/topic/public/";
   const sendToPrivateTopicDest = "/app/topic/private/";
+  const getHistoryTopicDest = "/app/history/topic/";
 
   stompClient.connect({}, function (frame) {
     console.log('Connected: ' + frame);
@@ -87,6 +113,7 @@
 
   function subscribeToTopic() {
     let topicId = document.getElementById('subscribeToTopic').value;
+
     subscribeToMessageHistory();
 
       stompClient.subscribe(subToTopicDest + topicId, function (messages) {
@@ -139,6 +166,17 @@
     let response = document.getElementById('messages');
 
     stompClient.send(sendToPrivateTopicDest + topicId, {}, request);
+    response.innerText += ('<<< ' + request + '\n');
+  }
+
+  function getHistoryTopic() {
+    let topicId = document.getElementById('subscribeToTopic').value;
+    let page = document.getElementById('page').value;
+    let pageSize = document.getElementById('pageSize').value;
+    let request = JSON.stringify({'page': page, 'pageSize': pageSize});
+    let response = document.getElementById('messages');
+
+    stompClient.send(getHistoryTopicDest + topicId, {}, request);
     response.innerText += ('<<< ' + request + '\n');
   }
 </script>
