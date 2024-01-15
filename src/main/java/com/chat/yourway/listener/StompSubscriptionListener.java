@@ -5,7 +5,6 @@ import static com.chat.yourway.model.event.EventType.UNSUBSCRIBED;
 
 import com.chat.yourway.config.websocket.WebsocketProperties;
 import com.chat.yourway.model.event.ContactEvent;
-import com.chat.yourway.service.interfaces.ChatMessageService;
 import com.chat.yourway.service.interfaces.ChatNotificationService;
 import com.chat.yourway.service.interfaces.ContactEventService;
 import java.time.Instant;
@@ -28,7 +27,6 @@ public class StompSubscriptionListener {
 
   private final WebsocketProperties properties;
   private final ContactEventService contactEventService;
-  private final ChatMessageService chatMessageService;
   private final ChatNotificationService chatNotificationService;
 
   private static String lastMessage;
@@ -41,10 +39,6 @@ public class StompSubscriptionListener {
     String email = getEmail(event);
 
     try {
-      if (isPrivateTopicDestination(destination)) {
-        chatMessageService.sendMessageHistoryByTopicId(getTopicId(event), email);
-      }
-
       if (isTopicDestination(destination)) {
         lastMessage = contactEventService.getByTopicIdAndEmail(getTopicId(event), email)
             .getLastMessage();
