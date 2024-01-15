@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
+import com.chat.yourway.dto.request.PageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.MessageHasAlreadyReportedException;
@@ -40,6 +41,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -246,11 +250,13 @@ public class MessageServiceImplTest {
   public void findAllByTopicId_shouldReturnListOfMessages() {
     // Given
     int topicId = 1;
+    Pageable pageable = PageRequest.of(0, 10, Sort.Direction.DESC, "timestamp");
+    PageRequestDto pageRequestDto = new PageRequestDto(0, 10);
     List<Message> messages = getPublicMessages();
-    when(messageRepository.findAllByTopicId(topicId)).thenReturn(messages);
+    when(messageRepository.findAllByTopicId(topicId, pageable)).thenReturn(messages);
 
     // When
-    List<MessageResponseDto> result = messageService.findAllByTopicId(topicId);
+    List<MessageResponseDto> result = messageService.findAllByTopicId(topicId, pageRequestDto);
 
     // Then
     assertNotNull(result);
@@ -258,7 +264,7 @@ public class MessageServiceImplTest {
     for (int i = 0; i < messages.size(); i++) {
       assertMessageEquals(messages.get(i), result.get(i));
     }
-    verify(messageRepository, times(1)).findAllByTopicId(topicId);
+    verify(messageRepository, times(1)).findAllByTopicId(topicId, pageable);
   }
 
   @Test
@@ -266,15 +272,17 @@ public class MessageServiceImplTest {
   public void findAllByTopicId_shouldReturnEmptyList() {
     // Given
     int nonExistentTopicId = 99;
-    when(messageRepository.findAllByTopicId(nonExistentTopicId)).thenReturn(List.of());
+    Pageable pageable = PageRequest.of(0, 10, Sort.Direction.DESC, "timestamp");
+    PageRequestDto pageRequestDto = new PageRequestDto(0, 10);
+    when(messageRepository.findAllByTopicId(nonExistentTopicId, pageable)).thenReturn(List.of());
 
     // When
-    List<MessageResponseDto> result = messageService.findAllByTopicId(nonExistentTopicId);
+    List<MessageResponseDto> result = messageService.findAllByTopicId(nonExistentTopicId, pageRequestDto);
 
     // Then
     assertNotNull(result);
     assertTrue(result.isEmpty());
-    verify(messageRepository, times(1)).findAllByTopicId(nonExistentTopicId);
+    verify(messageRepository, times(1)).findAllByTopicId(nonExistentTopicId, pageable);
   }
 
   @Test
