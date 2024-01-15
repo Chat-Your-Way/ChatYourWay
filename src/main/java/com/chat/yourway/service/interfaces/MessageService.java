@@ -2,6 +2,7 @@ package com.chat.yourway.service.interfaces;
 
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
+import com.chat.yourway.dto.request.PageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.exception.MessageHasAlreadyReportedException;
 import com.chat.yourway.exception.MessageNotFoundException;
@@ -53,11 +54,12 @@ public interface MessageService {
   /**
    * Retrieves a list of messages based on the given topic ID.
    *
-   * @param topicId The unique identifier of the topic.
+   * @param topicId        The unique identifier of the topic.
+   * @param pageRequestDto Set parameters for pagination
    * @return A list of {@link MessageResponseDto} containing messages related to the specified topic
    * ID.
    */
-  List<MessageResponseDto> findAllByTopicId(Integer topicId);
+  List<MessageResponseDto> findAllByTopicId(Integer topicId, PageRequestDto pageRequestDto);
 
   /**
    * Count saved messages by topic id and sander email between current time and set timestamp.

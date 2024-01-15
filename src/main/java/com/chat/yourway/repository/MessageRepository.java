@@ -3,6 +3,7 @@ package com.chat.yourway.repository;
 import com.chat.yourway.model.Message;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -29,7 +30,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
           nativeQuery = true)
   void saveReportFromContactToMessage(String email, Integer messageId);
 
-  List<Message> findAllByTopicId(Integer topic_id);
+  List<Message> findAllByTopicId(Integer topic_id, Pageable pageable);
 
   @Query(value = """
       SELECT COUNT(*)
