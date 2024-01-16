@@ -52,4 +52,7 @@ public class TopicSubscriber {
   @Column(name = "is_favourite_topic")
   private boolean isFavouriteTopic;
 
+  @Column(name = "has_complaint")
+  private boolean hasComplaint;
+
 }
