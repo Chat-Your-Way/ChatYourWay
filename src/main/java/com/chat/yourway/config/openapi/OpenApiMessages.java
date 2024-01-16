@@ -51,6 +51,9 @@ public class OpenApiMessages {
       "Topic added to favourite successfully";
   public static final String SUCCESSFULLY_REMOVE_TOPIC_FROM_FAVOURITE =
       "Topic removed from favourite successfully";
+
+  public static final String SUCCESSFULLY_COMPLAIN_TOPIC =
+          "Topic was complained successfully";
   public static final String USER_DID_NOT_SUBSCRIBED_TO_TOPIC =
       "User did not subscribe to topic";
 
