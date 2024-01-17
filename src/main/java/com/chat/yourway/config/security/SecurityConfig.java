@@ -1,10 +1,9 @@
 package com.chat.yourway.config.security;
 
-import com.chat.yourway.exception.ContactNotFoundException;
-import com.chat.yourway.repository.ContactRepository;
-import lombok.RequiredArgsConstructor;
+import com.chat.yourway.service.interfaces.ContactService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,16 +13,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final ContactRepository contactRepository;
+  private final ContactService contactService;
+
+  public SecurityConfig(@Lazy ContactService contactService) {
+    this.contactService = contactService;
+  }
 
   @Bean
   public UserDetailsService userDetailsService() {
-    return username -> contactRepository.findByEmailIgnoreCase(username)
-        .orElseThrow(() -> new ContactNotFoundException(
-            String.format("Contact with email: %s wasn't found", username)));
+    return contactService::findByEmail;
   }
 
   @Bean
