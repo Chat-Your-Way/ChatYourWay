@@ -1,24 +1,6 @@
 package com.chat.yourway.controller;
 
-import static com.chat.yourway.config.openapi.OpenApiMessages.ALREADY_SUBSCRIBED;
-import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_UNAUTHORIZED;
-import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_WASNT_SUBSCRIBED;
-import static com.chat.yourway.config.openapi.OpenApiMessages.INVALID_VALUE;
-import static com.chat.yourway.config.openapi.OpenApiMessages.OWNER_CANT_UNSUBSCRIBED;
-import static com.chat.yourway.config.openapi.OpenApiMessages.RECIPIENT_EMAIL_NOT_EXIST;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SEARCH_TOPIC_VALIDATION;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_ADD_TOPIC_TO_FAVOURITE;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_CREATED_TOPIC;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_DELETE_TOPIC;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_FOUND_TOPIC;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_REMOVE_TOPIC_FROM_FAVOURITE;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_SUBSCRIBED;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_UNSUBSCRIBED;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_UPDATED_TOPIC;
-import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_ACCESS;
-import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_FOUND;
-import static com.chat.yourway.config.openapi.OpenApiMessages.USER_DID_NOT_SUBSCRIBED_TO_TOPIC;
-import static com.chat.yourway.config.openapi.OpenApiMessages.VALUE_NOT_UNIQUE;
+import static com.chat.yourway.config.openapi.OpenApiMessages.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -355,5 +337,27 @@ public class TopicController {
     return topicService.findPopularPublicTopics();
   }
 
+  @Operation(
+          summary = "Complain topic",
+          responses = {
+                  @ApiResponse(responseCode = "204", description = SUCCESSFULLY_COMPLAIN_TOPIC),
+                  @ApiResponse(
+                          responseCode = "403",
+                          description = CONTACT_UNAUTHORIZED,
+                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                  @ApiResponse(
+                          responseCode = "404",
+                          description = TOPIC_NOT_FOUND,
+                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                  @ApiResponse(
+                          responseCode = "409",
+                          description = USER_DID_NOT_SUBSCRIBED_TO_TOPIC,
+                          content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+          })
+  @PatchMapping("/{topic-id}/complain")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void complainTopic(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("topic-id") Integer topicId) {
+    topicSubscriberService.complainTopic(topicId, userDetails);
+  }
 
 }

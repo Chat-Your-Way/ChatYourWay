@@ -22,4 +22,6 @@ public class TopicSubscriberResponseDto {
 
   private boolean isPermittedSendingMessage;
 
+  private boolean hasComplaint;
+
 }
