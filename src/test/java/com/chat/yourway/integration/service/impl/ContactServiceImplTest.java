@@ -204,7 +204,7 @@ public class ContactServiceImplTest {
         contactService.prohibitSendingPrivateMessages(contact);
 
         // Then
-        var result = contactService.findByEmail(contactEmail);
+        var result = contactRepository.findByEmailIgnoreCase(contactEmail).get();
 
         assertThat(result)
                 .extracting(Contact::isPermittedSendingPrivateMessage)
