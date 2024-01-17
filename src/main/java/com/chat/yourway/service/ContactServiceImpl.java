@@ -10,6 +10,7 @@ import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.service.interfaces.ContactService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ public class ContactServiceImpl implements ContactService {
   }
 
   @Override
+  @Cacheable("contacts")
   public Contact findByEmail(String email) {
     log.trace("Started findByEmail: {}", email);
     return contactRepository
