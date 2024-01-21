@@ -282,7 +282,7 @@ public class TopicController {
             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PatchMapping(path = "{topic-id}/favourite/add", consumes = APPLICATION_JSON_VALUE)
+  @PatchMapping(path = "{topic-id}/favourite/add")
   public void addToFavouriteTopic(
       @PathVariable("topic-id") Integer topicId, @AuthenticationPrincipal UserDetails userDetails) {
     topicSubscriberService.addTopicToFavourite(topicId, userDetails);
@@ -306,7 +306,7 @@ public class TopicController {
             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PatchMapping(path = "{topic-id}/favourite/remove", consumes = APPLICATION_JSON_VALUE)
+  @PatchMapping(path = "{topic-id}/favourite/remove")
   public void removeToFavouriteTopic(
       @PathVariable("topic-id") Integer topicId, @AuthenticationPrincipal UserDetails userDetails) {
     topicSubscriberService.removeTopicFromFavourite(topicId, userDetails);
@@ -332,7 +332,7 @@ public class TopicController {
           responses = {
                   @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC)
           })
-  @GetMapping(path = "/popular/public")
+  @GetMapping(path = "/popular/public", produces = APPLICATION_JSON_VALUE)
   public List<TopicResponseDto> findAllPopularPublicTopics() {
     return topicService.findPopularPublicTopics();
   }
