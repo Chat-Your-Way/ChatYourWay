@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,9 +44,8 @@ public class ChangePasswordController {
           content = @Content(schema = @Schema(implementation = ChangePasswordDto.class),
               examples = @ExampleObject(value = OpenApiExamples.CHANGE_PASSWORD,
                   description = "Old and new passwords"))))
-  @PatchMapping(path = "/password",
-      consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-  public void changePassword(@RequestBody ChangePasswordDto request,
+  @PatchMapping(path = "/password", consumes = APPLICATION_JSON_VALUE)
+  public void changePassword(@Valid @RequestBody ChangePasswordDto request,
       @AuthenticationPrincipal UserDetails userDetails) {
     changePasswordService.changePassword(request, userDetails);
   }
