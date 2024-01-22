@@ -36,6 +36,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
   }
 
   @Override
+  @Transactional
   public void sendEmailToRestorePassword(String email, String clientHost) {
 
     var contact = contactService.findByEmail(email);
