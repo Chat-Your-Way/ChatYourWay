@@ -44,7 +44,7 @@ public class MessageServiceImplTest {
 
   @Test
   @DisplayName("should save report to message when user makes report")
-  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.INSERT)
+  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/report-to-message-dataset.xml",
       type = DatabaseOperation.DELETE)
@@ -88,7 +88,7 @@ public class MessageServiceImplTest {
 
   @Test
   @DisplayName("should throw MessageHasAlreadyReportedException when user makes report again")
-  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.INSERT)
+  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/report-to-message-dataset.xml",
       type = DatabaseOperation.DELETE)

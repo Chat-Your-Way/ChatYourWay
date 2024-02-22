@@ -48,7 +48,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -73,7 +73,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -99,7 +99,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -121,7 +121,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -144,7 +144,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -167,7 +167,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -190,7 +190,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
           value = "/dataset/complain-topic-dataset.xml",
-          type = DatabaseOperation.INSERT)
+          type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
           value = "/dataset/complain-topic-dataset.xml",
           type = DatabaseOperation.DELETE)
@@ -218,7 +218,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
           value = "/dataset/complain-topic-dataset.xml",
-          type = DatabaseOperation.INSERT)
+          type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
           value = "/dataset/complain-topic-dataset.xml",
           type = DatabaseOperation.DELETE)
@@ -240,7 +240,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
           value = "/dataset/complain-topic-dataset.xml",
-          type = DatabaseOperation.INSERT)
+          type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
           value = "/dataset/complain-topic-dataset.xml",
           type = DatabaseOperation.DELETE)
