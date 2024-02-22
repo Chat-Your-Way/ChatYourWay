@@ -38,8 +38,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       @NonNull HttpServletResponse response,
       @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-    if (isNotAuthorizationHeader(request)) {
-      logger.warn("Header does not contain " + AUTHORIZATION);
+    if (isNotAuthorizationHeader(request) && isNotTokenParameter(request)) {
+      log.warn("Request without authorization. Header or parameter does not contain {}",
+          AUTHORIZATION);
       filterChain.doFilter(request, response);
       return;
     }
@@ -83,6 +84,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
   private boolean isNotAuthorizationHeader(HttpServletRequest request) {
     return request.getHeader(AUTHORIZATION) == null;
+  }
+
+  private boolean isNotTokenParameter(HttpServletRequest request) {
+    return request.getParameter(AUTHORIZATION) == null;
   }
 
 }

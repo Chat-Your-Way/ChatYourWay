@@ -88,10 +88,9 @@ public class ChatControllerTest {
   void setUp() {
     String accessToken = getAccessToken();
 
-    String URL = "ws://localhost:" + port + "/chat";
+    String URL = "ws://localhost:" + port + "/chat?Authorization=" + "Bearer " + accessToken;
 
     WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-    headers.add("Authorization", "Bearer " + accessToken);
 
     session = createWebSocketSession(URL, headers);
   }

@@ -40,16 +40,20 @@ public class JwtService {
   }
 
   public String extractToken(HttpServletRequest request) {
-    final String authHeader = request.getHeader(AUTHORIZATION);
+    String token = request.getHeader(AUTHORIZATION);
+    if (token == null) {
+      token = request.getParameter(AUTHORIZATION);
+    }
+
     final String tokenType = jwtProperties.getTokenType();
     final String tokenTypePrefix = tokenType + " ";
 
-    if (isNotValidTokenType(authHeader, tokenTypePrefix)) {
+    if (isNotValidTokenType(token, tokenTypePrefix)) {
       log.warn("Invalid token type, token type should be [{}]", tokenType);
       throw new InvalidTokenException(
           "Invalid token type, token type should be [" + tokenType + "]");
     }
-    return authHeader.substring(tokenTypePrefix.length());
+    return token.substring(tokenTypePrefix.length());
   }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -67,8 +71,8 @@ public class JwtService {
     return buildToken(extraClaims, userDetails, jwtProperties.getExpiration());
   }
 
-  private boolean isNotValidTokenType(String authHeader, String tokenTypePrefix) {
-    return authHeader == null || !authHeader.startsWith(tokenTypePrefix);
+  private boolean isNotValidTokenType(String token, String tokenTypePrefix) {
+    return token == null || !token.startsWith(tokenTypePrefix);
   }
 
   private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails,
