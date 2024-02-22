@@ -10,7 +10,7 @@
   <h1>WebSocket Chat Test Client</h1>
 
   <p style="font-style: italic">
-    Connect to WebSocket [http://localhost:8080/chat?Authorization=Bearer {jwt_token}]
+    Connect to WebSocket [http://localhost/chat?Authorization=Bearer {jwt_token}]
   </p>
   <div>
     <label for="jwtToken">
@@ -110,7 +110,7 @@
 
   function initializeWebSocket() {
     const jwtToken = document.getElementById('jwtToken').value;
-    socket = new SockJS('http://localhost:8080/chat?Authorization=' + tokenType + ' ' + jwtToken);
+    socket = new SockJS('/chat?Authorization=' + tokenType + ' ' + jwtToken);
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function (frame) {
