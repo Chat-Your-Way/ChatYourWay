@@ -3,6 +3,7 @@ package com.chat.yourway.unit.service.impl;
 import com.chat.yourway.dto.common.EmailMessageDto;
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.dto.request.ChangePasswordDto;
+import com.chat.yourway.dto.request.RestorePasswordDto;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.model.Contact;
@@ -178,6 +179,7 @@ public class ChangePasswordServiceImplTestValidation {
     // Given
     var newPassword = "newPassword";
     var uuidToken = UUID.randomUUID().toString();
+    var restorePasswordDto = new RestorePasswordDto(newPassword, uuidToken);
     var contact =
         Contact.builder()
             .id(1)
@@ -198,7 +200,7 @@ public class ChangePasswordServiceImplTestValidation {
     when(emailTokenRepository.findById(uuidToken)).thenReturn(Optional.of(emailToken));
 
     // When
-    changePasswordService.restorePassword(newPassword, uuidToken);
+    changePasswordService.restorePassword(restorePasswordDto);
 
     // Then
     verify(emailTokenRepository).findById(uuidToken);
@@ -213,13 +215,14 @@ public class ChangePasswordServiceImplTestValidation {
     // Given
     var newPassword = "newPassword";
     var uuidToken = UUID.randomUUID().toString();
+    var restorePasswordDto = new RestorePasswordDto(newPassword, uuidToken);
 
     when(emailTokenRepository.findById(uuidToken)).thenReturn(Optional.empty());
 
     // When
     assertThrows(
         EmailTokenNotFoundException.class,
-        () -> changePasswordService.restorePassword(newPassword, uuidToken));
+        () -> changePasswordService.restorePassword(restorePasswordDto));
 
     // Then
     verify(emailTokenRepository).findById(uuidToken);
