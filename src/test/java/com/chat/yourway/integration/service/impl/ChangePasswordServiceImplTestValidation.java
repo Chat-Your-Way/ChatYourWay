@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import com.chat.yourway.dto.common.EmailMessageDto;
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.dto.request.ChangePasswordDto;
+import com.chat.yourway.dto.request.RestorePasswordDto;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.exception.PasswordsAreNotEqualException;
@@ -202,9 +203,10 @@ public class ChangePasswordServiceImplTestValidation {
     var oldPassword = contactService.findByEmail(EMAIL).getPassword();
     var newPassword = "newPassword";
     var uuidToken = "token";
+    var restorePasswordDto = new RestorePasswordDto(newPassword, uuidToken);
 
     // When
-    changePasswordService.restorePassword(newPassword, uuidToken);
+    changePasswordService.restorePassword(restorePasswordDto);
 
     // Then
     assertAll(
@@ -231,10 +233,11 @@ public class ChangePasswordServiceImplTestValidation {
     var emailTokenRepositoryMock = mock(EmailTokenRepository.class);
     var newPassword = "newPassword";
     var uuidToken = "UUID";
+    var restorePasswordDto = new RestorePasswordDto(newPassword, uuidToken);
 
     // When
     assertThrows(EmailTokenNotFoundException.class,
-        () -> changePasswordService.restorePassword(newPassword, uuidToken));
+        () -> changePasswordService.restorePassword(restorePasswordDto));
 
     // Then
     verify(passwordEncoderMock, never()).encode(newPassword);
