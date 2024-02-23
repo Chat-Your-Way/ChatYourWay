@@ -1,5 +1,10 @@
 package com.chat.yourway.integration.service.impl;
 
+import static com.github.springtestdbunit.annotation.DatabaseOperation.CLEAN_INSERT;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.chat.yourway.exception.MessageHasAlreadyReportedException;
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
@@ -7,9 +12,7 @@ import com.chat.yourway.repository.ContactRepository;
 import com.chat.yourway.repository.MessageRepository;
 import com.chat.yourway.service.MessageServiceImpl;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
-import com.github.springtestdbunit.annotation.DatabaseOperation;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
-import com.github.springtestdbunit.annotation.DatabaseTearDown;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,10 +25,6 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 @ExtendWith({PostgresExtension.class, RedisExtension.class})
 @SpringBootTest
 @TestExecutionListeners(
@@ -37,6 +36,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
       MockitoTestExecutionListener.class,
       ResetMocksTestExecutionListener.class
     })
+@DatabaseSetup(value = {
+    "/dataset/mockdb/topic.xml",
+    "/dataset/mockdb/message.xml",
+    "/dataset/mockdb/contact.xml",
+    "/dataset/mockdb/contact_message_report.xml"},
+    type = CLEAN_INSERT)
 public class MessageServiceImplTest {
   @Autowired ContactRepository contactRepository;
   @Autowired MessageRepository messageRepository;
@@ -44,14 +49,10 @@ public class MessageServiceImplTest {
 
   @Test
   @DisplayName("should save report to message when user makes report")
-  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.CLEAN_INSERT)
-  @DatabaseTearDown(
-      value = "/dataset/report-to-message-dataset.xml",
-      type = DatabaseOperation.DELETE)
   public void shouldSaveReportToMessage_WhenUserMakesReport() {
     // Given
-    var messageId = 2;
-    var email = "user3@gmail.com";
+    var messageId = 101;
+    var email = "oleg@gmail.com";
 
     // When
     messageService.reportMessageById(messageId, email);
@@ -67,14 +68,10 @@ public class MessageServiceImplTest {
 
   @Test
   @DisplayName("should delete message when user makes report and message reached max attempts")
-  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.CLEAN_INSERT)
-  @DatabaseTearDown(
-      value = "/dataset/report-to-message-dataset.xml",
-      type = DatabaseOperation.DELETE)
   public void shouldDeleteMessage_WhenUserMakesReportAndMessageReachedMaxAttempts() {
     // Given
-    var messageId = 1;
-    var email = "user3@gmail.com";
+    var messageId = 100;
+    var email = "oleg@gmail.com";
 
     // When
     messageService.reportMessageById(messageId, email);
@@ -88,14 +85,10 @@ public class MessageServiceImplTest {
 
   @Test
   @DisplayName("should throw MessageHasAlreadyReportedException when user makes report again")
-  @DatabaseSetup(value = "/dataset/report-to-message-dataset.xml", type = DatabaseOperation.CLEAN_INSERT)
-  @DatabaseTearDown(
-      value = "/dataset/report-to-message-dataset.xml",
-      type = DatabaseOperation.DELETE)
   public void shouldThrowMessageHasAlreadyReportedException_WhenUserMakesReportAgain() {
     // Given
-    var messageId = 1;
-    var email = "user2@gmail.com";
+    var messageId = 100;
+    var email = "anton@gmail.com";
 
     // When
     // Then

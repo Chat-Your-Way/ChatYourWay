@@ -22,4 +22,15 @@
     avatar_id="7"
     is_permitted_sending_private_message="true"
   />
+  <contact
+    id="1113"
+    nickname="Oleg"
+    password="$2a$10$aerCnzmFriFrD2XqAgd8Huc/ywG/me8s/t4jC/eH8GlIaR3RcABZ2"
+    is_active="true"
+    is_private="true"
+    email="oleg@gmail.com"
+    role="USER"
+    avatar_id="6"
+    is_permitted_sending_private_message="true"
+  />
 </dataset>
