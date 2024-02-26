@@ -2,6 +2,7 @@ package com.chat.yourway.service;
 
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.dto.request.ChangePasswordDto;
+import com.chat.yourway.dto.request.RestorePasswordDto;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.model.email.EmailMessageType;
 import com.chat.yourway.model.email.EmailToken;
@@ -36,6 +37,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
   }
 
   @Override
+  @Transactional
   public void sendEmailToRestorePassword(String email, String clientHost) {
 
     var contact = contactService.findByEmail(email);
@@ -52,7 +54,7 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
     var emailMessageInfo = new EmailMessageInfoDto(contact.getNickname(),
         contact.getEmail(),
         uuidToken,
-            clientHost,
+        clientHost,
         EmailMessageType.RESTORE_PASSWORD);
     var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfo);
 
@@ -61,11 +63,11 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
 
   @Override
   @Transactional
-  public void restorePassword(String newPassword, String token) {
-    var emailToken =
-        emailTokenRepository.findById(token).orElseThrow(EmailTokenNotFoundException::new);
+  public void restorePassword(RestorePasswordDto restorePasswordDto) {
+    var emailToken = emailTokenRepository.findById(restorePasswordDto.getEmailToken())
+        .orElseThrow(EmailTokenNotFoundException::new);
     var contact = emailToken.getContact();
-    var newEncodedPassword = passwordEncoder.encode(newPassword);
+    var newEncodedPassword = passwordEncoder.encode(restorePasswordDto.getNewPassword());
 
     contact.setPassword(newEncodedPassword);
     emailTokenRepository.delete(emailToken);

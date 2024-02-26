@@ -9,26 +9,64 @@
 <div>
   <h1>WebSocket Chat Test Client</h1>
 
+  <p style="font-style: italic">
+    Connect to WebSocket [http://localhost/chat?Authorization=Bearer {jwt_token}]
+  </p>
   <div>
-    <label for="getTopicNotification"> /user/specific/notify/{id}
+    <label for="jwtToken">
+      <input type="text" id="jwtToken" placeholder="Enter JWT Token">
+    </label>
+
+    <button onclick="initializeWebSocket()">Connect</button>
+  </div>
+
+  <p style="font-style: italic">
+    Subscribe to topic [/topic/{id}]
+  </p>
+  <div>
+
+    <label for="subscribeToTopic">
+      <input type="number" id="subscribeToTopic" placeholder="Enter topic id">
+    </label>
+
+    <button onclick="subscribeToTopic()">Subscribe</button>
+  </div>
+
+  <p style="font-style: italic">
+    Get topic notification [/user/specific/notify/{id}]
+  </p>
+  <div>
+    <label for="getTopicNotification">
       <input type="number" id="getTopicNotification" placeholder="Enter topic id">
     </label>
 
-    <button onclick="subscribeToNotificationFromTopic(document.getElementById('getTopicNotification').value)">Get notification</button>
+    <button
+        onclick="subscribeToNotificationFromTopic(document.getElementById('getTopicNotification').value)">
+      Get notification
+    </button>
   </div>
   <br/>
 
   <div id="notification"></div>
   <br/>
 
+  <p style="font-style: italic">
+    Get message history [/app/history/topic/{id}]
+  </p>
   <div>
-    <label for="subscribeToTopic"> /topic/{id}
-      <input type="number" id="subscribeToTopic" placeholder="Enter topic id">
+    <label for="page">
+      <input type="number" id="page" placeholder="Enter page">
+    </label>
+    <label for="pageSize">
+      <input type="number" id="pageSize" placeholder="Enter pageSize">
     </label>
 
-    <button onclick="subscribeToTopic()">Subscribe</button>
+    <button onclick="getHistoryTopic()">GetMessageHistory</button>
   </div>
-  <br/>
+
+  <p style="font-style: italic">
+    Send message to public topic [/app/topic/public/{topicId}]
+  </p>
   <div>
     <label for="message">
       <input type="text" id="message" placeholder="Enter your message">
@@ -36,8 +74,10 @@
 
     <button onclick="sendToPublicTopic()">Send to public Topic</button>
   </div>
-  <br/>
 
+  <p style="font-style: italic">
+    Send message to private topic [/app/topic/private/{topicId}]
+  </p>
   <div>
     <label for="privateMessage">
       <input type="text" id="privateMessage" placeholder="Enter your message">
@@ -58,21 +98,29 @@
 </div>
 
 <script>
-  const socket = new SockJS('/chat');
-  const stompClient = Stomp.over(socket);
   const subToTopicDest = '/topic/';
   const subToError = '/user/specific/error';
   const subToNotificationDest = '/user/specific/notify/';
   const sendToPublicTopicDest = "/app/topic/public/";
   const sendToPrivateTopicDest = "/app/topic/private/";
+  const getHistoryTopicDest = "/app/history/topic/";
+  const tokenType = 'Bearer';
+  let socket = null;
+  let stompClient = null;
 
-  stompClient.connect({}, function (frame) {
-    console.log('Connected: ' + frame);
+  function initializeWebSocket() {
+    const jwtToken = document.getElementById('jwtToken').value;
+    socket = new SockJS('/chat?Authorization=' + tokenType + ' ' + jwtToken);
+    stompClient = Stomp.over(socket);
 
-    subscribeToError();
-  });
+    stompClient.connect({}, function (frame) {
+      console.log('Connected: ' + frame);
 
-  function subscribeToMessageHistory(){
+      subscribeToError();
+    });
+  }
+
+  function subscribeToMessageHistory() {
     let topicId = document.getElementById('subscribeToTopic').value;
 
     stompClient.subscribe('/user' + subToTopicDest + topicId, function (messages) {
@@ -87,12 +135,13 @@
 
   function subscribeToTopic() {
     let topicId = document.getElementById('subscribeToTopic').value;
+
     subscribeToMessageHistory();
 
-      stompClient.subscribe(subToTopicDest + topicId, function (messages) {
-        let parseMessage = JSON.parse(messages.body);
-        showMessage(parseMessage);
-      });
+    stompClient.subscribe(subToTopicDest + topicId, function (messages) {
+      let parseMessage = JSON.parse(messages.body);
+      showMessage(parseMessage);
+    });
   }
 
   function showMessage(message) {
@@ -139,6 +188,17 @@
     let response = document.getElementById('messages');
 
     stompClient.send(sendToPrivateTopicDest + topicId, {}, request);
+    response.innerText += ('<<< ' + request + '\n');
+  }
+
+  function getHistoryTopic() {
+    let topicId = document.getElementById('subscribeToTopic').value;
+    let page = document.getElementById('page').value;
+    let pageSize = document.getElementById('pageSize').value;
+    let request = JSON.stringify({'page': page, 'pageSize': pageSize});
+    let response = document.getElementById('messages');
+
+    stompClient.send(getHistoryTopicDest + topicId, {}, request);
     response.innerText += ('<<< ' + request + '\n');
   }
 </script>

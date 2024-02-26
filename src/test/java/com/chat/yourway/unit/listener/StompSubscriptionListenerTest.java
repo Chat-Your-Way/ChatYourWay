@@ -15,7 +15,6 @@ import static org.springframework.messaging.simp.stomp.StompCommand.UNSUBSCRIBE;
 import com.chat.yourway.config.websocket.WebsocketProperties;
 import com.chat.yourway.listener.StompSubscriptionListener;
 import com.chat.yourway.model.event.ContactEvent;
-import com.chat.yourway.service.interfaces.ChatMessageService;
 import com.chat.yourway.service.interfaces.ChatNotificationService;
 import com.chat.yourway.service.interfaces.ContactEventService;
 import java.security.Principal;
@@ -44,9 +43,6 @@ public class StompSubscriptionListenerTest {
 
   @Mock
   private ContactEventService contactEventService;
-
-  @Mock
-  private ChatMessageService chatMessageService;
 
   @Mock
   private ChatNotificationService chatNotificationService;
@@ -92,22 +88,6 @@ public class StompSubscriptionListenerTest {
     assertThat(capturedEvent.getTimestamp()).isInstanceOfAny(LocalDateTime.class);
     assertThat(capturedEvent.getEventType()).isEqualTo(SUBSCRIBED);
     assertThat(capturedEvent.getLastMessage()).isEqualTo(lastMessage);
-  }
-
-  @Test
-  public void handleWebSocketSubscribeListener_shouldSendMessageHistory() {
-    // Given
-    String email = "anton@gmail.com";
-    String password = "Password-123";
-    int topicId = 1;
-    String destination = "/user/topic/" + topicId;
-    var event = createSubscribeEvent(destination, getPrincipal(email, password));
-
-    // When
-    stompSubscriptionListener.handleWebSocketSubscribeListener(event);
-
-    // Then
-    verify(chatMessageService, times(1)).sendMessageHistoryByTopicId(topicId, email);
   }
 
   @Test

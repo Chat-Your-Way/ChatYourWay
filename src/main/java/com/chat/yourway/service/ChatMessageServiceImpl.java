@@ -3,6 +3,7 @@ package com.chat.yourway.service;
 import com.chat.yourway.config.websocket.WebsocketProperties;
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
+import com.chat.yourway.dto.request.PageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.service.interfaces.ChatMessageService;
 import com.chat.yourway.service.interfaces.ChatNotificationService;
@@ -54,10 +55,11 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   }
 
   @Override
-  public List<MessageResponseDto> sendMessageHistoryByTopicId(Integer topicId, String email) {
+  public List<MessageResponseDto> sendMessageHistoryByTopicId(Integer topicId,
+      PageRequestDto pageRequestDto, String email) {
     log.trace("Started sendMessageHistoryByTopicId = [{}]", topicId);
 
-    List<MessageResponseDto> messages = messageService.findAllByTopicId(topicId);
+    List<MessageResponseDto> messages = messageService.findAllByTopicId(topicId, pageRequestDto);
     simpMessagingTemplate.convertAndSendToUser(email, toTopicDestination(topicId), messages);
 
     log.trace("Message history was sent to topicId = [{}]", topicId);

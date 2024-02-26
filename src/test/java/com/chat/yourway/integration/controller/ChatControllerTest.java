@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
+import com.chat.yourway.dto.request.PageRequestDto;
 import com.chat.yourway.dto.response.MessageNotificationResponseDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.integration.controller.websocketclient.TestStompFrameHandler;
@@ -87,10 +88,9 @@ public class ChatControllerTest {
   void setUp() {
     String accessToken = getAccessToken();
 
-    String URL = "ws://localhost:" + port + "/chat";
+    String URL = "ws://localhost:" + port + "/chat?Authorization=" + "Bearer " + accessToken;
 
     WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-    headers.add("Authorization", "Bearer " + accessToken);
 
     session = createWebSocketSession(URL, headers);
   }
@@ -165,12 +165,17 @@ public class ChatControllerTest {
   void getMessages_shouldReturnReceivedMessagesHistoryFromTopic() {
     // Given
     int topicId = 12;
+    PageRequestDto pageRequestDto = new PageRequestDto(0, 10);
     //Stored subscription results for testing
     CompletableFuture<MessageResponseDto[]> resultKeeper = new CompletableFuture<>();
 
     // Subscribe to topic
     session.subscribe("/user/topic/" + topicId,
         new TestStompFrameHandler<>(resultKeeper, objectMapper, MessageResponseDto[].class));
+
+    // Get topic message history
+    byte[] pageBytes = objectMapper.writeValueAsBytes(pageRequestDto);
+    session.send("/app/history/topic/" + topicId, pageBytes);
 
     // Then
     MessageResponseDto[] messageResponseDtos = resultKeeper.get(3, SECONDS);

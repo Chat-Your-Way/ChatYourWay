@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
 
 env:
   AWS_REGION: eu-central-1
@@ -41,6 +46,7 @@ jobs:
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     name: Deploy
     runs-on: ubuntu-latest
     steps:

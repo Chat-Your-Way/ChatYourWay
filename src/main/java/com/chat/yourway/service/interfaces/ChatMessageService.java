@@ -2,6 +2,7 @@ package com.chat.yourway.service.interfaces;
 
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
+import com.chat.yourway.dto.request.PageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import java.util.List;
 
@@ -33,10 +34,12 @@ public interface ChatMessageService {
   /**
    * Send messageHistory by topic id.
    *
-   * @param topicId The id of the topic.
-   * @param email   The email of the sender.
+   * @param topicId        The id of the topic.
+   * @param pageRequestDto Set parameters for pagination.
+   * @param email          The email of the sender.
    * @return list topic messages.
    */
-  List<MessageResponseDto> sendMessageHistoryByTopicId(Integer topicId, String email);
+  List<MessageResponseDto> sendMessageHistoryByTopicId(Integer topicId,
+      PageRequestDto pageRequestDto, String email);
 
 }

@@ -120,6 +120,21 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
     return topicSubscriberRepository.checkIfExistProhibitionSendingPrivateMessage(topicId);
   }
 
+  @Override
+  @Transactional
+  public void complainTopic(Integer topicId, UserDetails userDetails) {
+    String email = userDetails.getUsername();
+    boolean hasComplaint = true;
+
+    if (!topicRepository.existsById(topicId)) {
+      throw new TopicNotFoundException(String.format("Topic with id [%d] is not found.", topicId));
+    } else if (!topicSubscriberRepository.existsByContactEmailAndTopicIdAndUnsubscribeAtIsNull(email, topicId)) {
+      throw new NotSubscribedTopicException("You cannot complain topic because you did not subscribe before.");
+    }
+
+    topicSubscriberRepository.updateHasComplaintStatusByTopicIdAndContactEmail(topicId, email, hasComplaint);
+  }
+
   private boolean isTopicCreator(Integer topicId, String topicCreator) {
     return topicSubscriberRepository.existsByTopicIdAndTopicCreatedBy(topicId, topicCreator);
   }

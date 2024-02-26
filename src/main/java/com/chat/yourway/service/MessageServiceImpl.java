@@ -1,5 +1,6 @@
 package com.chat.yourway.service;
 
+import com.chat.yourway.dto.request.PageRequestDto;
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
@@ -17,10 +18,15 @@ import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -101,9 +107,16 @@ public class MessageServiceImpl implements MessageService {
   }
 
   @Override
-  public List<MessageResponseDto> findAllByTopicId(Integer topicId) {
+  public List<MessageResponseDto> findAllByTopicId(Integer topicId, PageRequestDto pageRequestDto) {
     log.trace("Get all messages for topic with ID: {}", topicId);
-    List<Message> messages = messageRepository.findAllByTopicId(topicId);
+
+    Integer page = pageRequestDto.getPage();
+    Integer pageSize = pageRequestDto.getPageSize();
+    Pageable pageable = PageRequest.of(page, pageSize, Sort.Direction.DESC, "timestamp");
+
+    List<Message> messages = new ArrayList<>(messageRepository.findAllByTopicId(topicId, pageable));
+    messages.sort(Comparator.comparing(Message::getTimestamp));
+
     log.trace("Getting all messages for topic with ID: {}", topicId);
     return messageMapper.toListResponseDto(messages);
   }

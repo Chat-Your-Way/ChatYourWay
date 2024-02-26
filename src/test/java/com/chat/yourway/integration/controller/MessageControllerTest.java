@@ -1,21 +1,13 @@
 package com.chat.yourway.integration.controller;
 
 import static com.github.springtestdbunit.annotation.DatabaseOperation.CLEAN_INSERT;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
-import com.chat.yourway.model.Message;
-import com.chat.yourway.repository.MessageRepository;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +20,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 @ExtendWith({PostgresExtension.class, RedisExtension.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -50,43 +41,7 @@ public class MessageControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
-  @Autowired
-  private MessageRepository messageRepository;
-
   private static final String URI = "/messages/";
-
-  //-----------------------------------
-  //               GET
-  //-----------------------------------
-
-  @Test
-  @DisplayName("findAllByTopicId should return empty list of all messages by topic id")
-  void findAllByTopicId_shouldReturnEmptyListOfAllMessagesByTopicId() throws Exception {
-    // When
-    int notExistingTopicId = 99;
-    var result = mockMvc.perform(get(URI + "all/" + notExistingTopicId));
-
-    // Then
-    result
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(APPLICATION_JSON))
-        .andExpect(content().json("[]"));
-  }
-
-  @Test
-  @DisplayName("findAllByTopicId should return list of all messages by topic id")
-  public void findAllByTopicId_shouldReturnListOfAllMessagesByTopicId() throws Exception {
-    // Given
-    int topicId = 11;
-    List<Message> messages = messageRepository.findAllByTopicId(topicId);
-
-    // When
-    var result = mockMvc.perform(get(URI + "all/" + topicId));
-
-    // Then
-    result.andExpect(status().isOk());
-    assertMessagesEquals(result, messages);
-  }
 
   //-----------------------------------
   //               POST
@@ -135,27 +90,6 @@ public class MessageControllerTest {
 
     // Then
     result.andExpect(status().isBadRequest());
-  }
-
-  //-----------------------------------
-  //         Private methods
-  //-----------------------------------
-  private void assertMessagesEquals(ResultActions result, List<Message> messages) throws Exception {
-    result
-        .andExpect(content().contentType(APPLICATION_JSON))
-        .andExpect(jsonPath("$[*].id").value(messages.stream()
-            .map(Message::getId)
-            .collect(Collectors.toList())))
-        .andExpect(jsonPath("$[*].sentFrom").value(messages.stream()
-            .map(Message::getSentFrom)
-            .collect(Collectors.toList())))
-        .andExpect(jsonPath("$[*].sendTo").value(messages.stream()
-            .map(Message::getSendTo)
-            .collect(Collectors.toList())))
-        .andExpect(jsonPath("$[*].content").value(messages.stream()
-            .map(Message::getContent)
-            .collect(Collectors.toList())))
-        .andExpect(jsonPath("$[*].timestamp").isNotEmpty());
   }
 
 }

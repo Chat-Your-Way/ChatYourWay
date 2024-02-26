@@ -75,4 +75,20 @@ public interface TopicSubscriberService {
    * @return true if sending private messages is prohibited, false otherwise
    */
   boolean hasProhibitionSendingPrivateMessages(Integer topicId);
+
+  /**
+   * Registers a complaint for a specific topic.
+   *
+   * This method allows a user to complain about a particular topic identified by its unique identifier.
+   * The complaint details, such as the user's information, will be recorded for further investigation.
+   *
+   * @param topicId      The unique identifier of the topic being complained about.
+   * @param userDetails  The details of the user lodging the complaint.
+   *                     This should include relevant information like user ID, username, etc.
+   *                     Ensure that the userDetails parameter is not null.
+   *
+   * @throws TopicNotFoundException      If topic does not exist.
+   * @throws NotSubscribedTopicException If contact does not subscribed to topic.
+   */
+  void complainTopic(Integer topicId, UserDetails userDetails);
 }

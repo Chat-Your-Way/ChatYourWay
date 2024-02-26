@@ -48,7 +48,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -73,7 +73,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -99,7 +99,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -121,7 +121,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -144,7 +144,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -167,7 +167,7 @@ public class TopicSubscriberServiceImplTest {
   @Test
   @DatabaseSetup(
       value = "/dataset/favourite-topics-of-contact.xml",
-      type = DatabaseOperation.INSERT)
+      type = DatabaseOperation.CLEAN_INSERT)
   @DatabaseTearDown(
       value = "/dataset/favourite-topics-of-contact.xml",
       type = DatabaseOperation.DELETE)
@@ -187,4 +187,75 @@ public class TopicSubscriberServiceImplTest {
         () -> topicSubscriberService.removeTopicFromFavourite(topicId, contact));
   }
 
+  @Test
+  @DatabaseSetup(
+          value = "/dataset/complain-topic-dataset.xml",
+          type = DatabaseOperation.CLEAN_INSERT)
+  @DatabaseTearDown(
+          value = "/dataset/complain-topic-dataset.xml",
+          type = DatabaseOperation.DELETE)
+  @DisplayName(
+          "should successfully complain topic when user complain topic")
+  public void shouldSuccessfullyComplainTopic_whenUserComplainTopic() {
+    // Given
+    var contactEmail = "vasil1132@gmail.com";
+    var contact = contactService.findByEmail(contactEmail);
+    var topicId = 111123;
+
+    // When
+    topicSubscriberService.complainTopic(topicId, contact);
+
+    // Then
+    var result = topicService.findById(topicId).getTopicSubscribers().stream()
+            .filter(topicSubscriber -> topicSubscriber.getContact().getEmail().equals(contactEmail))
+            .anyMatch(TopicSubscriberResponseDto::isHasComplaint);
+
+    assertThat(result)
+            .withFailMessage("Expecting containing complaint to topic by user")
+            .isTrue();
+  }
+
+  @Test
+  @DatabaseSetup(
+          value = "/dataset/complain-topic-dataset.xml",
+          type = DatabaseOperation.CLEAN_INSERT)
+  @DatabaseTearDown(
+          value = "/dataset/complain-topic-dataset.xml",
+          type = DatabaseOperation.DELETE)
+  @DisplayName(
+          "should throw TopicNotFoundException when user complain topic")
+  public void shouldThrowTopicNotFoundException_whenUserComplainTopic() {
+    // Given
+    var contactEmail = "vasil1132@gmail.com";
+    var contact = contactService.findByEmail(contactEmail);
+    var topicId = 1;
+
+    // When
+    // Then
+    assertThrows(
+            TopicNotFoundException.class,
+            () -> topicSubscriberService.complainTopic(topicId, contact));
+  }
+
+  @Test
+  @DatabaseSetup(
+          value = "/dataset/complain-topic-dataset.xml",
+          type = DatabaseOperation.CLEAN_INSERT)
+  @DatabaseTearDown(
+          value = "/dataset/complain-topic-dataset.xml",
+          type = DatabaseOperation.DELETE)
+  @DisplayName(
+          "should throw NotSubscribedTopicException when user complain topic")
+  public void shouldThrowNotSubscribedTopicException_whenUserComplainTopic() {
+    // Given
+    var contactEmail = "vasil1132@gmail.com";
+    var contact = contactService.findByEmail(contactEmail);
+    var topicId = 111124;
+
+    // When
+    // Then
+    assertThrows(
+            NotSubscribedTopicException.class,
+            () -> topicSubscriberService.complainTopic(topicId, contact));
+  }
 }
