@@ -20,6 +20,6 @@ public class MessageNotificationResponseDto {
   private EventType status;
   private Integer unreadMessages;
   private LocalDateTime lastRead;
-  private String lastMessage;
+  private LastMessageResponseDto lastMessage;
 
 }

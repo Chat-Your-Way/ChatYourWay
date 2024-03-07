@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.chat.yourway.dto.response.LastMessageResponseDto;
 import com.chat.yourway.dto.response.MessageNotificationResponseDto;
 import com.chat.yourway.mapper.MessageNotificationMapper;
 import com.chat.yourway.model.event.ContactEvent;
@@ -46,9 +47,14 @@ class NotificationServiceImplTest {
   void notifyTopicSubscribers_shouldReturnListOfNotificationsWithUnreadMessageCounts() {
     // Given
     Integer topicId = 1;
+    var lastMessageDto = new LastMessageResponseDto();
+    lastMessageDto.setTimestamp(LocalDateTime.now());
+    lastMessageDto.setSentFrom("vasil@gmail.com");
+    lastMessageDto.setLastMessage("Hello");
+
     List<ContactEvent> events = Arrays.asList(
-        new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), "Hello"),
-        new ContactEvent("anton@gmail.com", topicId, OFFLINE, LocalDateTime.now(), "Hello")
+        new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), lastMessageDto),
+        new ContactEvent("anton@gmail.com", topicId, OFFLINE, LocalDateTime.now(), lastMessageDto)
     );
 
     var expectedNotifications = events.stream()

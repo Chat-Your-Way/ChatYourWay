@@ -13,6 +13,7 @@ import static org.springframework.messaging.simp.stomp.StompCommand.SUBSCRIBE;
 import static org.springframework.messaging.simp.stomp.StompCommand.UNSUBSCRIBE;
 
 import com.chat.yourway.config.websocket.WebsocketProperties;
+import com.chat.yourway.dto.response.LastMessageResponseDto;
 import com.chat.yourway.listener.StompSubscriptionListener;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.service.interfaces.ChatNotificationService;
@@ -68,9 +69,13 @@ public class StompSubscriptionListenerTest {
     int topicId = 1;
     String destination = "/topic/" + topicId;
 
-    String lastMessage = "Hello";
+    var lastMessageDto = new LastMessageResponseDto();
+    lastMessageDto.setTimestamp(LocalDateTime.now());
+    lastMessageDto.setSentFrom("vasil@gmail.com");
+    lastMessageDto.setLastMessage("Hello");
+
     ContactEvent contactEvent = new ContactEvent();
-    contactEvent.setLastMessage(lastMessage);
+    contactEvent.setLastMessage(lastMessageDto);
 
     var event = createSubscribeEvent(destination, getPrincipal(email, password));
 
@@ -87,7 +92,7 @@ public class StompSubscriptionListenerTest {
     assertThat(capturedEvent.getEmail()).isEqualTo(email);
     assertThat(capturedEvent.getTimestamp()).isInstanceOfAny(LocalDateTime.class);
     assertThat(capturedEvent.getEventType()).isEqualTo(SUBSCRIBED);
-    assertThat(capturedEvent.getLastMessage()).isEqualTo(lastMessage);
+    assertThat(capturedEvent.getLastMessage()).isEqualTo(lastMessageDto);
   }
 
   @Test
