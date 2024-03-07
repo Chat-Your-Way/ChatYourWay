@@ -2,6 +2,7 @@ package com.chat.yourway.service;
 
 import static com.chat.yourway.model.event.EventType.ONLINE;
 
+import com.chat.yourway.dto.response.LastMessageResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.model.event.EventType;
 import com.chat.yourway.repository.ContactEventRedisRepository;
@@ -30,7 +31,7 @@ public class ContactEventServiceImpl implements ContactEventService {
     log.trace("Started getByTopicIdAndEmail, topicId [{}], email [{}]", topicId, email);
 
     return contactEventRedisRepository.findById(email + "_" + topicId)
-        .orElse(new ContactEvent(email, topicId, ONLINE, LocalDateTime.now(), ""));
+        .orElse(new ContactEvent(email, topicId, ONLINE, LocalDateTime.now(), null));
   }
 
   @Override
@@ -61,7 +62,7 @@ public class ContactEventServiceImpl implements ContactEventService {
   }
 
   @Override
-  public void setLastMessageToAllTopicSubscribers(Integer topicId, String message) {
+  public void setLastMessageToAllTopicSubscribers(Integer topicId, LastMessageResponseDto message) {
     log.trace("Started setLastMessageToAllTopicSubscribers, topic id [{}], last message [{}]",
         topicId, message);
 
