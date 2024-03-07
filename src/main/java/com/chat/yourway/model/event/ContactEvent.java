@@ -1,5 +1,6 @@
 package com.chat.yourway.model.event;
 
+import com.chat.yourway.dto.response.LastMessageResponseDto;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,11 +26,11 @@ public class ContactEvent {
   private Integer topicId;
   private EventType eventType;
   private LocalDateTime timestamp;
-  private String lastMessage;
+  private LastMessageResponseDto lastMessage;
 
-  private static final int MAX_LENGTH = 20;
 
-  public ContactEvent(String email, Integer topicId, EventType eventType, LocalDateTime timestamp, String lastMessage) {
+  public ContactEvent(String email, Integer topicId, EventType eventType, LocalDateTime timestamp,
+      LastMessageResponseDto lastMessage) {
     this.id = email + "_" + topicId;
     this.email = email;
     this.topicId = topicId;
@@ -38,12 +39,4 @@ public class ContactEvent {
     this.lastMessage = lastMessage;
   }
 
-  public void setLastMessage(String lastMessage) {
-    if (lastMessage.length() <= MAX_LENGTH) {
-      this.lastMessage = lastMessage;
-    } else {
-      this.lastMessage = lastMessage.substring(0, MAX_LENGTH) + "...";
-    }
-
-  }
 }

@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.request.PageRequestDto;
+import com.chat.yourway.dto.response.LastMessageResponseDto;
 import com.chat.yourway.dto.response.MessageNotificationResponseDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.integration.controller.websocketclient.TestStompFrameHandler;
@@ -196,7 +197,12 @@ public class ChatControllerTest {
   void notifyTopicSubscribers_shouldNotifyTopicSubscribersIfSubscribeEvent() {
     // Given
     int topicId = 12;
-    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), "Hi");
+    var lastMessageDto = new LastMessageResponseDto();
+    lastMessageDto.setTimestamp(LocalDateTime.now());
+    lastMessageDto.setSentFrom("vasil@gmail.com");
+    lastMessageDto.setLastMessage("Hi");
+
+    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), lastMessageDto);
     saveContactEvent(event);
     //Stored subscription results for testing
     CompletableFuture<MessageNotificationResponseDto[]> resultKeeper = new CompletableFuture<>();
@@ -223,7 +229,12 @@ public class ChatControllerTest {
   void notifyTopicSubscribers_shouldNotifyTopicSubscribersIfAnyContactSubscribedToTopic() {
     // Given
     int topicId = 12;
-    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), "Hi");
+    var lastMessageDto = new LastMessageResponseDto();
+    lastMessageDto.setTimestamp(LocalDateTime.now());
+    lastMessageDto.setSentFrom("vasil@gmail.com");
+    lastMessageDto.setLastMessage("Hi");
+
+    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), lastMessageDto);
     saveContactEvent(event);
     //Stored subscription results for testing
     CompletableFuture<MessageNotificationResponseDto[]> resultKeeper = new CompletableFuture<>();

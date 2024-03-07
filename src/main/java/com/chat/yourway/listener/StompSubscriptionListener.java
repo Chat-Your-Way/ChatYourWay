@@ -4,6 +4,7 @@ import static com.chat.yourway.model.event.EventType.SUBSCRIBED;
 import static com.chat.yourway.model.event.EventType.UNSUBSCRIBED;
 
 import com.chat.yourway.config.websocket.WebsocketProperties;
+import com.chat.yourway.dto.response.LastMessageResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.service.interfaces.ChatNotificationService;
 import com.chat.yourway.service.interfaces.ContactEventService;
@@ -29,7 +30,7 @@ public class StompSubscriptionListener {
   private final ContactEventService contactEventService;
   private final ChatNotificationService chatNotificationService;
 
-  private static String lastMessage;
+  private static LastMessageResponseDto lastMessageDto;
   private static final String USER_DESTINATION = "/user";
   private static final String SLASH = "/";
 
@@ -40,10 +41,10 @@ public class StompSubscriptionListener {
 
     try {
       if (isTopicDestination(destination)) {
-        lastMessage = contactEventService.getByTopicIdAndEmail(getTopicId(event), email)
+        lastMessageDto = contactEventService.getByTopicIdAndEmail(getTopicId(event), email)
             .getLastMessage();
         var contactEvent = new ContactEvent(email, getTopicId(event), SUBSCRIBED,
-            getTimestamp(event), lastMessage);
+            getTimestamp(event), lastMessageDto);
         contactEventService.save(contactEvent);
       }
 
@@ -64,7 +65,7 @@ public class StompSubscriptionListener {
     try {
       if (isTopicDestination(destination)) {
         var contactEvent = new ContactEvent(email, getTopicId(event), UNSUBSCRIBED,
-            getTimestamp(event), lastMessage);
+            getTimestamp(event), lastMessageDto);
         contactEventService.save(contactEvent);
       }
 

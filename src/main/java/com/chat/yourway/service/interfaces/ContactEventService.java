@@ -1,5 +1,6 @@
 package com.chat.yourway.service.interfaces;
 
+import com.chat.yourway.dto.response.LastMessageResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.model.event.EventType;
 import java.util.List;
@@ -44,8 +45,8 @@ public interface ContactEventService {
    * Set last message to all topic subscribers events.
    *
    * @param topicId topic id.
-   * @param message last message.
+   * @param lastMessageDto last message Dto.
    */
-  void setLastMessageToAllTopicSubscribers(Integer topicId, String message);
+  void setLastMessageToAllTopicSubscribers(Integer topicId, LastMessageResponseDto lastMessageDto);
 
 }
