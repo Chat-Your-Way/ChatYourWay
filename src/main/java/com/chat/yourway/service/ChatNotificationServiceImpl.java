@@ -25,7 +25,7 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
     var notifications = notificationService.notifyTopicSubscribers(topicId);
     notifications
         .forEach(n -> simpMessagingTemplate.convertAndSendToUser(
-            n.getEmail(), toNotifyDestination(topicId), notifications));
+            n.getEmail(), toNotifyMessageDest(topicId), notifications));
 
     log.trace("All subscribers was notified by topic id = [{}]", topicId);
   }
@@ -36,8 +36,24 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
         .forEach(e -> notifyTopicSubscribers(e.getTopicId()));
   }
 
-  private String toNotifyDestination(Integer topicId) {
+  @Override
+  public void notifyAllPublicTopics(String email){
+    var notifiedTopics = notificationService.notifyAllPublicTopicsByEmail(email);
+    simpMessagingTemplate.convertAndSendToUser(email, toNotifyTopicsDest(), notifiedTopics);
+  }
+
+  @Override
+  public void notifyAllWhoSubscribedToTopic(Integer topicId) {
+    contactEventService.getAllByTopicId(topicId)
+        .forEach(e -> notifyAllPublicTopics(e.getEmail()));
+  }
+
+  private String toNotifyMessageDest(Integer topicId) {
     return properties.getNotifyPrefix() + "/" + topicId;
+  }
+
+  private String toNotifyTopicsDest() {
+    return properties.getNotifyPrefix() + "/topics";
   }
 
 }

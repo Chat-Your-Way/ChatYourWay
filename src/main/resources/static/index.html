@@ -51,6 +51,15 @@
   <br/>
 
   <p style="font-style: italic">
+    Get all topics [/user/specific/notify/topics]
+  </p>
+
+  <br/>
+
+  <div id="topics"></div>
+  <br/>
+
+  <p style="font-style: italic">
     Get message history [/app/history/topic/{id}]
   </p>
   <div>
@@ -101,6 +110,7 @@
   const subToTopicDest = '/topic/';
   const subToError = '/user/specific/error';
   const subToNotificationDest = '/user/specific/notify/';
+  const subToAllTopicsDest = '/user/specific/notify/topics';
   const sendToPublicTopicDest = "/app/topic/public/";
   const sendToPrivateTopicDest = "/app/topic/private/";
   const getHistoryTopicDest = "/app/history/topic/";
@@ -117,6 +127,7 @@
       console.log('Connected: ' + frame);
 
       subscribeToError();
+      subscribeToAllTopics();
     });
   }
 
@@ -154,6 +165,11 @@
     response.innerText = JSON.stringify(notificationMessage);
   }
 
+  function showAllTopics(topics) {
+    let response = document.getElementById('topics');
+    response.innerText = JSON.stringify(topics);
+  }
+
   function subscribeToNotificationFromTopic(topicId) {
     stompClient.subscribe(subToNotificationDest + topicId, function (messages) {
       let notificationMessage = JSON.parse(messages.body);
@@ -167,6 +183,14 @@
       let errorMessage = JSON.parse(messages.body);
       console.log(errorMessage);
       showMessage(errorMessage);
+    });
+  }
+
+  function subscribeToAllTopics() {
+    stompClient.subscribe(subToAllTopicsDest, function (messages) {
+      let topics = JSON.parse(messages.body);
+      console.log(topics);
+      showAllTopics(topics);
     });
   }
 

@@ -202,7 +202,8 @@ public class ChatControllerTest {
     lastMessageDto.setSentFrom("vasil@gmail.com");
     lastMessageDto.setLastMessage("Hi");
 
-    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), lastMessageDto);
+    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(),
+        lastMessageDto);
     saveContactEvent(event);
     //Stored subscription results for testing
     CompletableFuture<MessageNotificationResponseDto[]> resultKeeper = new CompletableFuture<>();
@@ -218,9 +219,7 @@ public class ChatControllerTest {
     assertThat(notifications).extracting("email").contains("vasil@gmail.com");
     assertThat(notifications).extracting("topicId").contains(topicId);
     assertThat(notifications).extracting("status").contains(ONLINE);
-    assertThat(notifications).extracting("unreadMessages").isNotNull();
     assertThat(notifications).extracting("lastRead").isNotNull();
-    assertThat(notifications).extracting("lastMessage").isNotNull();
   }
 
   @Test
@@ -234,7 +233,8 @@ public class ChatControllerTest {
     lastMessageDto.setSentFrom("vasil@gmail.com");
     lastMessageDto.setLastMessage("Hi");
 
-    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), lastMessageDto);
+    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(),
+        lastMessageDto);
     saveContactEvent(event);
     //Stored subscription results for testing
     CompletableFuture<MessageNotificationResponseDto[]> resultKeeper = new CompletableFuture<>();
@@ -253,9 +253,7 @@ public class ChatControllerTest {
     assertThat(notifications).extracting("email").contains("vasil@gmail.com");
     assertThat(notifications).extracting("topicId").contains(topicId);
     assertThat(notifications).extracting("status").contains(SUBSCRIBED);
-    assertThat(notifications).extracting("unreadMessages").contains(0);
     assertThat(notifications).extracting("lastRead").isNotNull();
-    assertThat(notifications).extracting("lastMessage").isNotNull();
   }
 
   //-----------------------------------

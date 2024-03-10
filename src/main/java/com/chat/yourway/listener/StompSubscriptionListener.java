@@ -32,6 +32,7 @@ public class StompSubscriptionListener {
 
   private static LastMessageResponseDto lastMessageDto;
   private static final String USER_DESTINATION = "/user";
+  private static final String TOPICS_DESTINATION = "/topics";
   private static final String SLASH = "/";
 
   @EventListener
@@ -49,9 +50,14 @@ public class StompSubscriptionListener {
       }
 
       chatNotificationService.notifyTopicSubscribers(getTopicId(event));
+      chatNotificationService.notifyAllWhoSubscribedToTopic(getTopicId(event));
 
     } catch (NumberFormatException e) {
       log.warn("Contact [{}] subscribe to destination [{}] without topic id", email, destination);
+    }
+
+    if (destination.equals(USER_DESTINATION + properties.getNotifyPrefix() + TOPICS_DESTINATION)) {
+      chatNotificationService.notifyAllPublicTopics(getEmail(event));
     }
 
     log.info("Contact [{}] subscribe to [{}]", email, destination);
