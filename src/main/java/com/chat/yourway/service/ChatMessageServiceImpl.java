@@ -74,8 +74,11 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         lastMessageDto.setLastMessage(messageDto.getContent());
 
     contactEventService.setLastMessageToAllTopicSubscribers(topicId, lastMessageDto);
+
     simpMessagingTemplate.convertAndSend(toTopicDestination(topicId), messageDto);
+
     chatNotificationService.notifyTopicSubscribers(topicId);
+    chatNotificationService.notifyAllWhoSubscribedToTopic(topicId);
   }
 
   private String toTopicDestination(Integer topicId) {
