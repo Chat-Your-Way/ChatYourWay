@@ -1,7 +1,7 @@
 package com.chat.yourway.unit.listener;
 
+import static com.chat.yourway.model.event.EventType.ONLINE;
 import static com.chat.yourway.model.event.EventType.SUBSCRIBED;
-import static com.chat.yourway.model.event.EventType.UNSUBSCRIBED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -108,7 +108,7 @@ public class StompSubscriptionListenerTest {
     stompSubscriptionListener.handleWebSocketSubscribeListener(event);
 
     // Then
-    verify(chatNotificationService, times(1)).notifyTopicSubscribers(topicId);
+    verify(chatNotificationService, times(1)).notifyAllWhoSubscribedToSameUserTopic(email);
   }
 
   @Test
@@ -132,7 +132,7 @@ public class StompSubscriptionListenerTest {
     assertThat(capturedEvent.getTopicId()).isEqualTo(topicId);
     assertThat(capturedEvent.getEmail()).isEqualTo(email);
     assertThat(capturedEvent.getTimestamp()).isInstanceOfAny(LocalDateTime.class);
-    assertThat(capturedEvent.getEventType()).isEqualTo(UNSUBSCRIBED);
+    assertThat(capturedEvent.getEventType()).isEqualTo(ONLINE);
   }
 
   @Test
