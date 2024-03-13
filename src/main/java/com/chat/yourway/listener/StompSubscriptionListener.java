@@ -1,7 +1,7 @@
 package com.chat.yourway.listener;
 
+import static com.chat.yourway.model.event.EventType.ONLINE;
 import static com.chat.yourway.model.event.EventType.SUBSCRIBED;
-import static com.chat.yourway.model.event.EventType.UNSUBSCRIBED;
 
 import com.chat.yourway.config.websocket.WebsocketProperties;
 import com.chat.yourway.dto.response.LastMessageResponseDto;
@@ -46,10 +46,11 @@ public class StompSubscriptionListener {
             .getLastMessage();
         var contactEvent = new ContactEvent(email, getTopicId(event), SUBSCRIBED,
             getTimestamp(event), lastMessageDto);
+        contactEventService.updateEventTypeByEmail(ONLINE, email);
         contactEventService.save(contactEvent);
       }
 
-      chatNotificationService.notifyTopicSubscribers(getTopicId(event));
+      chatNotificationService.notifyAllWhoSubscribedToSameUserTopic(email);
       chatNotificationService.notifyAllWhoSubscribedToTopic(getTopicId(event));
 
     } catch (NumberFormatException e) {
@@ -70,7 +71,7 @@ public class StompSubscriptionListener {
 
     try {
       if (isTopicDestination(destination)) {
-        var contactEvent = new ContactEvent(email, getTopicId(event), UNSUBSCRIBED,
+        var contactEvent = new ContactEvent(email, getTopicId(event), ONLINE,
             getTimestamp(event), lastMessageDto);
         contactEventService.save(contactEvent);
       }
