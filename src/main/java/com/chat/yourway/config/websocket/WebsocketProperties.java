@@ -17,5 +17,6 @@ public class WebsocketProperties {
   private String topicPrefix;
   private String notifyPrefix;
   private String errorPrefix;
+  private int TimeToFirstMessage;
 
 }
