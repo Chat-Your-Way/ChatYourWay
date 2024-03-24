@@ -27,25 +27,57 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
         .forEach(n -> simpMessagingTemplate.convertAndSendToUser(
             n.getEmail(), toNotifyMessageDest(topicId), notifications));
 
-    log.trace("All subscribers was notified by topic id = [{}]", topicId);
+    log.info("All subscribers was notified by topic id = [{}]", topicId);
   }
 
   @Override
   public void notifyAllWhoSubscribedToSameUserTopic(String userEmail) {
+    log.trace("Started notifyAllWhoSubscribedToSameUserTopic, user email = [{}]", userEmail);
+
     contactEventService.getAllByEmail(userEmail)
         .forEach(e -> notifyTopicSubscribers(e.getTopicId()));
+
+    log.info("All subscribers who subscribed to same topic was notified, email = [{}]", userEmail);
   }
 
   @Override
-  public void notifyAllPublicTopics(String email){
-    var notifiedTopics = notificationService.notifyAllPublicTopicsByEmail(email);
+  public void notifyAllTopics(String email) {
+    log.trace("Started notifyAllTopics, email = [{}]", email);
+
+    var notifiedTopics = notificationService.notifyAllTopicsByEmail(email);
     simpMessagingTemplate.convertAndSendToUser(email, toNotifyTopicsDest(), notifiedTopics);
+
+    log.info("All topics was notified for user email = [{}]", email);
   }
 
   @Override
   public void notifyAllWhoSubscribedToTopic(Integer topicId) {
+    log.trace("Started notifyAllWhoSubscribedToTopic, topicId = [{}]", topicId);
+
     contactEventService.getAllByTopicId(topicId)
-        .forEach(e -> notifyAllPublicTopics(e.getEmail()));
+        .forEach(e -> notifyAllTopics(e.getEmail()));
+
+    log.info("All subscribed users was notified, topicId = [{}]", topicId);
+  }
+
+  @Override
+  public void updateNotificationForAllTopics(String email) {
+    log.trace("Started updateNotificationForAllTopics, email = [{}]", email);
+
+    var notifiedTopics = notificationService.updateTopicNotification(email);
+    simpMessagingTemplate.convertAndSendToUser(email, toNotifyTopicsDest(), notifiedTopics);
+
+    log.info("All topics for user was notified, email = [{}]", email);
+  }
+
+  @Override
+  public void updateNotificationForAllWhoSubscribedToTopic(Integer topicId) {
+    log.trace("Started updateNotificationForAllWhoSubscribedToTopic, topicId = [{}]", topicId);
+
+    contactEventService.getAllByTopicId(topicId)
+        .forEach(e -> updateNotificationForAllTopics(e.getEmail()));
+
+    log.info("Topic notifications was updated for all subscribed users, topicId = [{}]", topicId);
   }
 
   private String toNotifyMessageDest(Integer topicId) {
