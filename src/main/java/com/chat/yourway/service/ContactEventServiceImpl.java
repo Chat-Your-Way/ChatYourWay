@@ -1,6 +1,7 @@
 package com.chat.yourway.service;
 
 import static com.chat.yourway.model.event.EventType.ONLINE;
+import static com.chat.yourway.model.event.EventType.SUBSCRIBED;
 
 import com.chat.yourway.dto.response.LastMessageResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
@@ -31,7 +32,7 @@ public class ContactEventServiceImpl implements ContactEventService {
     log.trace("Started getByTopicIdAndEmail, topicId [{}], email [{}]", topicId, email);
 
     return contactEventRedisRepository.findById(email + "_" + topicId)
-        .orElse(new ContactEvent(email, topicId, ONLINE, LocalDateTime.now(), null));
+        .orElse(new ContactEvent(email, topicId, ONLINE, LocalDateTime.now(), 0, null));
   }
 
   @Override
@@ -62,15 +63,21 @@ public class ContactEventServiceImpl implements ContactEventService {
   }
 
   @Override
-  public void setLastMessageToAllTopicSubscribers(Integer topicId, LastMessageResponseDto message) {
-    log.trace("Started setLastMessageToAllTopicSubscribers, topic id [{}], last message [{}]",
+  public void updateMessageInfoForAllTopicSubscribers(Integer topicId,
+      LastMessageResponseDto message) {
+    log.trace("Started updateMessageInfoForAllTopicSubscribers, topic id [{}], last message [{}]",
         topicId, message);
 
     List<ContactEvent> events = getAllByTopicId(topicId).stream()
-        .peek(e -> e.setLastMessage(message))
+        .peek(e -> {
+          if (!e.getEventType().equals(SUBSCRIBED)) {
+            e.setUnreadMessages(e.getUnreadMessages() + 1);
+          }
+          e.setLastMessage(message);
+        })
         .toList();
 
-    log.trace("Last message [{}] was set to all topic id [{}] subscribers", message, topicId);
+    log.trace("Message info [{}] was updated for all topic id [{}] subscribers", message, topicId);
     contactEventRedisRepository.saveAll(events);
   }
 

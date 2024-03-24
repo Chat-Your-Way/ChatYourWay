@@ -26,16 +26,18 @@ public class ContactEvent {
   private Integer topicId;
   private EventType eventType;
   private LocalDateTime timestamp;
+  private int unreadMessages;
   private LastMessageResponseDto lastMessage;
 
 
   public ContactEvent(String email, Integer topicId, EventType eventType, LocalDateTime timestamp,
-      LastMessageResponseDto lastMessage) {
+      int unreadMessages, LastMessageResponseDto lastMessage) {
     this.id = email + "_" + topicId;
     this.email = email;
     this.topicId = topicId;
     this.eventType = eventType;
     this.timestamp = timestamp;
+    this.unreadMessages = unreadMessages;
     this.lastMessage = lastMessage;
   }
 

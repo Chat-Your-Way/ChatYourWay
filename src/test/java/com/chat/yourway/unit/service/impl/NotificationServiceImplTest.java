@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.chat.yourway.dto.response.LastMessageResponseDto;
 import com.chat.yourway.dto.response.MessageNotificationResponseDto;
-import com.chat.yourway.mapper.MessageNotificationMapper;
+import com.chat.yourway.mapper.NotificationMapper;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.service.NotificationServiceImpl;
 import com.chat.yourway.service.interfaces.ContactEventService;
@@ -31,7 +31,7 @@ class NotificationServiceImplTest {
   private ContactEventService contactEventService;
 
   @Mock
-  private MessageNotificationMapper notificationMapper;
+  private NotificationMapper notificationMapper;
 
   @InjectMocks
   private NotificationServiceImpl notificationService;
@@ -47,8 +47,8 @@ class NotificationServiceImplTest {
     lastMessageDto.setLastMessage("Hello");
 
     List<ContactEvent> events = Arrays.asList(
-        new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), lastMessageDto),
-        new ContactEvent("anton@gmail.com", topicId, OFFLINE, LocalDateTime.now(), lastMessageDto)
+        new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0, lastMessageDto),
+        new ContactEvent("anton@gmail.com", topicId, OFFLINE, LocalDateTime.now(), 0, lastMessageDto)
     );
 
     var expectedNotifications = events.stream()
@@ -63,7 +63,7 @@ class NotificationServiceImplTest {
         .toList();
 
     when(contactEventService.getAllByTopicId(topicId)).thenReturn(events);
-    when(notificationMapper.toNotificationResponseDto(any()))
+    when(notificationMapper.toMessageNotificationResponseDto(any()))
         .thenReturn(expectedNotifications.get(0), expectedNotifications.get(1));
 
     // When
@@ -72,7 +72,7 @@ class NotificationServiceImplTest {
 
     // Then
     assertEquals(expectedNotifications, result, "Should return the expected list of notifications");
-    verify(notificationMapper, times(2)).toNotificationResponseDto(any());
+    verify(notificationMapper, times(2)).toMessageNotificationResponseDto(any());
   }
 
 }
