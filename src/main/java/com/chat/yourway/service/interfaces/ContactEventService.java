@@ -47,6 +47,6 @@ public interface ContactEventService {
    * @param topicId topic id.
    * @param lastMessageDto last message Dto.
    */
-  void setLastMessageToAllTopicSubscribers(Integer topicId, LastMessageResponseDto lastMessageDto);
+  void updateMessageInfoForAllTopicSubscribers(Integer topicId, LastMessageResponseDto lastMessageDto);
 
 }

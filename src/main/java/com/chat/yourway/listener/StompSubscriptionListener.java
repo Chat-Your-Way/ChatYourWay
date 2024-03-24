@@ -44,8 +44,11 @@ public class StompSubscriptionListener {
       if (isTopicDestination(destination)) {
         lastMessageDto = contactEventService.getByTopicIdAndEmail(getTopicId(event), email)
             .getLastMessage();
+        int unreadMessages = contactEventService.getByTopicIdAndEmail(getTopicId(event), email)
+            .getUnreadMessages();
+
         var contactEvent = new ContactEvent(email, getTopicId(event), SUBSCRIBED,
-            getTimestamp(event), lastMessageDto);
+            getTimestamp(event), unreadMessages, lastMessageDto);
         contactEventService.updateEventTypeByEmail(ONLINE, email);
         contactEventService.save(contactEvent);
       }
@@ -58,7 +61,7 @@ public class StompSubscriptionListener {
     }
 
     if (destination.equals(USER_DESTINATION + properties.getNotifyPrefix() + TOPICS_DESTINATION)) {
-      chatNotificationService.notifyAllPublicTopics(getEmail(event));
+      chatNotificationService.notifyAllTopics(getEmail(event));
     }
 
     log.info("Contact [{}] subscribe to [{}]", email, destination);
@@ -72,7 +75,7 @@ public class StompSubscriptionListener {
     try {
       if (isTopicDestination(destination)) {
         var contactEvent = new ContactEvent(email, getTopicId(event), ONLINE,
-            getTimestamp(event), lastMessageDto);
+            getTimestamp(event), 0, lastMessageDto);
         contactEventService.save(contactEvent);
       }
 

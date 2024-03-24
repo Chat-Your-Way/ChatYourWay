@@ -202,7 +202,7 @@ public class ChatControllerTest {
     lastMessageDto.setSentFrom("vasil@gmail.com");
     lastMessageDto.setLastMessage("Hi");
 
-    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(),
+    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0,
         lastMessageDto);
     saveContactEvent(event);
     //Stored subscription results for testing
@@ -233,7 +233,7 @@ public class ChatControllerTest {
     lastMessageDto.setSentFrom("vasil@gmail.com");
     lastMessageDto.setLastMessage("Hi");
 
-    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(),
+    var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0,
         lastMessageDto);
     saveContactEvent(event);
     //Stored subscription results for testing

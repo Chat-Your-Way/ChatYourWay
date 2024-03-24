@@ -69,16 +69,16 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   private void sendToTopic(Integer topicId, MessageResponseDto messageDto) {
     var lastMessageDto = new LastMessageResponseDto();
-        lastMessageDto.setTimestamp(messageDto.getTimestamp());
-        lastMessageDto.setSentFrom(messageDto.getSentFrom());
-        lastMessageDto.setLastMessage(messageDto.getContent());
+    lastMessageDto.setTimestamp(messageDto.getTimestamp());
+    lastMessageDto.setSentFrom(messageDto.getSentFrom());
+    lastMessageDto.setLastMessage(messageDto.getContent());
 
-    contactEventService.setLastMessageToAllTopicSubscribers(topicId, lastMessageDto);
+    contactEventService.updateMessageInfoForAllTopicSubscribers(topicId, lastMessageDto);
 
     simpMessagingTemplate.convertAndSend(toTopicDestination(topicId), messageDto);
 
     chatNotificationService.notifyTopicSubscribers(topicId);
-    chatNotificationService.notifyAllWhoSubscribedToTopic(topicId);
+    chatNotificationService.updateNotificationForAllWhoSubscribedToTopic(topicId);
   }
 
   private String toTopicDestination(Integer topicId) {

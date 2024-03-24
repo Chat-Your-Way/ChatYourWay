@@ -13,7 +13,7 @@ import lombok.ToString;
 @ToString
 public class TopicNotificationResponseDto {
 
-  private TopicResponseDto topic;
+  private Integer topicId;
 
   private Integer unreadMessages;
 

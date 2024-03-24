@@ -21,7 +21,7 @@ public interface ChatNotificationService {
    *
    * @param userEmail user email.
    */
-  void notifyAllPublicTopics(String userEmail);
+  void notifyAllTopics(String userEmail);
 
   /**
    * Notify everyone who is subscribed to the same topic.
@@ -29,5 +29,19 @@ public interface ChatNotificationService {
    * @param topicId The id of the topic.
    */
   void notifyAllWhoSubscribedToTopic(Integer topicId);
+
+  /**
+   * Update topic notification for user who subscribed to the same topic.
+   *
+   * @param topicId The id of the topic.
+   */
+  void updateNotificationForAllWhoSubscribedToTopic(Integer topicId);
+
+  /**
+   * Update notification for all topics.
+   *
+   * @param email user email.
+   */
+  void updateNotificationForAllTopics(String email);
 
 }
