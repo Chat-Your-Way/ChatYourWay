@@ -17,6 +17,7 @@ import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.TagResponseDto;
+import com.chat.yourway.dto.response.TopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
@@ -351,7 +352,7 @@ public class TopicServiceImplTest {
     when(topicRepository.findAllByIsPublicIsTrue()).thenReturn(topics);
 
     // When
-    List<TopicResponseDto> topicResponseDtos = topicService.findAllPublic();
+    List<TopicInfoResponseDto> topicResponseDtos = topicService.findAllPublic();
 
     // Then
     assertThat(topicResponseDtos).isNotNull();
@@ -369,7 +370,7 @@ public class TopicServiceImplTest {
     when(topicRepository.findAllByIsPublicIsTrue()).thenReturn(emptyList);
 
     // When
-    List<TopicResponseDto> topicResponseDtos = topicService.findAllPublic();
+    List<TopicInfoResponseDto> topicResponseDtos = topicService.findAllPublic();
 
     // Then
     assertThat(topicResponseDtos).isNotNull();
@@ -484,6 +485,12 @@ public class TopicServiceImplTest {
     assertThat(topicResponseDto.getIsPublic()).isEqualTo(topic.getIsPublic());
     assertThat(responseTags).hasSameElementsAs(requestTags);
     assertThat(topicResponseDto.getTopicSubscribers()).isNull();
+  }
+
+  private void assertTopicEquals(Topic topic, TopicInfoResponseDto topicResponseDto) {
+    assertThat(topicResponseDto.getTopicName()).isEqualTo(topic.getTopicName());
+    assertThat(topicResponseDto.getCreatedBy()).isEqualTo(topic.getCreatedBy());
+    assertThat(topicResponseDto.getCreatedAt()).isEqualTo(topic.getCreatedAt());
   }
 
 }

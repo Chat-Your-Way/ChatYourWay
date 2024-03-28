@@ -3,16 +3,15 @@ package com.chat.yourway.service.interfaces;
 import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
+import com.chat.yourway.dto.response.TopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Tag;
-import com.chat.yourway.model.Topic;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.List;
 import java.util.Set;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface TopicService {
 
@@ -20,7 +19,7 @@ public interface TopicService {
    * Creates a new topic with the specified email of the creator.
    *
    * @param topicRequestDto Request object for creating topic.
-   * @param email The email of the creator.
+   * @param email           The email of the creator.
    * @return Created topic.
    * @throws ValueNotUniqException If the topic name already in use.
    */
@@ -31,7 +30,7 @@ public interface TopicService {
    * contacts.
    *
    * @param topicPrivateDto Request object for creating topic.
-   * @param email The email of the creator.
+   * @param email           The email of the creator.
    * @return Created private topic.
    * @throws ValueNotUniqException If the topic name already in use.
    */
@@ -40,12 +39,12 @@ public interface TopicService {
   /**
    * Update an existing topic with the specified email of the creator.
    *
-   * @param topicId The ID of the topic to find.
+   * @param topicId         The ID of the topic to find.
    * @param topicRequestDto Request object for creating topic.
-   * @param email The email of the creator.
+   * @param email           The email of the creator.
    * @return Updated topic.
    * @throws ValueNotUniqException If the topic name already in use.
-   * @throws TopicAccessException if the email is not the creator of the topic.
+   * @throws TopicAccessException  if the email is not the creator of the topic.
    */
   TopicResponseDto update(Integer topicId, TopicRequestDto topicRequestDto, String email);
 
@@ -72,12 +71,12 @@ public interface TopicService {
    *
    * @return A list of public topics.
    */
-  List<TopicResponseDto> findAllPublic();
+  List<TopicInfoResponseDto> findAllPublic();
 
   /**
    * Deletes a topic by ID if the specified email is the creator of the topic.
    *
-   * @param id The ID of the topic to delete.
+   * @param id    The ID of the topic to delete.
    * @param email The email of the user.
    * @throws TopicAccessException if the email is not the creator of the topic.
    */
@@ -88,7 +87,7 @@ public interface TopicService {
    *
    * @param tagName The unique name of the tag for which topics are to be retrieved.
    * @return A list of {@link TopicResponseDto} objects associated with the given tag. An empty list
-   *     is returned if no topics are found for the specified tag.
+   * is returned if no topics are found for the specified tag.
    */
   List<TopicResponseDto> findTopicsByTagName(String tagName);
 
@@ -116,7 +115,7 @@ public interface TopicService {
    * separated by "<->" symbol.
    *
    * @param sendTo Email address of the receiver.
-   * @param email Email address of the sender.
+   * @param email  Email address of the sender.
    * @return Unique private topic name.
    */
   String generatePrivateName(String sendTo, String email);
@@ -125,20 +124,20 @@ public interface TopicService {
    * Retrieves a list of favorite topics for the specified user.
    *
    * @param userDetails The details of the user for whom favorite topics are to be retrieved.
-   * @return A list of {@code TopicResponseDto} objects representing the user's favorite topics.
+   * @return A list of {@code TopicInfoResponseDto} objects representing the user's favorite topics.
    */
-  List<TopicResponseDto> findAllFavouriteTopics(UserDetails userDetails);
+  List<TopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails);
 
 
   /**
    * Retrieves a list of popular public topics.
    * <p>
-   * This method returns a list of {@code TopicResponseDto} objects representing popular topics
-   * that are marked as public. The popularity is determined by the number of subscribers and messages
+   * This method returns a list of {@code TopicResponseDto} objects representing popular topics that
+   * are marked as public. The popularity is determined by the number of subscribers and messages
    * associated with each topic.
    *
-   * @return A list of {@code TopicResponseDto} objects representing popular public topics.
+   * @return A list of {@code TopicInfoResponseDto} objects representing popular public topics.
    * @see TopicResponseDto
    */
-  List<TopicResponseDto> findPopularPublicTopics();
+  List<TopicInfoResponseDto> findPopularPublicTopics();
 }
