@@ -515,11 +515,7 @@ public class TopicControllerTest {
         .andExpect(jsonPath("$[0].createdBy").value(savedTopics.get(0).getCreatedBy()))
         .andExpect(jsonPath("$[1].topicName").value(savedTopics.get(1).getTopicName()))
         .andExpect(jsonPath("$[1].createdBy").value(savedTopics.get(1).getCreatedBy()))
-        .andExpect(jsonPath("$[*].createdAt").isNotEmpty())
-        .andExpect(jsonPath("$[0].isPublic").value(true))
-        .andExpect(jsonPath("$[1].isPublic").value(true))
-        .andExpect(jsonPath("$[*].tags").isArray())
-        .andExpect(jsonPath("$[*].topicSubscribers").isArray());
+        .andExpect(jsonPath("$[*].createdAt").isNotEmpty());
   }
 
   @Test

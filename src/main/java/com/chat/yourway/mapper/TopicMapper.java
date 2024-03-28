@@ -1,5 +1,6 @@
 package com.chat.yourway.mapper;
 
+import com.chat.yourway.dto.response.TopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.model.Topic;
 import java.util.List;
@@ -11,6 +12,8 @@ public interface TopicMapper {
 
   TopicResponseDto toResponseDto(Topic topic);
   List<TopicResponseDto> toListResponseDto(List<Topic> topics);
+
+  List<TopicInfoResponseDto> toListInfoResponseDto(List<Topic> topics);
 
   @Mapping(target = "messages", ignore = true)
   Topic toEntity(TopicResponseDto topicResponseDto);
