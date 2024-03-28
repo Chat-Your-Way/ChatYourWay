@@ -8,6 +8,7 @@ import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.ContactResponseDto;
+import com.chat.yourway.dto.response.TopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
@@ -149,7 +150,7 @@ public class TopicController {
             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
   @GetMapping(path = "/all", produces = APPLICATION_JSON_VALUE)
-  public List<TopicResponseDto> findAllPublic() {
+  public List<TopicInfoResponseDto> findAllPublic() {
     return topicService.findAllPublic();
   }
 
@@ -322,7 +323,7 @@ public class TopicController {
             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
   @GetMapping(path = "/favourite", produces = APPLICATION_JSON_VALUE)
-  public List<TopicResponseDto> findAllFavouriteTopics(
+  public List<TopicInfoResponseDto> findAllFavouriteTopics(
       @AuthenticationPrincipal UserDetails userDetails) {
     return topicService.findAllFavouriteTopics(userDetails);
   }
@@ -333,7 +334,7 @@ public class TopicController {
                   @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC)
           })
   @GetMapping(path = "/popular/public", produces = APPLICATION_JSON_VALUE)
-  public List<TopicResponseDto> findAllPopularPublicTopics() {
+  public List<TopicInfoResponseDto> findAllPopularPublicTopics() {
     return topicService.findPopularPublicTopics();
   }
 

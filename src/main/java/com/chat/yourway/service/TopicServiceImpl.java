@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
+import com.chat.yourway.dto.response.TopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.ContactEmailNotExist;
 import com.chat.yourway.exception.TopicAccessException;
@@ -100,13 +101,13 @@ public class TopicServiceImpl implements TopicService {
   }
 
   @Override
-  public List<TopicResponseDto> findAllPublic() {
+  public List<TopicInfoResponseDto> findAllPublic() {
     log.trace("Started findAllPublic");
 
     List<Topic> topics = topicRepository.findAllByIsPublicIsTrue();
 
     log.trace("All public topics was found");
-    return topicMapper.toListResponseDto(topics);
+    return topicMapper.toListInfoResponseDto(topics);
   }
 
   @Override
@@ -173,15 +174,15 @@ public class TopicServiceImpl implements TopicService {
   }
 
   @Override
-  public List<TopicResponseDto> findAllFavouriteTopics(UserDetails userDetails) {
+  public List<TopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails) {
     String contactEmail = userDetails.getUsername();
-    return topicMapper.toListResponseDto(
+    return topicMapper.toListInfoResponseDto(
         topicRepository.findAllFavouriteTopicsByContactEmail(contactEmail));
   }
 
   @Override
-  public List<TopicResponseDto> findPopularPublicTopics() {
-    return topicMapper.toListResponseDto(topicRepository.findPopularPublicTopics());
+  public List<TopicInfoResponseDto> findPopularPublicTopics() {
+    return topicMapper.toListInfoResponseDto(topicRepository.findPopularPublicTopics());
   }
 
   private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email) {
