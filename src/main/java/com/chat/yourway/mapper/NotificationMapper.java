@@ -1,7 +1,7 @@
 package com.chat.yourway.mapper;
 
-import com.chat.yourway.dto.response.MessageNotificationResponseDto;
-import com.chat.yourway.dto.response.TopicNotificationResponseDto;
+import com.chat.yourway.dto.response.notification.MessageNotificationResponseDto;
+import com.chat.yourway.dto.response.notification.TopicNotificationResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

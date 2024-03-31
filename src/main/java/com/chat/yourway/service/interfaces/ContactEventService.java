@@ -1,6 +1,6 @@
 package com.chat.yourway.service.interfaces;
 
-import com.chat.yourway.dto.response.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.model.event.EventType;
 import java.util.List;

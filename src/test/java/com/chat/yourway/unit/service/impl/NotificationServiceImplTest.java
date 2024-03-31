@@ -8,8 +8,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.chat.yourway.dto.response.LastMessageResponseDto;
-import com.chat.yourway.dto.response.MessageNotificationResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.MessageNotificationResponseDto;
 import com.chat.yourway.mapper.NotificationMapper;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.service.NotificationServiceImpl;

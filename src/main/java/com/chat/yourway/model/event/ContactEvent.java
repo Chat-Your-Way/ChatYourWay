@@ -1,6 +1,6 @@
 package com.chat.yourway.model.event;
 
-import com.chat.yourway.dto.response.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
