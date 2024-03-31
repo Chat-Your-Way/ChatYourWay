@@ -6,7 +6,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
-import com.chat.yourway.dto.response.ApiErrorResponseDto;
+import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.dto.response.TopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;

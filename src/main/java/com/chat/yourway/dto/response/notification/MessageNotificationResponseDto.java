@@ -1,4 +1,4 @@
-package com.chat.yourway.dto.response;
+package com.chat.yourway.dto.response.notification;
 
 import com.chat.yourway.model.event.EventType;
 import java.time.LocalDateTime;

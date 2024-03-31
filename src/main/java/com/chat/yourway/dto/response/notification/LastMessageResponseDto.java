@@ -1,4 +1,4 @@
-package com.chat.yourway.dto.response;
+package com.chat.yourway.dto.response.notification;
 
 import java.time.LocalDateTime;
 import lombok.Getter;

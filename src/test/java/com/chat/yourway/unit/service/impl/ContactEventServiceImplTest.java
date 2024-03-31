@@ -7,7 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.chat.yourway.dto.response.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.model.event.EventType;
 import com.chat.yourway.repository.ContactEventRedisRepository;

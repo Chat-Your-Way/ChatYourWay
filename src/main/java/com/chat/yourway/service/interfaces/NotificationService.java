@@ -1,7 +1,7 @@
 package com.chat.yourway.service.interfaces;
 
-import com.chat.yourway.dto.response.MessageNotificationResponseDto;
-import com.chat.yourway.dto.response.TopicNotificationResponseDto;
+import com.chat.yourway.dto.response.notification.MessageNotificationResponseDto;
+import com.chat.yourway.dto.response.notification.TopicNotificationResponseDto;
 import java.util.List;
 
 public interface NotificationService {

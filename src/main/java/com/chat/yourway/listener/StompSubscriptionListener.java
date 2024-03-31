@@ -4,7 +4,7 @@ import static com.chat.yourway.model.event.EventType.ONLINE;
 import static com.chat.yourway.model.event.EventType.SUBSCRIBED;
 
 import com.chat.yourway.config.websocket.WebsocketProperties;
-import com.chat.yourway.dto.response.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.service.interfaces.ChatNotificationService;
 import com.chat.yourway.service.interfaces.ContactEventService;

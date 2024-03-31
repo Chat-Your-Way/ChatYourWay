@@ -6,7 +6,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import com.chat.yourway.dto.response.ApiErrorResponseDto;
+import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
 import com.chat.yourway.exception.ContactEmailNotExist;
 import com.chat.yourway.exception.ContactNotFoundException;
