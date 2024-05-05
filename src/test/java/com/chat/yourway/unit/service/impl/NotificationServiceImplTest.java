@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.dto.response.notification.MessageNotificationResponseDto;
+import com.chat.yourway.dto.response.notification.TypingEventResponseDto;
 import com.chat.yourway.mapper.NotificationMapper;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.service.NotificationServiceImpl;
@@ -45,10 +46,13 @@ class NotificationServiceImplTest {
     lastMessageDto.setTimestamp(LocalDateTime.now());
     lastMessageDto.setSentFrom("vasil@gmail.com");
     lastMessageDto.setLastMessage("Hello");
+    var typingEventDto = new TypingEventResponseDto("vasil@gmail.com", true);
 
     List<ContactEvent> events = Arrays.asList(
-        new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0, lastMessageDto),
-        new ContactEvent("anton@gmail.com", topicId, OFFLINE, LocalDateTime.now(), 0, lastMessageDto)
+        new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0, lastMessageDto,
+            typingEventDto),
+        new ContactEvent("anton@gmail.com", topicId, OFFLINE, LocalDateTime.now(), 0,
+            lastMessageDto, typingEventDto)
     );
 
     var expectedNotifications = events.stream()
