@@ -4,6 +4,7 @@ import static com.chat.yourway.model.event.EventType.ONLINE;
 import static com.chat.yourway.model.event.EventType.SUBSCRIBED;
 
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.TypingEventResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.model.event.EventType;
 import com.chat.yourway.repository.ContactEventRedisRepository;
@@ -32,7 +33,7 @@ public class ContactEventServiceImpl implements ContactEventService {
     log.trace("Started getByTopicIdAndEmail, topicId [{}], email [{}]", topicId, email);
 
     return contactEventRedisRepository.findById(email + "_" + topicId)
-        .orElse(new ContactEvent(email, topicId, ONLINE, LocalDateTime.now(), 0, null));
+        .orElse(new ContactEvent(email, topicId, ONLINE, LocalDateTime.now(), 0, null, null));
   }
 
   @Override
@@ -79,6 +80,24 @@ public class ContactEventServiceImpl implements ContactEventService {
 
     log.trace("Message info [{}] was updated for all topic id [{}] subscribers", message, topicId);
     contactEventRedisRepository.saveAll(events);
+  }
+
+  @Override
+  public void updateTypingEvent(String email, boolean isTyping) {
+
+    Integer topicId = getAllByEmail(email).stream()
+        .filter(e -> e.getEventType().equals(EventType.SUBSCRIBED))
+        .findFirst()
+        .orElseThrow()
+        .getTopicId();
+
+    getAllByTopicId(topicId)
+        .forEach(event -> {
+          event.setTypingEvent(new TypingEventResponseDto(email, isTyping));
+          contactEventRedisRepository.save(event);
+        });
+
+
   }
 
 }
