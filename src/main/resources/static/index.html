@@ -114,7 +114,12 @@
   const sendToPublicTopicDest = "/app/topic/public/";
   const sendToPrivateTopicDest = "/app/topic/private/";
   const getHistoryTopicDest = "/app/history/topic/";
+  const sendIsTypingDest = "/app/typing"
+
   const tokenType = 'Bearer';
+  let typingTimer;
+  let isTyping = false;
+
   let socket = null;
   let stompClient = null;
 
@@ -225,6 +230,24 @@
     stompClient.send(getHistoryTopicDest + topicId, {}, request);
     response.innerText += ('<<< ' + request + '\n');
   }
+
+  function sendTyping(isTyping) {
+    stompClient.send(sendIsTypingDest + '/' + isTyping, {});
+  }
+
+  document.addEventListener('keydown', function() {
+    if (!isTyping) {
+      isTyping = true;
+      sendTyping(isTyping);
+    }
+
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(function() {
+      isTyping = false;
+      sendTyping(isTyping);
+    }, 2000);
+  });
+
 </script>
 </body>
 </html>
