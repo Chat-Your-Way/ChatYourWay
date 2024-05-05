@@ -17,6 +17,7 @@ public interface NotificationMapper {
   @Mapping(target = "topicId", source = "topicId")
   @Mapping(target = "unreadMessages", source = "unreadMessages")
   @Mapping(target = "lastMessage", source = "lastMessage")
+  @Mapping(target = "typingEvent", source = "typingEvent")
   TopicNotificationResponseDto toTopicNotificationResponseDto(ContactEvent event);
 
 }
