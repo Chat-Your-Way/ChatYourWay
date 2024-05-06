@@ -29,21 +29,36 @@ import lombok.Setter;
 @Entity
 @Table(schema = "chat", name = "message")
 public class Message {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "message_seq_gen")
     @SequenceGenerator(name = "message_seq_gen", sequenceName = "chat.message_id_seq", allocationSize = 1)
     private Integer id;
+
     @Column(name = "sent_from", nullable = false)
     private String sentFrom;
+
     @Column(name = "send_to")
     private String sendTo;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sender_id")
+    private Contact sender;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "receiver_id")
+    private Contact receiver;
+
     @Column(name = "content", nullable = false)
     private String content;
+
     @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id", referencedColumnName = "id", nullable = false)
     private Topic topic;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             schema = "chat",

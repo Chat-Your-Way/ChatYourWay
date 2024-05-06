@@ -19,7 +19,9 @@ public class MessageResponseDto {
   private Integer id;
   private LocalDateTime timestamp;
   private String sentFrom;
+  private String sentFromNickname;
   private String sendTo;
+  private String sendToNickname;
   private String content;
 
 }

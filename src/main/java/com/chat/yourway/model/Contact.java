@@ -33,16 +33,22 @@ public class Contact implements UserDetails {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "contact_seq_gen")
   @SequenceGenerator(name = "contact_seq_gen", sequenceName = "chat.contact_id_seq", allocationSize = 1)
   private Integer id;
+
   @Column(name = "nickname", nullable = false, unique = true)
   private String nickname;
+
   @Column(name = "avatar_id", nullable = false)
   private Byte avatarId;
+
   @Column(name = "email", nullable = false, unique = true)
   private String email;
+
   @Column(name = "password", nullable = false, length = 2048)
   private String password;
+
   @Column(name = "is_active", nullable = false)
   private Boolean isActive;
+
   @Column(name = "is_private", nullable = false)
   private Boolean isPrivate;
 
