@@ -13,7 +13,7 @@ import static org.springframework.messaging.simp.stomp.StompCommand.SUBSCRIBE;
 import static org.springframework.messaging.simp.stomp.StompCommand.UNSUBSCRIBE;
 
 import com.chat.yourway.config.websocket.WebsocketProperties;
-import com.chat.yourway.dto.response.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.listener.StompSubscriptionListener;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.service.interfaces.ChatNotificationService;

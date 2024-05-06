@@ -1,6 +1,6 @@
 package com.chat.yourway.exception.handler;
 
-import com.chat.yourway.dto.response.MessageErrorResponseDto;
+import com.chat.yourway.dto.response.error.MessageErrorResponseDto;
 import com.chat.yourway.exception.MessagePermissionDeniedException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;

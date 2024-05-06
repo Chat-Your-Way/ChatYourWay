@@ -4,7 +4,7 @@ import com.chat.yourway.config.websocket.WebsocketProperties;
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.request.PageRequestDto;
-import com.chat.yourway.dto.response.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.service.interfaces.ChatMessageService;
 import com.chat.yourway.service.interfaces.ChatNotificationService;

@@ -1,7 +1,7 @@
 package com.chat.yourway.mapper;
 
-import com.chat.yourway.dto.response.MessageNotificationResponseDto;
-import com.chat.yourway.dto.response.TopicNotificationResponseDto;
+import com.chat.yourway.dto.response.notification.MessageNotificationResponseDto;
+import com.chat.yourway.dto.response.notification.TopicNotificationResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,6 +17,7 @@ public interface NotificationMapper {
   @Mapping(target = "topicId", source = "topicId")
   @Mapping(target = "unreadMessages", source = "unreadMessages")
   @Mapping(target = "lastMessage", source = "lastMessage")
+  @Mapping(target = "typingEvent", source = "typingEvent")
   TopicNotificationResponseDto toTopicNotificationResponseDto(ContactEvent event);
 
 }

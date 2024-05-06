@@ -11,9 +11,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.request.PageRequestDto;
-import com.chat.yourway.dto.response.LastMessageResponseDto;
-import com.chat.yourway.dto.response.MessageNotificationResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.MessageNotificationResponseDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
+import com.chat.yourway.dto.response.notification.TypingEventResponseDto;
 import com.chat.yourway.integration.controller.websocketclient.TestStompFrameHandler;
 import com.chat.yourway.integration.extension.PostgresExtension;
 import com.chat.yourway.integration.extension.RedisExtension;
@@ -201,9 +202,10 @@ public class ChatControllerTest {
     lastMessageDto.setTimestamp(LocalDateTime.now());
     lastMessageDto.setSentFrom("vasil@gmail.com");
     lastMessageDto.setLastMessage("Hi");
+    var typingEventDto = new TypingEventResponseDto("vasil@gmail.com", true);
 
     var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0,
-        lastMessageDto);
+        lastMessageDto, typingEventDto);
     saveContactEvent(event);
     //Stored subscription results for testing
     CompletableFuture<MessageNotificationResponseDto[]> resultKeeper = new CompletableFuture<>();
@@ -232,9 +234,10 @@ public class ChatControllerTest {
     lastMessageDto.setTimestamp(LocalDateTime.now());
     lastMessageDto.setSentFrom("vasil@gmail.com");
     lastMessageDto.setLastMessage("Hi");
+    var typingEventDto = new TypingEventResponseDto("vasil@gmail.com", true);
 
     var event = new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0,
-        lastMessageDto);
+        lastMessageDto, typingEventDto);
     saveContactEvent(event);
     //Stored subscription results for testing
     CompletableFuture<MessageNotificationResponseDto[]> resultKeeper = new CompletableFuture<>();

@@ -1,6 +1,7 @@
 package com.chat.yourway.model.event;
 
-import com.chat.yourway.dto.response.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.TypingEventResponseDto;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,10 +29,11 @@ public class ContactEvent {
   private LocalDateTime timestamp;
   private int unreadMessages;
   private LastMessageResponseDto lastMessage;
+  private TypingEventResponseDto typingEvent;
 
 
   public ContactEvent(String email, Integer topicId, EventType eventType, LocalDateTime timestamp,
-      int unreadMessages, LastMessageResponseDto lastMessage) {
+      int unreadMessages, LastMessageResponseDto lastMessage, TypingEventResponseDto typingEvent) {
     this.id = email + "_" + topicId;
     this.email = email;
     this.topicId = topicId;
@@ -39,6 +41,7 @@ public class ContactEvent {
     this.timestamp = timestamp;
     this.unreadMessages = unreadMessages;
     this.lastMessage = lastMessage;
+    this.typingEvent = typingEvent;
   }
 
 }
