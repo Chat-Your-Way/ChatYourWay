@@ -24,10 +24,12 @@ import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.mapper.MessageMapperImpl;
 import com.chat.yourway.mapper.TopicMapperImpl;
+import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
 import com.chat.yourway.model.Topic;
 import com.chat.yourway.repository.MessageRepository;
 import com.chat.yourway.service.MessageServiceImpl;
+import com.chat.yourway.service.interfaces.ContactService;
 import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
 import java.time.LocalDateTime;
@@ -56,6 +58,8 @@ public class MessageServiceImplTest {
   MessageRepository messageRepository;
   @Mock
   TopicService topicService;
+  @Mock
+  ContactService contactService;
   @Mock
   TopicSubscriberService topicSubscriberService;
   @InjectMocks
@@ -159,6 +163,7 @@ public class MessageServiceImplTest {
     when(topicService.findById(topicId)).thenReturn(topicResponseDto);
     when(messageRepository.save(any(Message.class))).thenReturn(message);
     when(topicSubscriberService.hasContactSubscribedToTopic(sentFrom, topicId)).thenReturn(true);
+    when(contactService.findByEmail(anyString())).thenReturn(null);
 
     // When
     MessageResponseDto messageDto = messageService.createPublic(topicId, messageRequest, sentFrom);
@@ -218,6 +223,7 @@ public class MessageServiceImplTest {
     when(topicService.generatePrivateName(sendTo, sentFrom)).thenReturn(topicName);
     when(topicService.findByName(topicName)).thenReturn(topicResponseDto);
     when(messageRepository.save(any(Message.class))).thenReturn(message);
+    when(contactService.findByEmail(anyString())).thenReturn(null);
 
     // When
     MessageResponseDto messageDto = messageService.createPrivate(messageRequest, sentFrom);
