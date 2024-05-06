@@ -14,8 +14,8 @@ public class TypingController {
   private final ChatTypingEventService chatTypingEventService;
 
   @MessageMapping("/typing/{isTyping}")
-  public void getTypingEvent(@DestinationVariable boolean isTyping, Principal principal) {
+  public void updateTypingEvent(@DestinationVariable boolean isTyping, Principal principal) {
     String email = principal.getName();
-    chatTypingEventService.getTypingEvent(isTyping, email);
+    chatTypingEventService.updateTypingEvent(isTyping, email);
   }
 }

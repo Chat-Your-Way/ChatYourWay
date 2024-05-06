@@ -17,8 +17,8 @@ public class ChatTypingEventServiceImpl implements ChatTypingEventService {
   private final ChatNotificationService chatNotificationService;
 
   @Override
-  public void getTypingEvent(Boolean isTyping, String email) {
-    log.info("Start getTypingEvent isTyping={}, email={}", isTyping, email);
+  public void updateTypingEvent(Boolean isTyping, String email) {
+    log.info("Start updateTypingEvent isTyping={}, email={}", isTyping, email);
     contactEventService.updateTypingEvent(email, isTyping);
 
     Integer topicId = contactEventService.getAllByEmail(email).stream()
