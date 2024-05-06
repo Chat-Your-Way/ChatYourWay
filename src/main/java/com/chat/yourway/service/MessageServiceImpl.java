@@ -13,6 +13,7 @@ import com.chat.yourway.mapper.MessageMapper;
 import com.chat.yourway.mapper.TopicMapper;
 import com.chat.yourway.model.Message;
 import com.chat.yourway.repository.MessageRepository;
+import com.chat.yourway.service.interfaces.ContactService;
 import com.chat.yourway.service.interfaces.MessageService;
 import com.chat.yourway.service.interfaces.TopicService;
 import com.chat.yourway.service.interfaces.TopicSubscriberService;
@@ -40,6 +41,7 @@ public class MessageServiceImpl implements MessageService {
   private final MessageRepository messageRepository;
   private final MessageMapper messageMapper;
   private final TopicService topicService;
+  private final ContactService contactService;
   private final TopicMapper topicMapper;
   private final TopicSubscriberService topicSubscriberService;
 
@@ -55,6 +57,7 @@ public class MessageServiceImpl implements MessageService {
     Message savedMessage = messageRepository.save(Message.builder()
         .sentFrom(email)
         .sendTo("Topic id=" + topic.getId())
+        .sender(contactService.findByEmail(email))
         .content(message.getContent())
         .timestamp(LocalDateTime.now())
         .topic(topicMapper.toEntity(topic))
@@ -81,6 +84,8 @@ public class MessageServiceImpl implements MessageService {
     Message savedMessage = messageRepository.save(Message.builder()
         .sentFrom(email)
         .sendTo(message.getSendTo())
+        .sender(contactService.findByEmail(email))
+        .receiver(contactService.findByEmail(message.getSendTo()))
         .content(message.getContent())
         .timestamp(LocalDateTime.now())
         .topic(topicMapper.toEntity(topic))
