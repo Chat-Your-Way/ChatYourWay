@@ -15,6 +15,7 @@ public class LastMessageResponseDto {
   private static final int MAX_LENGTH = 20;
 
   private LocalDateTime timestamp;
+  private String sentFromNickname;
   private String sentFrom;
   private String lastMessage;
 

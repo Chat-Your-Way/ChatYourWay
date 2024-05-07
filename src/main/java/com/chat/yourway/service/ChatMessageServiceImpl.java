@@ -72,6 +72,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     lastMessageDto.setTimestamp(messageDto.getTimestamp());
     lastMessageDto.setSentFrom(messageDto.getSentFrom());
     lastMessageDto.setLastMessage(messageDto.getContent());
+    lastMessageDto.setSentFromNickname(messageDto.getSentFromNickname());
 
     contactEventService.updateMessageInfoForAllTopicSubscribers(topicId, lastMessageDto);
 
