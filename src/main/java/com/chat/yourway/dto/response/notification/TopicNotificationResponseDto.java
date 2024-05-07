@@ -1,4 +1,4 @@
-package com.chat.yourway.dto.response;
+package com.chat.yourway.dto.response.notification;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,5 +19,6 @@ public class TopicNotificationResponseDto {
 
   private LastMessageResponseDto lastMessage;
 
+  private TypingEventResponseDto typingEvent;
 
 }

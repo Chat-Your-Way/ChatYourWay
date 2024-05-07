@@ -1,6 +1,6 @@
 package com.chat.yourway.service.interfaces;
 
-import com.chat.yourway.dto.response.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.model.event.EventType;
 import java.util.List;
@@ -18,7 +18,7 @@ public interface ContactEventService {
    * Get contact event by topic id and contact email.
    *
    * @param topicId topic id.
-   * @param email contact email.
+   * @param email   contact email.
    * @return contact event.
    */
   ContactEvent getByTopicIdAndEmail(Integer topicId, String email);
@@ -44,9 +44,18 @@ public interface ContactEventService {
   /**
    * Set last message to all topic subscribers events.
    *
-   * @param topicId topic id.
+   * @param topicId        topic id.
    * @param lastMessageDto last message Dto.
    */
-  void updateMessageInfoForAllTopicSubscribers(Integer topicId, LastMessageResponseDto lastMessageDto);
+  void updateMessageInfoForAllTopicSubscribers(Integer topicId,
+      LastMessageResponseDto lastMessageDto);
+
+  /**
+   * Update typing status.
+   *
+   * @param email    user email.
+   * @param isTyping typing status.
+   */
+  void updateTypingEvent(String email, boolean isTyping);
 
 }

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.chat.yourway.dto.response.LastMessageResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.model.event.EventType;
 import com.chat.yourway.repository.ContactEventRedisRepository;
@@ -42,7 +42,7 @@ class ContactEventServiceImplTest {
     String email = "vasil@gmail.com";
     int topicId = 1;
     ContactEvent contactEvent = new ContactEvent(email, topicId, ONLINE, LocalDateTime.now(), 0,
-        null);
+        null, null);
 
     // When
     contactEventService.save(contactEvent);
@@ -58,7 +58,7 @@ class ContactEventServiceImplTest {
     Integer topicId = 1;
     String email = "vasil@gmail.com";
     ContactEvent expectedContactEvent = new ContactEvent(email, topicId, ONLINE,
-        LocalDateTime.now(), 0, null);
+        LocalDateTime.now(), 0, null, null);
     when(contactEventRedisRepository.findById(email + "_" + topicId))
         .thenReturn(Optional.of(expectedContactEvent));
 
@@ -93,8 +93,8 @@ class ContactEventServiceImplTest {
     // Given
     String email = "vasil@gmail.com";
     List<ContactEvent> expectedContactEvents = Arrays.asList(
-        new ContactEvent(email, 1, ONLINE, LocalDateTime.now(), 0, null),
-        new ContactEvent(email, 2, OFFLINE, LocalDateTime.now(), 0, null)
+        new ContactEvent(email, 1, ONLINE, LocalDateTime.now(), 0, null, null),
+        new ContactEvent(email, 2, OFFLINE, LocalDateTime.now(), 0, null, null)
     );
     when(contactEventRedisRepository.findAllByEmail(email)).thenReturn(expectedContactEvents);
 
@@ -112,8 +112,8 @@ class ContactEventServiceImplTest {
     String email = "vasil@gmail.com";
     EventType newEventType = OFFLINE;
     List<ContactEvent> events = Arrays.asList(
-        new ContactEvent(email, 1, ONLINE, LocalDateTime.now(), 0, null),
-        new ContactEvent(email, 2, ONLINE, LocalDateTime.now(), 0, null)
+        new ContactEvent(email, 1, ONLINE, LocalDateTime.now(), 0, null, null),
+        new ContactEvent(email, 2, ONLINE, LocalDateTime.now(), 0, null, null)
     );
     when(contactEventRedisRepository.findAllByEmail(email)).thenReturn(events);
 
@@ -131,8 +131,8 @@ class ContactEventServiceImplTest {
     // Given
     Integer topicId = 1;
     List<ContactEvent> expectedContactEvents = Arrays.asList(
-        new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0, null),
-        new ContactEvent("anton@gmail.com", topicId, OFFLINE, LocalDateTime.now(), 0, null)
+        new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0, null, null),
+        new ContactEvent("anton@gmail.com", topicId, OFFLINE, LocalDateTime.now(), 0, null, null)
     );
     when(contactEventRedisRepository.findAllByTopicId(topicId)).thenReturn(expectedContactEvents);
 
@@ -154,8 +154,8 @@ class ContactEventServiceImplTest {
     lastMessageDto.setLastMessage("New message");
 
     List<ContactEvent> events = Arrays.asList(
-        new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0, null),
-        new ContactEvent("anton@gmail.com", topicId, OFFLINE, LocalDateTime.now(), 0, null)
+        new ContactEvent("vasil@gmail.com", topicId, ONLINE, LocalDateTime.now(), 0, null, null),
+        new ContactEvent("anton@gmail.com", topicId, OFFLINE, LocalDateTime.now(), 0, null, null)
     );
     when(contactEventRedisRepository.findAllByTopicId(topicId)).thenReturn(events);
 

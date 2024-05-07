@@ -15,7 +15,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
-import com.chat.yourway.dto.response.ApiErrorResponseDto;
+import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.security.LogoutService;
 import com.chat.yourway.service.interfaces.ActivateAccountService;

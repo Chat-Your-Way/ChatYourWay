@@ -3,7 +3,7 @@ package com.chat.yourway.controller;
 import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.dto.request.RestorePasswordDto;
-import com.chat.yourway.dto.response.ApiErrorResponseDto;
+import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.service.interfaces.ChangePasswordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
