@@ -69,7 +69,12 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     List<MessageResponseDto> messages = messageService.findAllByTopicId(topicId, pageRequestDto)
         .stream()
-        .peek(m -> m.setSentFrom(contactService.findByEmail(m.getSentFrom()).getNickname()))
+        .peek(m -> {
+          m.setSentFrom(contactService.findByEmail(m.getSentFrom()).getNickname());
+          if (isPrivate(m)) {
+            m.setSendTo(contactService.findByEmail(m.getSendTo()).getNickname());
+          }
+        })
         .toList();
     simpMessagingTemplate.convertAndSendToUser(email, toTopicDestination(topicId), messages);
 
@@ -93,6 +98,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   private String toTopicDestination(Integer topicId) {
     return properties.getTopicPrefix() + "/" + topicId;
+  }
+
+  private boolean isPrivate(MessageResponseDto message) {
+    return message.getSendTo().contains("@");
   }
 
 }
