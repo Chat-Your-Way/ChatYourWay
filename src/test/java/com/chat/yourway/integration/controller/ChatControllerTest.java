@@ -125,7 +125,7 @@ public class ChatControllerTest {
     MessageResponseDto messageResponseDto = resultKeeper.get(3, SECONDS);
     assertThat(messageResponseDto).isNotNull();
     assertThat(messageResponseDto.getId()).isNotNull();
-    assertThat(messageResponseDto.getSentFrom()).isEqualTo("Vasil");
+    assertThat(messageResponseDto.getSentFrom()).isEqualTo("vasil@gmail.com");
     assertThat(messageResponseDto.getSendTo()).isEqualTo("Topic id=" + topicId);
     assertThat(messageResponseDto.getTimestamp()).isNotNull();
     assertThat(messageResponseDto.getContent()).isEqualTo(messageRequestDto.getContent());
@@ -155,8 +155,8 @@ public class ChatControllerTest {
     MessageResponseDto messageResponseDto = resultKeeper.get(3, SECONDS);
     assertThat(messageResponseDto).isNotNull();
     assertThat(messageResponseDto.getId()).isNotNull();
-    assertThat(messageResponseDto.getSentFrom()).isEqualTo("Vasil");
-    assertThat(messageResponseDto.getSendTo()).isEqualTo("Vasil");
+    assertThat(messageResponseDto.getSentFrom()).isEqualTo("vasil@gmail.com");
+    assertThat(messageResponseDto.getSendTo()).isEqualTo("vasil@gmail.com");
     assertThat(messageResponseDto.getTimestamp()).isNotNull();
     assertThat(messageResponseDto.getContent()).isEqualTo(messageRequestDto.getContent());
   }
@@ -185,7 +185,7 @@ public class ChatControllerTest {
     assertThat(messageResponseDtos).extracting("id").isNotNull();
     assertThat(messageResponseDtos).extracting("timestamp").isNotNull();
     assertThat(messageResponseDtos).extracting("sentFrom")
-        .contains("Anton", "Vasil");
+        .contains("anton@gmail.com", "vasil@gmail.com");
     assertThat(messageResponseDtos).extracting("sendTo")
         .contains("vasil@gmail.com", "anton@gmail.com");
     assertThat(messageResponseDtos).extracting("content")

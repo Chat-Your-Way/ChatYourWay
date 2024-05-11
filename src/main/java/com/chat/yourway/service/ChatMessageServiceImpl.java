@@ -9,7 +9,6 @@ import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.service.interfaces.ChatMessageService;
 import com.chat.yourway.service.interfaces.ChatNotificationService;
 import com.chat.yourway.service.interfaces.ContactEventService;
-import com.chat.yourway.service.interfaces.ContactService;
 import com.chat.yourway.service.interfaces.MessageService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   private final MessageService messageService;
   private final ContactEventService contactEventService;
   private final ChatNotificationService chatNotificationService;
-  private final ContactService contactService;
 
   @Transactional
   @Override
@@ -36,7 +34,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       String email) {
     log.trace("Started contact email: [{}] sendToTopic id: [{}]", email, topicId);
     MessageResponseDto messageResponseDto = messageService.createPublic(topicId, message, email);
-    messageResponseDto.setSentFrom(contactService.findByEmail(email).getNickname());
 
     sendToTopic(topicId, messageResponseDto);
 
@@ -52,10 +49,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     log.trace("Started contact email: [{}] sendToPrivateTopic email: [{}]", email, sendTo);
     MessageResponseDto messageResponseDto = messageService.createPrivate(message, email);
 
-    messageResponseDto.setSentFrom(contactService.findByEmail(email).getNickname());
-    messageResponseDto.setSendTo(
-        contactService.findByEmail(messageResponseDto.getSendTo()).getNickname());
-
     sendToTopic(topicId, messageResponseDto);
 
     log.trace("Contact [{}] sent message to [{}]", email, sendTo);
@@ -67,10 +60,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       PageRequestDto pageRequestDto, String email) {
     log.trace("Started sendMessageHistoryByTopicId = [{}]", topicId);
 
-    List<MessageResponseDto> messages = messageService.findAllByTopicId(topicId, pageRequestDto)
-        .stream()
-        .peek(m -> m.setSentFrom(contactService.findByEmail(m.getSentFrom()).getNickname()))
-        .toList();
+    List<MessageResponseDto> messages = messageService.findAllByTopicId(topicId, pageRequestDto);
     simpMessagingTemplate.convertAndSendToUser(email, toTopicDestination(topicId), messages);
 
     log.trace("Message history was sent to topicId = [{}]", topicId);
