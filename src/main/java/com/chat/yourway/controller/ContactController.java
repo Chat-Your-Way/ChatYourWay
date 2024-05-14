@@ -7,7 +7,7 @@ import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.ContactProfileResponseDto;
-import com.chat.yourway.service.interfaces.ContactService;
+import com.chat.yourway.service.ContactService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

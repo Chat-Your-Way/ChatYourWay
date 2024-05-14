@@ -3,8 +3,8 @@ package com.chat.yourway.listener;
 import static com.chat.yourway.model.event.EventType.OFFLINE;
 import static com.chat.yourway.model.event.EventType.ONLINE;
 
-import com.chat.yourway.service.interfaces.ChatNotificationService;
-import com.chat.yourway.service.interfaces.ContactEventService;
+import com.chat.yourway.service.ChatNotificationService;
+import com.chat.yourway.service.ContactEventService;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

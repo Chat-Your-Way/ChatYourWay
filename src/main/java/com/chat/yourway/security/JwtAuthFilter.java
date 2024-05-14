@@ -3,7 +3,7 @@ package com.chat.yourway.security;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.chat.yourway.exception.InvalidTokenException;
-import com.chat.yourway.repository.TokenRedisRepository;
+import com.chat.yourway.repository.redis.TokenRedisRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

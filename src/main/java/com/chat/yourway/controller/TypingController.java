@@ -1,6 +1,6 @@
 package com.chat.yourway.controller;
 
-import com.chat.yourway.service.interfaces.ChatTypingEventService;
+import com.chat.yourway.service.ChatTypingEventService;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;

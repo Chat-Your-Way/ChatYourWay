@@ -1,6 +1,6 @@
 package com.chat.yourway.config.security;
 
-import com.chat.yourway.service.interfaces.ContactService;
+import com.chat.yourway.service.ContactService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;

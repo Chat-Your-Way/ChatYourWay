@@ -1,1 +1,0 @@
-ALTER TABLE chat.contact DROP CONSTRAINT contact_username_key;

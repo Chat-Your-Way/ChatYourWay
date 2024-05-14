@@ -3,7 +3,7 @@ package com.chat.yourway.security;
 import com.chat.yourway.exception.TokenNotFoundException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.token.Token;
-import com.chat.yourway.repository.TokenRedisRepository;
+import com.chat.yourway.repository.redis.TokenRedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

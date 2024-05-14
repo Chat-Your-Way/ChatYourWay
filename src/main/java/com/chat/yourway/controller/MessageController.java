@@ -5,7 +5,7 @@ import static com.chat.yourway.config.openapi.OpenApiMessages.MESSAGE_NOT_FOUND;
 import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_REPORTED_MESSAGE;
 
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
-import com.chat.yourway.service.interfaces.MessageService;
+import com.chat.yourway.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
