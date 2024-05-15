@@ -12,17 +12,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-@Table(schema = "chat", name = "tag")
+@Table(schema = "chat", name = "tags")
 public class Tag {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tag_seq_gen")
-    @SequenceGenerator(name = "tag_seq_gen", sequenceName = "chat.tag_id_seq", allocationSize = 1)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 

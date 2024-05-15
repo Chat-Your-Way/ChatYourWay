@@ -3,15 +3,16 @@ create SCHEMA IF NOT EXISTS chat;
 create TABLE IF NOT EXISTS chat.contacts
 (
     id            uuid          PRIMARY KEY,
-	username      VARCHAR(255)  NOT NULL UNIQUE,
+	nickname      VARCHAR(255)  NOT NULL UNIQUE,
     password      VARCHAR(2048) NOT NULL,
 	email 		  VARCHAR(255) 	NOT NULL UNIQUE,
 	role 		  VARCHAR(50) 	NOT NULL DEFAULT 'USER',
+	avatar_id     smallint NOT NULL DEFAULT 1,
     is_active     BOOLEAN       NOT NULL DEFAULT TRUE,
     is_permitted_sending_private_message BOOLEAN NOT NULL DEFAULT TRUE
 );
 create index idx_contacts_email on chat.contacts (email);
-create index idx_contacts_username on chat.contacts (username);
+create index idx_contacts_nickname on chat.contacts (nickname);
 
 create TABLE IF NOT EXISTS chat.email_tokens
 (
@@ -65,8 +66,8 @@ create TABLE IF NOT EXISTS chat.contact_favorite_topics
     contact_id		uuid        NOT NULL,
     topic_id		uuid		NOT NULL,
 	CONSTRAINT pk_contactfavoritetopics PRIMARY KEY (contact_id, topic_id),
-	CONSTRAINT fk_contactreportmessages_contacts FOREIGN KEY (contact_id) REFERENCES chat.contacts(id),
-    CONSTRAINT fk_contactreportmessages_topics FOREIGN KEY (topic_id) REFERENCES chat.topics(id)
+	CONSTRAINT pk_contactfavoritetopics_contacts FOREIGN KEY (contact_id) REFERENCES chat.contacts(id),
+    CONSTRAINT pk_contactfavoritetopics_topics FOREIGN KEY (topic_id) REFERENCES chat.topics(id)
 );
 
 create TABLE IF NOT EXISTS chat.tags

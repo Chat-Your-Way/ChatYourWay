@@ -1,63 +1,61 @@
 package com.chat.yourway.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.UUID;
 
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+@EqualsAndHashCode(of = {"id"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
 @Entity
-@Table(schema = "chat", name = "topic")
+@Table(schema = "chat", name = "topics")
 public class Topic {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "topic_seq_gen")
-  @SequenceGenerator(name = "topic_seq_gen", sequenceName = "chat.topic_id_seq", allocationSize = 1)
-  private Integer id;
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
   @Column(name = "topic_name", nullable = false, unique = true)
-  private String topicName;
+  private String name;
 
-  @Column(name = "is_public", nullable = false)
-  private Boolean isPublic;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "created_by", referencedColumnName = "id", nullable = false)
+  private Contact createdBy;
 
-  @Column(name = "created_by", nullable = false)
-  private String createdBy;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "scope", nullable = false, length = 50)
+  private TopicScope scope;
+
 
   @Column(name = "created_at", nullable = false)
+  @CreationTimestamp
   private LocalDateTime createdAt;
 
-  @ManyToMany(fetch = FetchType.LAZY)
+  @ManyToMany
   @JoinTable(
       schema = "chat",
-      name = "topic_tag",
+      name = "topic_tags",
       joinColumns = @JoinColumn(name = "topic_id"),
       inverseJoinColumns = @JoinColumn(name = "tag_id"))
   private Set<Tag> tags;
 
-  @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  private Set<TopicSubscriber> topicSubscribers;
+  @ManyToMany
+  @JoinTable(
+          schema = "chat",
+          name = "topic_contacts",
+          joinColumns = @JoinColumn(name = "topic_id"),
+          inverseJoinColumns = @JoinColumn(name = "contact_id"))
+  private List<Contact> topicSubscribers = new ArrayList<>();
 
   @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<Message> messages;

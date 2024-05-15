@@ -1,4 +1,4 @@
-package com.chat.yourway.controller;
+package com.chat.yourway.controller.rest;
 
 import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.ChangePasswordDto;

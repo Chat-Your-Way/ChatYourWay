@@ -13,6 +13,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -107,15 +109,15 @@ public class StompSubscriptionListener {
         TimeZone.getDefault().toZoneId());
   }
 
-  private Integer getTopicId(AbstractSubProtocolEvent event) throws NumberFormatException {
+  private UUID getTopicId(AbstractSubProtocolEvent event) throws NumberFormatException {
     String destination = getDestination(event);
 
     if (isNotificationDestination(destination)) {
-      return Integer.valueOf(destination.substring(getNotifyDestination().length()));
+      return UUID.fromString(destination.substring(getNotifyDestination().length()));
     } else if (isPrivateTopicDestination(destination)) {
-      return Integer.valueOf(destination.substring(getPrivateTopicDestination().length()));
+      return UUID.fromString(destination.substring(getPrivateTopicDestination().length()));
     }
-    return Integer.valueOf(destination.substring(getTopicDestination().length()));
+    return UUID.fromString(destination.substring(getTopicDestination().length()));
   }
 
   private String getTopicDestination() {

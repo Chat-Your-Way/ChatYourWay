@@ -3,6 +3,7 @@ package com.chat.yourway.service;
 import com.chat.yourway.dto.response.notification.MessageNotificationResponseDto;
 import com.chat.yourway.dto.response.notification.TopicNotificationResponseDto;
 import java.util.List;
+import java.util.UUID;
 
 public interface NotificationService {
 
@@ -12,7 +13,7 @@ public interface NotificationService {
    * @param topicId topic id.
    * @return list of notification messages.
    */
-  List<MessageNotificationResponseDto> notifyTopicSubscribers(Integer topicId);
+  List<MessageNotificationResponseDto> notifyTopicSubscribers(UUID topicId);
 
   /**
    * Retrieves a list of notifying all topics.

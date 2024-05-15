@@ -29,6 +29,13 @@ public class ContactServiceImpl implements ContactService {
 
   @Transactional
   @Override
+  @CacheEvict(value = "contacts", key = "#contact.getEmail()")
+  public Contact save(Contact contact) {
+    return contactRepository.save(contact);
+  }
+
+  @Transactional
+  @Override
   public Contact create(ContactRequestDto contactRequestDto) {
     log.trace("Started create contact, contact email: [{}]", contactRequestDto.getEmail());
 
@@ -45,7 +52,6 @@ public class ContactServiceImpl implements ContactService {
             .email(contactRequestDto.getEmail())
             .password(passwordEncoder.encode(contactRequestDto.getPassword()))
             .isActive(false)
-            .isPrivate(true)
             .role(Role.USER)
             .build());
 

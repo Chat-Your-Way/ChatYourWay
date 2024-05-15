@@ -11,10 +11,15 @@ import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Tag;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+
+import com.chat.yourway.model.Topic;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public interface TopicService {
 
+  public Topic getTopic(UUID topicId);
+  public Topic save(Topic topic);
   /**
    * Creates a new topic with the specified email of the creator.
    *
@@ -46,7 +51,7 @@ public interface TopicService {
    * @throws ValueNotUniqException If the topic name already in use.
    * @throws TopicAccessException  if the email is not the creator of the topic.
    */
-  TopicResponseDto update(Integer topicId, TopicRequestDto topicRequestDto, String email);
+  TopicResponseDto update(UUID topicId, TopicRequestDto topicRequestDto, String email);
 
   /**
    * Finds a topic by ID.
@@ -55,7 +60,7 @@ public interface TopicService {
    * @return The found topic if it exists.
    * @throws TopicNotFoundException If the topic with the specified ID does not exist.
    */
-  TopicResponseDto findById(Integer id);
+  TopicResponseDto findById(UUID id);
 
   /**
    * Finds a topic by topic name.
@@ -80,7 +85,7 @@ public interface TopicService {
    * @param email The email of the user.
    * @throws TopicAccessException if the email is not the creator of the topic.
    */
-  void deleteByCreator(Integer id, String email);
+  void delete(UUID id, String email);
 
   /**
    * Retrieves a list of topics that are associated with the specified tag identified by its name.

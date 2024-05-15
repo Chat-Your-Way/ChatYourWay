@@ -1,4 +1,4 @@
-package com.chat.yourway.controller;
+package com.chat.yourway.controller.rest;
 
 import static com.chat.yourway.config.openapi.OpenApiMessages.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;

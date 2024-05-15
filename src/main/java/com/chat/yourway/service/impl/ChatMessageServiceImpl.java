@@ -12,6 +12,8 @@ import com.chat.yourway.service.ContactEventService;
 import com.chat.yourway.service.ContactService;
 import com.chat.yourway.service.MessageService;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -32,8 +34,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   @Transactional
   @Override
-  public MessageResponseDto sendToPublicTopic(Integer topicId, MessagePublicRequestDto message,
-      String email) {
+  public MessageResponseDto sendToPublicTopic(UUID topicId, MessagePublicRequestDto message,
+                                              String email) {
     log.trace("Started contact email: [{}] sendToTopic id: [{}]", email, topicId);
     MessageResponseDto messageResponseDto = messageService.createPublic(topicId, message, email);
     messageResponseDto.setSentFrom(contactService.findByEmail(email).getNickname());
@@ -46,7 +48,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   @Transactional
   @Override
-  public MessageResponseDto sendToPrivateTopic(Integer topicId, MessagePrivateRequestDto message,
+  public MessageResponseDto sendToPrivateTopic(UUID topicId, MessagePrivateRequestDto message,
       String email) {
     String sendTo = message.getSendTo();
     log.trace("Started contact email: [{}] sendToPrivateTopic email: [{}]", email, sendTo);
@@ -63,7 +65,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   }
 
   @Override
-  public List<MessageResponseDto> sendMessageHistoryByTopicId(Integer topicId,
+  public List<MessageResponseDto> sendMessageHistoryByTopicId(UUID topicId,
       PageRequestDto pageRequestDto, String email) {
     log.trace("Started sendMessageHistoryByTopicId = [{}]", topicId);
 
@@ -82,7 +84,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     return messages;
   }
 
-  private void sendToTopic(Integer topicId, MessageResponseDto messageDto) {
+  private void sendToTopic(UUID topicId, MessageResponseDto messageDto) {
     var lastMessageDto = new LastMessageResponseDto();
     lastMessageDto.setTimestamp(messageDto.getTimestamp());
     lastMessageDto.setSentFrom(messageDto.getSentFrom());
@@ -96,7 +98,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     chatNotificationService.updateNotificationForAllWhoSubscribedToTopic(topicId);
   }
 
-  private String toTopicDestination(Integer topicId) {
+  private String toTopicDestination(UUID topicId) {
     return properties.getTopicPrefix() + "/" + topicId;
   }
 

@@ -5,6 +5,7 @@ import com.chat.yourway.dto.request.MessagePublicRequestDto;
 import com.chat.yourway.dto.request.PageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import java.util.List;
+import java.util.UUID;
 
 public interface ChatMessageService {
 
@@ -16,9 +17,9 @@ public interface ChatMessageService {
    * @param email                   The email of the sender.
    * @return {@link MessageResponseDto} is the sent message.
    */
-  MessageResponseDto sendToPublicTopic(Integer topicId,
-      MessagePublicRequestDto messagePublicRequestDto,
-      String email);
+  MessageResponseDto sendToPublicTopic(UUID topicId,
+                                       MessagePublicRequestDto messagePublicRequestDto,
+                                       String email);
 
   /**
    * Sends a message to the private topic.
@@ -28,7 +29,7 @@ public interface ChatMessageService {
    * @param email                    The email of the sender.
    * @return {@link MessageResponseDto} is the sent message.
    */
-  MessageResponseDto sendToPrivateTopic(Integer topicId,
+  MessageResponseDto sendToPrivateTopic(UUID topicId,
       MessagePrivateRequestDto messagePrivateRequestDto, String email);
 
   /**
@@ -39,7 +40,7 @@ public interface ChatMessageService {
    * @param email          The email of the sender.
    * @return list topic messages.
    */
-  List<MessageResponseDto> sendMessageHistoryByTopicId(Integer topicId,
+  List<MessageResponseDto> sendMessageHistoryByTopicId(UUID topicId,
       PageRequestDto pageRequestDto, String email);
 
 }

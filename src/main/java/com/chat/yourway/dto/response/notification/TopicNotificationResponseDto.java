@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.UUID;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
@@ -13,7 +15,7 @@ import lombok.ToString;
 @ToString
 public class TopicNotificationResponseDto {
 
-  private Integer topicId;
+  private UUID topicId;
 
   private Integer unreadMessages;
 

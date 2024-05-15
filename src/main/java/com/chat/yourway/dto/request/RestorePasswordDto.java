@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.UUID;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
@@ -22,5 +24,5 @@ public class RestorePasswordDto {
 
   @Schema(description = "Email token", example = "245034-cc65-4dce-b374-7419fbfc18e5")
   @NotEmpty(message = "Email token cannot be empty")
-  private String emailToken;
+  private UUID emailToken;
 }

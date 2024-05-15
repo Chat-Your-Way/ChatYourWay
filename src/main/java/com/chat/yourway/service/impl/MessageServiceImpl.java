@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,20 +43,19 @@ public class MessageServiceImpl implements MessageService {
   private final MessageMapper messageMapper;
   private final TopicService topicService;
   private final TopicMapper topicMapper;
-  private final TopicSubscriberService topicSubscriberService;
 
   @Transactional
   @Override
-  public MessageResponseDto createPublic(int topicId, MessagePublicRequestDto message,
-      String email) {
+  public MessageResponseDto createPublic(UUID topicId, MessagePublicRequestDto message,
+                                         String email) {
     log.trace("Creating public message in topic ID: {} by contact email: {}", topicId, email);
     TopicResponseDto topic = topicService.findById(topicId);
 
     validateSubscription(topicId, email);
 
     Message savedMessage = messageRepository.save(Message.builder()
-        .sentFrom(email)
-        .sendTo("Topic id=" + topic.getId())
+        //.sentFrom(email)
+        //.sendTo("Topic id=" + topic.getId())
         .content(message.getContent())
         .timestamp(LocalDateTime.now())
         .topic(topicMapper.toEntity(topic))
@@ -73,14 +74,14 @@ public class MessageServiceImpl implements MessageService {
     String privateName = topicService.generatePrivateName(sendTo, email);
     TopicResponseDto topic = topicService.findByName(privateName);
 
-    if (topicSubscriberService.hasProhibitionSendingPrivateMessages(topic.getId())) {
-      throw new MessagePermissionDeniedException(
-          "You do not have permission for sending message to private topic");
-    }
+//    if (topicSubscriberService.hasProhibitionSendingPrivateMessages(topic.getId())) {
+//      throw new MessagePermissionDeniedException(
+//          "You do not have permission for sending message to private topic");
+//    }
 
     Message savedMessage = messageRepository.save(Message.builder()
-        .sentFrom(email)
-        .sendTo(message.getSendTo())
+        //.sentFrom(email)
+        //.sendTo(message.getSendTo())
         .content(message.getContent())
         .timestamp(LocalDateTime.now())
         .topic(topicMapper.toEntity(topic))
@@ -97,8 +98,8 @@ public class MessageServiceImpl implements MessageService {
 
     if (!messageRepository.existsById(messageId)) {
       throw new MessageNotFoundException();
-    } else if (messageRepository.hasReportByContactEmailAndMessageId(email, messageId)) {
-      throw new MessageHasAlreadyReportedException();
+//    } else if (messageRepository.hasReportByContactEmailAndMessageId(email, messageId)) {
+//      throw new MessageHasAlreadyReportedException();
     } else if (messageRepository.getCountReportsByMessageId(messageId) >= maxAmountReports) {
       messageRepository.deleteById(messageId);
     } else {
@@ -107,7 +108,7 @@ public class MessageServiceImpl implements MessageService {
   }
 
   @Override
-  public List<MessageResponseDto> findAllByTopicId(Integer topicId, PageRequestDto pageRequestDto) {
+  public List<MessageResponseDto> findAllByTopicId(UUID topicId, PageRequestDto pageRequestDto) {
     log.trace("Get all messages for topic with ID: {}", topicId);
 
     Integer page = pageRequestDto.getPage();
@@ -122,7 +123,7 @@ public class MessageServiceImpl implements MessageService {
   }
 
   @Override
-  public int countMessagesBetweenTimestampByTopicId(Integer topicId, String sentFrom,
+  public int countMessagesBetweenTimestampByTopicId(UUID topicId, String sentFrom,
       LocalDateTime timestamp) {
     log.trace("Started countMessagesBetweenTimestampByTopicId [{}]", topicId);
 
@@ -130,13 +131,13 @@ public class MessageServiceImpl implements MessageService {
         LocalDateTime.now());
   }
 
-  private void validateSubscription(Integer topicId, String email) {
+  private void validateSubscription(UUID topicId, String email) {
     log.trace("Validating subscription of contact email: {} to topic ID: {}", email, topicId);
-    if (!topicSubscriberService.hasContactSubscribedToTopic(email, topicId)) {
-      log.warn("Contact email: {} wasn't subscribed to the topic id: {}", email, topicId);
-      throw new TopicSubscriberNotFoundException(
-          String.format("Contact email: %s wasn't subscribed to the topic id: %s", email, topicId));
-    }
+//    if (!topicSubscriberService.hasContactSubscribedToTopic(email, topicId)) {
+//      log.warn("Contact email: {} wasn't subscribed to the topic id: {}", email, topicId);
+//      throw new TopicSubscriberNotFoundException(
+//          String.format("Contact email: %s wasn't subscribed to the topic id: %s", email, topicId));
+//    }
   }
 
 }

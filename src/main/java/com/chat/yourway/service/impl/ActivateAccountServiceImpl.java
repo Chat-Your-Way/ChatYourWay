@@ -9,6 +9,7 @@ import com.chat.yourway.model.email.EmailToken;
 import com.chat.yourway.repository.jpa.ContactRepository;
 import com.chat.yourway.repository.jpa.EmailTokenRepository;
 import com.chat.yourway.service.ActivateAccountService;
+import com.chat.yourway.service.ContactService;
 import com.chat.yourway.service.EmailMessageFactoryService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,11 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
   private final EmailSenderService emailSenderService;
   private final EmailTokenRepository emailTokenRepository;
   private final EmailMessageFactoryService emailMessageFactoryService;
-  private final ContactRepository contactRepository;
+  private final ContactService contactService;
 
   @Transactional
   @Override
-  public void activateAccount(String token) {
+  public void activateAccount(UUID token) {
     log.trace("Started activateAccount by email token");
 
     EmailToken emailToken = emailTokenRepository.findById(token)
@@ -38,8 +39,8 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
         });
 
     Contact contact = emailToken.getContact();
-    contact.setIsActive(true);
-    contactRepository.save(contact);
+    contact.setActive(true);
+    contactService.save(contact);
 
     emailTokenRepository.delete(emailToken);
 
@@ -51,11 +52,10 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
     log.trace("Started sendVerifyEmail by contact email [{}], and client host [{}]",
         contact.getEmail(), clientHost);
 
-    String uuid = generateUUID();
-    saveEmailToken(contact, uuid);
+    EmailToken emailToken = saveEmailToken(contact);
 
     var emailMessageInfoDto = new EmailMessageInfoDto(contact.getNickname(), contact.getEmail(),
-        uuid, clientHost, ACTIVATE);
+            emailToken.getToken(), clientHost, ACTIVATE);
     var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfoDto);
 
     emailSenderService.sendEmail(emailMessage);
@@ -63,18 +63,14 @@ public class ActivateAccountServiceImpl implements ActivateAccountService {
     log.info("Verifying account email was sent to contact email [{}]", contact.getEmail());
   }
 
-  private void saveEmailToken(Contact contact, String uuid) {
+  private EmailToken saveEmailToken(Contact contact) {
     EmailToken emailToken = EmailToken.builder()
         .contact(contact)
-        .token(uuid)
         .messageType(ACTIVATE)
         .build();
 
     emailTokenRepository.save(emailToken);
-  }
-
-  private String generateUUID() {
-    return UUID.randomUUID().toString();
+    return emailToken;
   }
 
 }

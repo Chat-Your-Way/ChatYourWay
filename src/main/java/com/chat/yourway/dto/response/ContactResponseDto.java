@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.UUID;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -13,17 +15,13 @@ import lombok.ToString;
 @ToString
 public class ContactResponseDto {
 
-  private Integer id;
+  private UUID id;
 
   private String nickname;
 
   private String email;
 
   private Byte avatarId;
-
-  private Boolean isActive;
-
-  private Boolean isPrivate;
 
   private boolean isPermittedSendingPrivateMessage;
 }

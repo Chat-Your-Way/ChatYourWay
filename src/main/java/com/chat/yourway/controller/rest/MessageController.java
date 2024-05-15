@@ -1,4 +1,4 @@
-package com.chat.yourway.controller;
+package com.chat.yourway.controller.rest;
 
 import static com.chat.yourway.config.openapi.OpenApiMessages.MESSAGE_HAS_ALREADY_REPORTED;
 import static com.chat.yourway.config.openapi.OpenApiMessages.MESSAGE_NOT_FOUND;

@@ -11,6 +11,8 @@ import com.chat.yourway.repository.redis.ContactEventRedisRepository;
 import com.chat.yourway.service.ContactEventService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,7 @@ public class ContactEventServiceImpl implements ContactEventService {
   }
 
   @Override
-  public ContactEvent getByTopicIdAndEmail(Integer topicId, String email) {
+  public ContactEvent getByTopicIdAndEmail(UUID topicId, String email) {
     log.trace("Started getByTopicIdAndEmail, topicId [{}], email [{}]", topicId, email);
 
     return contactEventRedisRepository.findById(email + "_" + topicId)
@@ -57,14 +59,14 @@ public class ContactEventServiceImpl implements ContactEventService {
   }
 
   @Override
-  public List<ContactEvent> getAllByTopicId(Integer topicId) {
+  public List<ContactEvent> getAllByTopicId(UUID topicId) {
     log.trace("Started getAllByTopicId [{}]", topicId);
 
     return contactEventRedisRepository.findAllByTopicId(topicId);
   }
 
   @Override
-  public void updateMessageInfoForAllTopicSubscribers(Integer topicId,
+  public void updateMessageInfoForAllTopicSubscribers(UUID topicId,
       LastMessageResponseDto message) {
     log.trace("Started updateMessageInfoForAllTopicSubscribers, topic id [{}], last message [{}]",
         topicId, message);
@@ -85,7 +87,7 @@ public class ContactEventServiceImpl implements ContactEventService {
   @Override
   public void updateTypingEvent(String email, boolean isTyping) {
 
-    Integer topicId = getAllByEmail(email).stream()
+    UUID topicId = getAllByEmail(email).stream()
         .filter(e -> e.getEventType().equals(EventType.SUBSCRIBED))
         .findFirst()
         .orElseThrow()

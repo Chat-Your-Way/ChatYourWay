@@ -1,5 +1,7 @@
 package com.chat.yourway.service;
 
+import java.util.UUID;
+
 public interface ChatNotificationService {
 
   /**
@@ -7,7 +9,7 @@ public interface ChatNotificationService {
    *
    * @param topicId The id of the topic.
    */
-  void notifyTopicSubscribers(Integer topicId);
+  void notifyTopicSubscribers(UUID topicId);
 
   /**
    * Notify everyone who is subscribed to the same topic as the user email.
@@ -28,14 +30,14 @@ public interface ChatNotificationService {
    *
    * @param topicId The id of the topic.
    */
-  void notifyAllWhoSubscribedToTopic(Integer topicId);
+  void notifyAllWhoSubscribedToTopic(UUID topicId);
 
   /**
    * Update topic notification for user who subscribed to the same topic.
    *
    * @param topicId The id of the topic.
    */
-  void updateNotificationForAllWhoSubscribedToTopic(Integer topicId);
+  void updateNotificationForAllWhoSubscribedToTopic(UUID topicId);
 
   /**
    * Update notification for all topics.

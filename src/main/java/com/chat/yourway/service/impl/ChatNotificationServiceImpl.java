@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -19,7 +21,7 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
   private final ContactEventService contactEventService;
 
   @Override
-  public void notifyTopicSubscribers(Integer topicId) {
+  public void notifyTopicSubscribers(UUID topicId) {
     log.trace("Started notifyTopicSubscribers, topic id = [{}]", topicId);
 
     var notifications = notificationService.notifyTopicSubscribers(topicId);
@@ -51,7 +53,7 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
   }
 
   @Override
-  public void notifyAllWhoSubscribedToTopic(Integer topicId) {
+  public void notifyAllWhoSubscribedToTopic(UUID topicId) {
     log.trace("Started notifyAllWhoSubscribedToTopic, topicId = [{}]", topicId);
 
     contactEventService.getAllByTopicId(topicId)
@@ -71,7 +73,7 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
   }
 
   @Override
-  public void updateNotificationForAllWhoSubscribedToTopic(Integer topicId) {
+  public void updateNotificationForAllWhoSubscribedToTopic(UUID topicId) {
     log.trace("Started updateNotificationForAllWhoSubscribedToTopic, topicId = [{}]", topicId);
 
     contactEventService.getAllByTopicId(topicId)
@@ -80,7 +82,7 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
     log.info("Topic notifications was updated for all subscribed users, topicId = [{}]", topicId);
   }
 
-  private String toNotifyMessageDest(Integer topicId) {
+  private String toNotifyMessageDest(UUID topicId) {
     return properties.getNotifyPrefix() + "/" + topicId;
   }
 

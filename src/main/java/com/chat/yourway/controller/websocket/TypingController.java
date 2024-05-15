@@ -1,4 +1,4 @@
-package com.chat.yourway.controller;
+package com.chat.yourway.controller.websocket;
 
 import com.chat.yourway.service.ChatTypingEventService;
 import java.security.Principal;

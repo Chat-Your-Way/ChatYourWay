@@ -8,6 +8,7 @@ import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface TopicSubscriberService {
 
@@ -19,7 +20,7 @@ public interface TopicSubscriberService {
    * @throws ContactAlreadySubscribedToTopicException if the contact is already subscribed to the
    *                                                  topic.
    */
-  void subscribeToTopicById(String email, Integer topicId);
+  void subscribeToTopicById(String email, UUID topicId);
 
   /**
    * Unsubscribes a contact from a topic with the specified email and topic ID.
@@ -28,7 +29,7 @@ public interface TopicSubscriberService {
    * @param topicId Topic ID.
    * @throws TopicSubscriberNotFoundException if the contact was not subscribed to the topic.
    */
-  void unsubscribeFromTopicById(String email, Integer topicId);
+  void unsubscribeFromTopicById(String email, UUID topicId);
 
   /**
    * Retrieves a list of contacts who are subscribers to the topic by ID.
@@ -36,7 +37,7 @@ public interface TopicSubscriberService {
    * @param id The ID of the topic.
    * @return A list of contacts who are subscribers to the topic.
    */
-  List<ContactResponseDto> findAllSubscribersByTopicId(Integer id);
+  List<ContactResponseDto> findAllSubscribersByTopicId(UUID id);
 
   /**
    * Checks if a contact is subscribed to a topic with the specified email and topic ID.
@@ -45,7 +46,7 @@ public interface TopicSubscriberService {
    * @param topicId Topic ID.
    * @return true if the contact is subscribed to the topic.
    */
-  boolean hasContactSubscribedToTopic(String email, Integer topicId);
+  boolean hasContactSubscribedToTopic(String email, UUID topicId);
 
   /**
    * Adds the specified topic to the user's list of favorite topics.
@@ -55,7 +56,7 @@ public interface TopicSubscriberService {
    * @throws TopicNotFoundException      If topic does not exist.
    * @throws NotSubscribedTopicException If contact does not subscribed to topic.
    */
-  void addTopicToFavourite(Integer topicId, UserDetails userDetails);
+  void addTopicToFavourite(UUID topicId, UserDetails userDetails);
 
   /**
    * Removes the specified topic from the user's list of favorite topics.
@@ -65,7 +66,7 @@ public interface TopicSubscriberService {
    * @throws TopicNotFoundException      If topic does not exist.
    * @throws NotSubscribedTopicException If contact does not subscribed to topic.
    */
-  void removeTopicFromFavourite(Integer topicId, UserDetails userDetails);
+  void removeTopicFromFavourite(UUID topicId, UserDetails userDetails);
 
 
   /**
@@ -74,7 +75,7 @@ public interface TopicSubscriberService {
    * @param topicId      the ID of the topic to check for prohibition
    * @return true if sending private messages is prohibited, false otherwise
    */
-  boolean hasProhibitionSendingPrivateMessages(Integer topicId);
+  boolean hasProhibitionSendingPrivateMessages(UUID topicId);
 
   /**
    * Registers a complaint for a specific topic.
@@ -90,5 +91,5 @@ public interface TopicSubscriberService {
    * @throws TopicNotFoundException      If topic does not exist.
    * @throws NotSubscribedTopicException If contact does not subscribed to topic.
    */
-  void complainTopic(Integer topicId, UserDetails userDetails);
+  void complainTopic(UUID topicId, UserDetails userDetails);
 }

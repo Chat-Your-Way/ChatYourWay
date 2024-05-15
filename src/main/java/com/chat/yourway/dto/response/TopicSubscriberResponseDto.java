@@ -1,11 +1,6 @@
 package com.chat.yourway.dto.response;
 
-import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,14 +9,8 @@ import lombok.ToString;
 @ToString
 public class TopicSubscriberResponseDto {
 
-  private ContactResponseDto contact;
+    private ContactResponseDto contact;
 
-  private LocalDateTime subscribeAt;
-
-  private LocalDateTime unsubscribeAt;
-
-  private boolean isPermittedSendingMessage;
-
-  private boolean hasComplaint;
+    private boolean isPermittedSendingMessage;
 
 }

@@ -16,5 +16,4 @@ public class TagResponseDto {
 
   @Schema(description = "Tag name", example = "#programming")
   private String name;
-
 }

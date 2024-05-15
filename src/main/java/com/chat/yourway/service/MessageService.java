@@ -10,6 +10,7 @@ import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public interface MessageService {
 
@@ -24,7 +25,7 @@ public interface MessageService {
    * @throws TopicSubscriberNotFoundException If the contact is not subscribed to the public topic.
    * @throws TopicNotFoundException           If the topic with the specified ID does not exist.
    */
-  MessageResponseDto createPublic(int topicId, MessagePublicRequestDto message, String email);
+  MessageResponseDto createPublic(UUID topicId, MessagePublicRequestDto message, String email);
 
   /**
    * Creates a private message to the specified recipient. Generates a unique private topic name for
@@ -59,7 +60,7 @@ public interface MessageService {
    * @return A list of {@link MessageResponseDto} containing messages related to the specified topic
    * ID.
    */
-  List<MessageResponseDto> findAllByTopicId(Integer topicId, PageRequestDto pageRequestDto);
+  List<MessageResponseDto> findAllByTopicId(UUID topicId, PageRequestDto pageRequestDto);
 
   /**
    * Count saved messages by topic id and sander email between current time and set timestamp.
@@ -69,6 +70,6 @@ public interface MessageService {
    * @param timestamp set timestamp.
    * @return number of counted messages.
    */
-  int countMessagesBetweenTimestampByTopicId(Integer topicId, String sentFrom,
+  int countMessagesBetweenTimestampByTopicId(UUID topicId, String sentFrom,
       LocalDateTime timestamp);
 }

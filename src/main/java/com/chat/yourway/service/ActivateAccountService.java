@@ -3,6 +3,8 @@ package com.chat.yourway.service;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.model.Contact;
 
+import java.util.UUID;
+
 public interface ActivateAccountService {
 
   /**
@@ -11,7 +13,7 @@ public interface ActivateAccountService {
    * @param token The activation token.
    * @throws EmailTokenNotFoundException If the token is not found in the repository.
    */
-  void activateAccount(String token);
+  void activateAccount(UUID token);
 
   /**
    * Sends a verification email for activating a contact account.

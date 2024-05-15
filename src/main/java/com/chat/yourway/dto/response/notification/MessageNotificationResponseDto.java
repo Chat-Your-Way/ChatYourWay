@@ -2,6 +2,8 @@ package com.chat.yourway.dto.response.notification;
 
 import com.chat.yourway.model.event.EventType;
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +17,7 @@ import lombok.ToString;
 @ToString
 public class MessageNotificationResponseDto {
 
-  private Integer topicId;
+  private UUID topicId;
   private String email;
   private EventType status;
   private LocalDateTime lastRead;

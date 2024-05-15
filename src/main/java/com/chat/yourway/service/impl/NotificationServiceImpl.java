@@ -8,6 +8,8 @@ import com.chat.yourway.service.ContactEventService;
 import com.chat.yourway.service.MessageService;
 import com.chat.yourway.service.NotificationService;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ public class NotificationServiceImpl implements NotificationService {
   private final NotificationMapper notificationMapper;
 
   @Override
-  public List<MessageNotificationResponseDto> notifyTopicSubscribers(Integer topicId) {
+  public List<MessageNotificationResponseDto> notifyTopicSubscribers(UUID topicId) {
     log.trace("Started notifyTopicSubscribers by topic id [{}]", topicId);
 
     return contactEventService.getAllByTopicId(topicId).stream()

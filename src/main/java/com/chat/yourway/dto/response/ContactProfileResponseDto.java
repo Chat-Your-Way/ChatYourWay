@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @ToString
 public class ContactProfileResponseDto {
+
     private String nickname;
     private String email;
     private Byte avatarId;

@@ -10,7 +10,6 @@ import com.chat.yourway.repository.jpa.EmailTokenRepository;
 import com.chat.yourway.service.ChangePasswordService;
 import com.chat.yourway.service.ContactService;
 import com.chat.yourway.service.EmailMessageFactoryService;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,54 +22,52 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ChangePasswordServiceImpl implements ChangePasswordService {
 
-  private final PasswordEncoder passwordEncoder;
-  private final ContactService contactService;
-  private final EmailTokenRepository emailTokenRepository;
-  private final EmailMessageFactoryService emailMessageFactoryService;
-  private final EmailSenderService emailSenderService;
+    private final PasswordEncoder passwordEncoder;
+    private final ContactService contactService;
+    private final EmailTokenRepository emailTokenRepository;
+    private final EmailMessageFactoryService emailMessageFactoryService;
+    private final EmailSenderService emailSenderService;
 
-  @Override
-  @Transactional
-  public void changePassword(ChangePasswordDto request, UserDetails userDetails) {
-    contactService.verifyPassword(request.getOldPassword(), userDetails.getPassword());
-    contactService.changePasswordByEmail(request.getNewPassword(), userDetails.getUsername());
-  }
+    @Override
+    @Transactional
+    public void changePassword(ChangePasswordDto request, UserDetails userDetails) {
+        contactService.verifyPassword(request.getOldPassword(), userDetails.getPassword());
+        contactService.changePasswordByEmail(request.getNewPassword(), userDetails.getUsername());
+    }
 
-  @Override
-  @Transactional
-  public void sendEmailToRestorePassword(String email, String clientHost) {
+    @Override
+    @Transactional
+    public void sendEmailToRestorePassword(String email, String clientHost) {
 
-    var contact = contactService.findByEmail(email);
-    var uuidToken = UUID.randomUUID().toString();
-    var emailToken =
-        EmailToken.builder()
-            .token(uuidToken)
-            .messageType(EmailMessageType.RESTORE_PASSWORD)
-            .contact(contact)
-            .build();
+        var contact = contactService.findByEmail(email);
+        var emailToken =
+                EmailToken.builder()
+                        .messageType(EmailMessageType.RESTORE_PASSWORD)
+                        .contact(contact)
+                        .build();
 
-    emailTokenRepository.save(emailToken);
+        emailTokenRepository.save(emailToken);
 
-    var emailMessageInfo = new EmailMessageInfoDto(contact.getNickname(),
-        contact.getEmail(),
-        uuidToken,
-        clientHost,
-        EmailMessageType.RESTORE_PASSWORD);
-    var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfo);
+        var emailMessageInfo = new EmailMessageInfoDto(contact.getNickname(),
+                contact.getEmail(),
+                emailToken.getToken(),
+                clientHost,
+                EmailMessageType.RESTORE_PASSWORD);
+        var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfo);
 
-    emailSenderService.sendEmail(emailMessage);
-  }
+        emailSenderService.sendEmail(emailMessage);
+    }
 
-  @Override
-  @Transactional
-  public void restorePassword(RestorePasswordDto restorePasswordDto) {
-    var emailToken = emailTokenRepository.findById(restorePasswordDto.getEmailToken())
-        .orElseThrow(EmailTokenNotFoundException::new);
-    var contact = emailToken.getContact();
-    var newEncodedPassword = passwordEncoder.encode(restorePasswordDto.getNewPassword());
+    @Override
+    @Transactional
+    public void restorePassword(RestorePasswordDto restorePasswordDto) {
+        var emailToken = emailTokenRepository.findById(restorePasswordDto.getEmailToken())
+                .orElseThrow(EmailTokenNotFoundException::new);
+        var contact = emailToken.getContact();
+        var newEncodedPassword = passwordEncoder.encode(restorePasswordDto.getNewPassword());
 
-    contact.setPassword(newEncodedPassword);
-    emailTokenRepository.delete(emailToken);
-  }
+        contact.setPassword(newEncodedPassword);
+        emailTokenRepository.delete(emailToken);
+    }
 
 }

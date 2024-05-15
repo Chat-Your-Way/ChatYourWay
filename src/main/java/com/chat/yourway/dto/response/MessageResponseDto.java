@@ -1,6 +1,8 @@
 package com.chat.yourway.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,10 +18,9 @@ import lombok.ToString;
 @ToString
 public class MessageResponseDto {
 
-  private Integer id;
+  private UUID id;
   private LocalDateTime timestamp;
   private String sentFrom;
   private String sendTo;
   private String content;
-
 }

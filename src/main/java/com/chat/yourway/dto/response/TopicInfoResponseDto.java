@@ -2,6 +2,8 @@ package com.chat.yourway.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,13 +16,15 @@ import lombok.ToString;
 @Getter
 @ToString
 public class TopicInfoResponseDto {
-  @Schema(description = "ID", example = "1")
-  private Integer id;
+
+  @Schema(description = "ID", example = "2D1EBC5B7D2741979CF0E84451C5AAA1")
+  private UUID id;
+
   @Schema(description = "New Topic name", example = "My programming topic")
-  private String topicName;
-  @Schema(description = "Email of Topic creator", example = "example@gmail.com")
-  private String createdBy;
+  private String name;
+
+  private ContactResponseDto createdBy;
+
   @Schema(description = "Created time")
   private LocalDateTime createdAt;
-
 }

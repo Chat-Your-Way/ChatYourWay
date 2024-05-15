@@ -4,6 +4,7 @@ import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.event.ContactEvent;
 import com.chat.yourway.model.event.EventType;
 import java.util.List;
+import java.util.UUID;
 
 public interface ContactEventService {
 
@@ -21,7 +22,7 @@ public interface ContactEventService {
    * @param email   contact email.
    * @return contact event.
    */
-  ContactEvent getByTopicIdAndEmail(Integer topicId, String email);
+  ContactEvent getByTopicIdAndEmail(UUID topicId, String email);
 
   List<ContactEvent> getAllByEmail(String email);
 
@@ -39,7 +40,7 @@ public interface ContactEventService {
    * @param topicId topic id.
    * @return all contact events by topic id.
    */
-  List<ContactEvent> getAllByTopicId(Integer topicId);
+  List<ContactEvent> getAllByTopicId(UUID topicId);
 
   /**
    * Set last message to all topic subscribers events.
@@ -47,8 +48,8 @@ public interface ContactEventService {
    * @param topicId        topic id.
    * @param lastMessageDto last message Dto.
    */
-  void updateMessageInfoForAllTopicSubscribers(Integer topicId,
-      LastMessageResponseDto lastMessageDto);
+  void updateMessageInfoForAllTopicSubscribers(UUID topicId,
+                                               LastMessageResponseDto lastMessageDto);
 
   /**
    * Update typing status.

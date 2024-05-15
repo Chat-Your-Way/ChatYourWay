@@ -3,44 +3,49 @@ package com.chat.yourway.repository.jpa;
 import com.chat.yourway.model.Topic;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
+import com.chat.yourway.model.TopicScope;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TopicRepository extends JpaRepository<Topic, Integer> {
+public interface TopicRepository extends JpaRepository<Topic, UUID> {
 
-  boolean existsByTopicName(String topicName);
+  boolean existsByName(String topicName);
 
-  @Query("SELECT t FROM Topic t left join fetch t.tags tag where tag.name=:tagName")
-  List<Topic> findAllByTagName(String tagName);
+  @Query("SELECT t FROM Topic t left join fetch t.tags tag where t.scope != 'DELETED' and tag.name=:tagName")
+  List<Topic> findAllByTagName(@Param("tagName") String tagName);
 
   @Query(
       value =
           """
               SELECT *
-              FROM chat.topic t
-              WHERE to_tsvector('english', t.topic_name) @@ to_tsquery('english', :query)
+              FROM chat.topics t
+              WHERE t.scope != 'DELETED' and to_tsvector('english', t.topic_name) @@ to_tsquery('english', :query)
               """,
       nativeQuery = true)
-  List<Topic> findAllByTopicName(String query);
+  List<Topic> findAllByName(@Param("query") String query);
 
-  Optional<Topic> findByTopicName(String name);
+  @Query(value = "SELECT t FROM Topic t Where t.name = :name and t.scope != 'DELETED'")
+  Optional<Topic> findByName(@Param("name") String name);
 
-  List<Topic> findAllByIsPublicIsTrue();
+  @Query(value = "SELECT t FROM Topic t Where t.id = :id and t.scope != 'DELETED'")
+  @Override
+  Optional<Topic> findById(UUID id);
 
-  @Query(
-      "select t from Topic t join fetch t.topicSubscribers ts "
-      + "where ts.contact.email = :contactEmail and ts.isFavouriteTopic = true")
-  List<Topic> findAllFavouriteTopicsByContactEmail(String contactEmail);
+  List<Topic> findAllByScope(TopicScope scope);
 
   @Query(nativeQuery = true, value =
-      "SELECT t.*, COUNT(ts.id) AS ts_count, COUNT(m.id) AS m_count " +
-      "FROM chat.topic t " +
-      "JOIN chat.topic_subscriber ts ON t.id = ts.topic_id " +
-      "JOIN chat.message m ON t.id = m.topic_id " +
-      "WHERE t.is_public = true " +
-      "GROUP BY t.id " +
-      "ORDER BY ts_count DESC, m_count DESC")
+          """
+                  SELECT t.*, COUNT(DISTINCT ts.contact_id) AS ts_count, COUNT(DISTINCT m.id) AS m_count FROM chat.topics t
+                  JOIN chat.topic_contacts ts ON t.id = ts.topic_id
+                  JOIN chat.topic_messages m ON t.id = m.topic_id
+                  WHERE t.scope = 'PUBLIC'
+                  GROUP BY t.id
+                  ORDER BY m_count DESC, ts_count DESC
+                  """)
   List<Topic> findPopularPublicTopics();
 }

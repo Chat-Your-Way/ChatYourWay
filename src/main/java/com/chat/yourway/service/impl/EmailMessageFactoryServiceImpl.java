@@ -7,6 +7,8 @@ import com.chat.yourway.service.EmailMessageFactoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @Slf4j
 public class EmailMessageFactoryServiceImpl implements EmailMessageFactoryService {
@@ -16,7 +18,7 @@ public class EmailMessageFactoryServiceImpl implements EmailMessageFactoryServic
   @Override
   public EmailMessageDto generateEmailMessage(EmailMessageInfoDto emailMessageInfoDto) {
     String path = emailMessageInfoDto.path();
-    String uuidToken = emailMessageInfoDto.uuidToken();
+    UUID uuidToken = emailMessageInfoDto.uuidToken();
     EmailMessageType emailMessageType = emailMessageInfoDto.emailMessageType();
     String link = generateLink(path, uuidToken, emailMessageType);
     log.info("Generated link: {}", link);
@@ -27,7 +29,7 @@ public class EmailMessageFactoryServiceImpl implements EmailMessageFactoryServic
         messageBody);
   }
 
-  private String generateLink(String path, String uuidToken, EmailMessageType emailMessageType) {
+  private String generateLink(String path, UUID uuidToken, EmailMessageType emailMessageType) {
     return path +
         emailMessageType.getEmailType() +
         TOKEN_PARAMETER +

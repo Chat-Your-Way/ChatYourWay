@@ -1,4 +1,4 @@
-package com.chat.yourway.controller;
+package com.chat.yourway.controller.rest;
 
 import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_NOT_FOUND;
 import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_UNAUTHORIZED;
@@ -34,6 +34,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
@@ -106,7 +108,7 @@ public class AuthenticationController {
               content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
       })
   @PostMapping(path = "/activate", produces = APPLICATION_JSON_VALUE)
-  public void activateAccount(@RequestParam(name = "Email token") String token) {
+  public void activateAccount(@RequestParam(name = "Email token") UUID token) {
     activateAccountService.activateAccount(token);
   }
 
