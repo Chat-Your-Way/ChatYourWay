@@ -24,7 +24,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,8 +46,18 @@ public class TopicServiceImpl implements TopicService {
     @Transactional
     @Override
     public TopicResponseDto create(TopicRequestDto topicRequestDto, String email) {
-        log.trace("Started create topic: {} by contact email: {}", topicRequestDto, email);
-        Topic topic = createOrUpdateTopic(null, topicRequestDto, email);
+        log.trace("Started create topic: {} by creator email: {}", topicRequestDto, email);
+        validateName(topicRequestDto.getTopicName());
+        Contact creatorContact = contactService.findByEmail(email);
+        Topic topic = Topic.builder()
+                .name(topicRequestDto.getTopicName())
+                .scope(TopicScope.PUBLIC)
+                .createdBy(creatorContact)
+                .topicSubscribers(List.of(creatorContact))
+                .tags(addUniqTags(topicRequestDto.getTags()))
+                .build();
+        topicRepository.save(topic);
+        log.trace("Topic name: {} was saved", topic.getName());
         return topicMapper.toResponseDto(topic);
     }
 
@@ -53,14 +66,17 @@ public class TopicServiceImpl implements TopicService {
     public TopicResponseDto createPrivate(TopicPrivateRequestDto topicPrivateDto, String email) {
         String sendTo = topicPrivateDto.getSendTo();
         log.trace("Started create private topic by sendTo: {} and creator email: {}", sendTo, email);
-        validateRecipientEmail(sendTo);
-        String privateName = generatePrivateName(sendTo, email);
-        TopicRequestDto topicRequestDto = new TopicRequestDto(privateName, new HashSet<>());
-
-        Topic topic = createOrUpdateTopic(null, topicRequestDto, email);
-
-//    topicSubscriberService.subscribeToTopicById(email, topic.getId());
-//    topicSubscriberService.subscribeToTopicById(sendTo, topic.getId());
+        Contact creatorContact = contactService.findByEmail(email);
+        Contact sendToContact = contactService.findByEmail(sendTo);
+        Topic topic = Topic.builder()
+                .name(generatePrivateName(sendTo, email))
+                .scope(TopicScope.PRIVATE)
+                .createdBy(creatorContact)
+                .topicSubscribers(List.of(creatorContact,sendToContact))
+                .build();
+        topicRepository.save(topic);
+        log.trace("Topic name: {} was saved", topic.getName());
+        //TODO send notification
         return topicMapper.toResponseDto(topic);
     }
 
@@ -68,9 +84,14 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TopicResponseDto update(UUID topicId, TopicRequestDto topicRequestDto, String email) {
         log.trace("Started update topic: {} by contact email: {}", topicRequestDto, email);
+        validateName(topicRequestDto.getTopicName());
+
         Topic topic = getTopic(topicId);
         validateCreator(email, topic);
-        Topic updatedTopic = createOrUpdateTopic(topic, topicRequestDto, email);
+        topic.setName(topicRequestDto.getTopicName());
+        topic.setTags(addUniqTags(topicRequestDto.getTags()));
+        Topic updatedTopic = topicRepository.save(topic);
+        log.trace("Topic name: {} was saved", topic.getName());
         return topicMapper.toResponseDto(updatedTopic);
     }
 
@@ -121,11 +142,10 @@ public class TopicServiceImpl implements TopicService {
         Topic topic = getTopic(id);
         validateCreator(email, topic);
 
-        topic.getTopicSubscribers().stream()
-                .forEach(contact -> {
-                    contact.getFavoriteTopics().remove(topic);
-                    contactService.save(contact);
-                });
+        topic.getTopicSubscribers().forEach(contact -> {
+            contact.getFavoriteTopics().remove(topic);
+            contactService.save(contact);
+        });
         topic.setScope(TopicScope.DELETED);
         topic.setTopicSubscribers(Collections.EMPTY_LIST);
         topicRepository.save(topic);
@@ -169,15 +189,13 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public String generatePrivateName(String sendTo, String email) {
-        return Stream.of(sendTo, email).sorted().collect(Collectors.joining("-"));
+        return UUID.randomUUID().toString();
     }
 
     @Override
     public List<TopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails) {
-        String contactEmail = userDetails.getUsername();
-        Contact contact = contactService.findByEmail(contactEmail);
-        return topicMapper.toListInfoResponseDto(
-                contact.getFavoriteTopics());
+        Contact contact = contactService.findByEmail(userDetails.getUsername());
+        return topicMapper.toListInfoResponseDto(contact.getFavoriteTopics());
     }
 
     @Override
@@ -185,7 +203,7 @@ public class TopicServiceImpl implements TopicService {
         return topicMapper.toListInfoResponseDto(topicRepository.findPopularPublicTopics());
     }
 
-    private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email) {
+    private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email, TopicScope scope) {
         String topicName = topicRequestDto.getTopicName();
         validateName(topicName);
         Contact contact = contactService.findByEmail(email);
@@ -197,7 +215,7 @@ public class TopicServiceImpl implements TopicService {
             topic =
                     Topic.builder()
                             .name(topicName)
-                            .scope(TopicScope.PUBLIC) //TODO додати створення приватного топіку
+                            .scope(scope)
                             .createdBy(contact)
                             .tags(tags)
                             .topicSubscribers(List.of(contact))
