@@ -21,12 +21,9 @@ public class ChatTypingEventServiceImpl implements ChatTypingEventService {
     log.info("Start updateTypingEvent isTyping={}, email={}", isTyping, email);
     contactEventService.updateTypingEvent(email, isTyping);
 
-    Integer topicId = contactEventService.getAllByEmail(email).stream()
+    contactEventService.getAllByEmail(email).stream()
         .filter(e -> e.getEventType().equals(EventType.SUBSCRIBED))
-        .findFirst()
-        .orElseThrow()
-        .getTopicId();
-
-    chatNotificationService.updateNotificationForAllWhoSubscribedToTopic(topicId);
+        .forEach(e -> chatNotificationService.updateNotificationForAllWhoSubscribedToTopic(
+            e.getTopicId()));
   }
 }
