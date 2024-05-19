@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 
 import com.chat.yourway.listener.StompConnectionListener;
 import com.chat.yourway.service.interfaces.ChatNotificationService;
+import com.chat.yourway.service.interfaces.ChatTypingEventService;
 import com.chat.yourway.service.interfaces.ContactEventService;
 import java.security.Principal;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 public class StompConnectionListenerTest {
   @Mock private ContactEventService contactEventService;
   @Mock private ChatNotificationService chatNotificationService;
+  @Mock private ChatTypingEventService chatTypingEventService;
   @InjectMocks private StompConnectionListener stompConnectionListener;
 
   @Test
@@ -54,6 +56,7 @@ public class StompConnectionListenerTest {
     // Then
     verify(contactEventService).updateEventTypeByEmail(OFFLINE, email);
     verify(chatNotificationService).notifyAllWhoSubscribedToSameUserTopic(email);
+    verify(chatTypingEventService).updateTypingEvent(false, email);
   }
 
   private SessionConnectEvent createConnectEvent(String email, String password) {
