@@ -187,7 +187,7 @@ public class ChatControllerTest {
     assertThat(messageResponseDtos).extracting("sentFrom")
         .contains("Anton", "Vasil");
     assertThat(messageResponseDtos).extracting("sendTo")
-        .contains("vasil@gmail.com", "anton@gmail.com");
+        .contains("Vasil", "Anton");
     assertThat(messageResponseDtos).extracting("content")
         .contains("hello Vasil!", "hello Anton!");
   }
