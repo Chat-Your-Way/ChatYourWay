@@ -19,8 +19,8 @@ import lombok.ToString;
 public class MessageResponseDto {
 
   private UUID id;
+  private UUID topicId;
   private LocalDateTime timestamp;
-  private String sentFrom;
-  private String sendTo;
+  private ContactResponseDto sender;
   private String content;
 }

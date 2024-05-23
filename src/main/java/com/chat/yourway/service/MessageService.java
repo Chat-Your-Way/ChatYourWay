@@ -1,16 +1,19 @@
 package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
-import com.chat.yourway.dto.request.MessagePublicRequestDto;
+import com.chat.yourway.dto.request.MessageRequestDto;
 import com.chat.yourway.dto.request.PageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.exception.MessageHasAlreadyReportedException;
 import com.chat.yourway.exception.MessageNotFoundException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface MessageService {
 
@@ -25,7 +28,7 @@ public interface MessageService {
    * @throws TopicSubscriberNotFoundException If the contact is not subscribed to the public topic.
    * @throws TopicNotFoundException           If the topic with the specified ID does not exist.
    */
-  MessageResponseDto createPublic(UUID topicId, MessagePublicRequestDto message, String email);
+  MessageResponseDto sendToTopic(UUID topicId, MessageRequestDto message, String email);
 
   /**
    * Creates a private message to the specified recipient. Generates a unique private topic name for
@@ -56,11 +59,11 @@ public interface MessageService {
    * Retrieves a list of messages based on the given topic ID.
    *
    * @param topicId        The unique identifier of the topic.
-   * @param pageRequestDto Set parameters for pagination
+   * @param pageable Set parameters for pagination
    * @return A list of {@link MessageResponseDto} containing messages related to the specified topic
    * ID.
    */
-  List<MessageResponseDto> findAllByTopicId(UUID topicId, PageRequestDto pageRequestDto);
+  Page<MessageResponseDto> findAllByTopicId(UUID topicId, Pageable pageable, Principal principal);
 
   /**
    * Count saved messages by topic id and sander email between current time and set timestamp.

@@ -5,6 +5,8 @@ import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
 import com.chat.yourway.exception.NotSubscribedTopicException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
+import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.Topic;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
@@ -42,11 +44,9 @@ public interface TopicSubscriberService {
   /**
    * Checks if a contact is subscribed to a topic with the specified email and topic ID.
    *
-   * @param email   Contact's email.
-   * @param topicId Topic ID.
    * @return true if the contact is subscribed to the topic.
    */
-  boolean hasContactSubscribedToTopic(String email, UUID topicId);
+  boolean hasContactSubscribedToTopic(Topic topic, Contact contact);
 
   /**
    * Adds the specified topic to the user's list of favorite topics.

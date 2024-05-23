@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -32,7 +33,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
           nativeQuery = true)
   void saveReportFromContactToMessage(String email, Integer messageId);
 
-  List<Message> findAllByTopicId(UUID topic_id, Pageable pageable);
+  Page<Message> findAllByTopicId(UUID topic_id, Pageable pageable);
 
   @Query(value = """
       SELECT COUNT(*)

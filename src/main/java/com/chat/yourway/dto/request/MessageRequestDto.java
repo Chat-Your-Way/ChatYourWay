@@ -14,7 +14,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class MessagePublicRequestDto {
+public class MessageRequestDto {
 
   @Schema(description = "Message content", example = "Hello world!")
   @NotEmpty(message = "Message content cannot be empty")

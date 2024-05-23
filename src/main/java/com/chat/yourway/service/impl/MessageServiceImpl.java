@@ -2,21 +2,23 @@ package com.chat.yourway.service.impl;
 
 import com.chat.yourway.dto.request.PageRequestDto;
 import com.chat.yourway.dto.request.MessagePrivateRequestDto;
-import com.chat.yourway.dto.request.MessagePublicRequestDto;
+import com.chat.yourway.dto.request.MessageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
-import com.chat.yourway.exception.MessageHasAlreadyReportedException;
 import com.chat.yourway.exception.MessageNotFoundException;
-import com.chat.yourway.exception.MessagePermissionDeniedException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.mapper.MessageMapper;
 import com.chat.yourway.mapper.TopicMapper;
+import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
+import com.chat.yourway.model.Topic;
 import com.chat.yourway.repository.jpa.MessageRepository;
+import com.chat.yourway.service.ContactService;
 import com.chat.yourway.service.MessageService;
 import com.chat.yourway.service.TopicService;
 import com.chat.yourway.service.TopicSubscriberService;
 import jakarta.transaction.Transactional;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,6 +28,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -43,22 +46,24 @@ public class MessageServiceImpl implements MessageService {
   private final MessageMapper messageMapper;
   private final TopicService topicService;
   private final TopicMapper topicMapper;
+  private final TopicSubscriberService topicSubscriberService;
+  private final ContactService contactService;
 
   @Transactional
   @Override
-  public MessageResponseDto createPublic(UUID topicId, MessagePublicRequestDto message,
+  public MessageResponseDto sendToTopic(UUID topicId, MessageRequestDto message,
                                          String email) {
     log.trace("Creating public message in topic ID: {} by contact email: {}", topicId, email);
-    TopicResponseDto topic = topicService.findById(topicId);
+    Topic topic = topicService.getTopic(topicId);
+    Contact contact = contactService.findByEmail(email);
 
-    validateSubscription(topicId, email);
+    validateSubscription(topic, contact);
 
     Message savedMessage = messageRepository.save(Message.builder()
-        //.sentFrom(email)
-        //.sendTo("Topic id=" + topic.getId())
+        .sender(contact)
         .content(message.getContent())
         .timestamp(LocalDateTime.now())
-        .topic(topicMapper.toEntity(topic))
+        .topic(topic)
         .build());
 
     log.trace("Public message from email: {} to topic id: {} was created", email, topicId);
@@ -108,21 +113,6 @@ public class MessageServiceImpl implements MessageService {
   }
 
   @Override
-  public List<MessageResponseDto> findAllByTopicId(UUID topicId, PageRequestDto pageRequestDto) {
-    log.trace("Get all messages for topic with ID: {}", topicId);
-
-    Integer page = pageRequestDto.getPage();
-    Integer pageSize = pageRequestDto.getPageSize();
-    Pageable pageable = PageRequest.of(page, pageSize, Sort.Direction.DESC, "timestamp");
-
-    List<Message> messages = new ArrayList<>(messageRepository.findAllByTopicId(topicId, pageable));
-    messages.sort(Comparator.comparing(Message::getTimestamp));
-
-    log.trace("Getting all messages for topic with ID: {}", topicId);
-    return messageMapper.toListResponseDto(messages);
-  }
-
-  @Override
   public int countMessagesBetweenTimestampByTopicId(UUID topicId, String sentFrom,
       LocalDateTime timestamp) {
     log.trace("Started countMessagesBetweenTimestampByTopicId [{}]", topicId);
@@ -131,13 +121,25 @@ public class MessageServiceImpl implements MessageService {
         LocalDateTime.now());
   }
 
-  private void validateSubscription(UUID topicId, String email) {
-    log.trace("Validating subscription of contact email: {} to topic ID: {}", email, topicId);
-//    if (!topicSubscriberService.hasContactSubscribedToTopic(email, topicId)) {
-//      log.warn("Contact email: {} wasn't subscribed to the topic id: {}", email, topicId);
-//      throw new TopicSubscriberNotFoundException(
-//          String.format("Contact email: %s wasn't subscribed to the topic id: %s", email, topicId));
-//    }
+  @Override
+  public Page<MessageResponseDto> findAllByTopicId(UUID topicId, Pageable pageable,
+      Principal principal) {
+    Topic topic = topicService.getTopic(topicId);
+    Contact contact = contactService.findByEmail(principal.getName());
+
+    validateSubscription(topic, contact);
+
+    Page<Message> messages = messageRepository.findAllByTopicId(topicId, pageable);
+    return messages.map(m -> messageMapper.toResponseDto(m));
+  }
+
+  private void validateSubscription(Topic topic, Contact contact) {
+    log.trace("Validating subscription of contact email: {} to topic ID: {}", contact.getEmail(), topic.getId());
+    if (!topicSubscriberService.hasContactSubscribedToTopic(topic, contact)) {
+      log.warn("Contact email: {} wasn't subscribed to the topic id: {}", contact.getEmail(), topic.getId());
+      throw new TopicSubscriberNotFoundException(
+          String.format("Contact email: %s wasn't subscribed to the topic id: %s", contact.getEmail(), topic.getId()));
+    }
   }
 
 }

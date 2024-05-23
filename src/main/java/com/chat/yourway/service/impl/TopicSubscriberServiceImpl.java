@@ -64,8 +64,8 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
     }
 
     @Override
-    public boolean hasContactSubscribedToTopic(String email, UUID topicId) {
-        return false;
+    public boolean hasContactSubscribedToTopic(Topic topic, Contact contact) {
+        return topic.getTopicSubscribers().contains(contact);
     }
 
     @Override
