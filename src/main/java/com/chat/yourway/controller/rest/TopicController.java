@@ -341,8 +341,8 @@ public class TopicController {
             })
     @PatchMapping("/{topic-id}/complain")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void complainTopic(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("topic-id") Integer topicId) {
-        //topicSubscriberService.complainTopic(topicId, userDetails);
+    public void complainTopic(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("topic-id") UUID topicId) {
+        topicSubscriberService.complainTopic(topicId, userDetails);
     }
 
 }

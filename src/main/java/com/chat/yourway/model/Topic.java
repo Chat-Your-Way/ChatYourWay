@@ -57,6 +57,14 @@ public class Topic {
           inverseJoinColumns = @JoinColumn(name = "contact_id"))
   private List<Contact> topicSubscribers = new ArrayList<>();
 
+  @ManyToMany
+  @JoinTable(
+          schema = "chat",
+          name = "topic_complaints",
+          joinColumns = @JoinColumn(name = "topic_id"),
+          inverseJoinColumns = @JoinColumn(name = "contact_id"))
+  private List<Contact> topicComplaints = new ArrayList<>();
+
   @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<Message> messages;
 }
