@@ -1,5 +1,6 @@
 package com.chat.yourway.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class MessageResponseDto {
 
   private UUID id;
   private UUID topicId;
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
   private LocalDateTime timestamp;
   private ContactResponseDto sender;
   private String content;

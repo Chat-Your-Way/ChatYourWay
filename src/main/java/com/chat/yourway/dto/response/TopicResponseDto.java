@@ -1,6 +1,7 @@
 package com.chat.yourway.dto.response;
 
 import com.chat.yourway.model.TopicScope;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ public class TopicResponseDto {
   private ContactResponseDto createdBy;
 
   @Schema(description = "Created time")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
   private LocalDateTime createdAt;
 
   @ArraySchema(schema = @Schema(description = "Tags"))
