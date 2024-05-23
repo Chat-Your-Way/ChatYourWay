@@ -23,4 +23,5 @@ public class MessageResponseDto {
   private LocalDateTime timestamp;
   private ContactResponseDto sender;
   private String content;
+  private boolean my;
 }
