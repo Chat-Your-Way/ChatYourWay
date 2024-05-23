@@ -95,7 +95,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
       EmailSendingException.class,
       PasswordsAreNotEqualException.class,
       MessageHasAlreadyReportedException.class,
-      ConstraintViolationException.class
+      ConstraintViolationException.class,
+      IllegalArgumentException.class
   })
   public ApiErrorResponseDto handleBadRequestException(RuntimeException exception) {
     return new ApiErrorResponseDto(BAD_REQUEST, exception.getMessage());
