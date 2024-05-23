@@ -70,14 +70,6 @@ public interface TopicSubscriberService {
 
 
   /**
-   * Checks if sending private messages for a specific topic is prohibited for the given user.
-   *
-   * @param topicId      the ID of the topic to check for prohibition
-   * @return true if sending private messages is prohibited, false otherwise
-   */
-  boolean hasProhibitionSendingPrivateMessages(UUID topicId);
-
-  /**
    * Registers a complaint for a specific topic.
    *
    * This method allows a user to complain about a particular topic identified by its unique identifier.

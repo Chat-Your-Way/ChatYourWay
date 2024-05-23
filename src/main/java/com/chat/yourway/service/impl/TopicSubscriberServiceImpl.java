@@ -1,11 +1,6 @@
 package com.chat.yourway.service.impl;
 
 import com.chat.yourway.dto.response.ContactResponseDto;
-import com.chat.yourway.dto.response.TopicResponseDto;
-import com.chat.yourway.dto.response.TopicSubscriberResponseDto;
-import com.chat.yourway.exception.ContactAlreadySubscribedToTopicException;
-import com.chat.yourway.exception.OwnerCantUnsubscribedException;
-import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.mapper.ContactMapper;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Topic;
@@ -13,19 +8,19 @@ import com.chat.yourway.repository.jpa.TopicRepository;
 import com.chat.yourway.service.ContactService;
 import com.chat.yourway.service.TopicService;
 import com.chat.yourway.service.TopicSubscriberService;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TopicSubscriberServiceImpl implements TopicSubscriberService {
+
+    private final TopicRepository topicRepository;
 
     private final ContactService contactService;
     private final TopicService topicService;
@@ -64,8 +59,8 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
         log.trace("Started findAllSubscribersByTopicId id: {}", id);
         Topic topic = topicService.getTopic(id);
         return topic.getTopicSubscribers().stream()
-                .map(contactMapper::toResponseDto)
-                .toList();
+            .map(contactMapper::toResponseDto)
+            .toList();
     }
 
     @Override
@@ -95,12 +90,14 @@ public class TopicSubscriberServiceImpl implements TopicSubscriberService {
     }
 
     @Override
-    public boolean hasProhibitionSendingPrivateMessages(UUID topicId) {
-        return false;
-    }
-
-    @Override
     public void complainTopic(UUID topicId, UserDetails userDetails) {
-
+        String email = userDetails.getUsername();
+        Contact contact = contactService.findByEmail(email);
+        Topic topic = topicService.getTopic(topicId);
+        List<Contact> topicComplaints = topic.getTopicComplaints();
+        if (!topicComplaints.contains(contact)) {
+            topic.getTopicComplaints().add(contact);
+            topicRepository.save(topic);
+        }
     }
 }
