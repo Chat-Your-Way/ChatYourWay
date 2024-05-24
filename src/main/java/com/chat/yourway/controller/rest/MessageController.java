@@ -68,6 +68,31 @@ public class MessageController {
         return messageService.sendToTopic(topicId, message, email);
     }
 
+    @Operation(summary = "Send message to private",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = SUCCESSFULLY_REPORTED_MESSAGE,
+                content = @Content),
+            @ApiResponse(responseCode = "400", description = INVALID_VALUE),
+            @ApiResponse(
+                responseCode = "403",
+                description = TOPIC_NOT_ACCESS,
+                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+            @ApiResponse(
+                responseCode = "403",
+                description = CONTACT_UNAUTHORIZED,
+                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
+                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+        })
+    @PostMapping("/private/{sendToEmail}")
+    public MessageResponseDto sendToPrivateContact(@PathVariable String sendToEmail,
+        @Valid @RequestBody MessageRequestDto message, Principal principal) {
+        String email = principal.getName();
+        return messageService.sendToContact(sendToEmail, message, email);
+    }
+
     @Operation(summary = "Get messages by topic",
         responses = {
             @ApiResponse(

@@ -5,6 +5,7 @@ import com.chat.yourway.dto.request.MessageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.MessageNotFoundException;
+import com.chat.yourway.exception.MessagePermissionDeniedException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.mapper.MessageMapper;
 import com.chat.yourway.mapper.TopicMapper;
@@ -36,7 +37,6 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
     private final TopicService topicService;
-    private final TopicMapper topicMapper;
     private final TopicSubscriberService topicSubscriberService;
     private final ContactService contactService;
     @Value("${message.max.amount.reports}")
@@ -44,20 +44,16 @@ public class MessageServiceImpl implements MessageService {
 
     @Transactional
     @Override
-    public MessageResponseDto sendToTopic(UUID topicId, MessageRequestDto message,
-        String email) {
+    public MessageResponseDto sendToTopic(UUID topicId, MessageRequestDto message, String email) {
         log.trace("Creating public message in topic ID: {} by contact email: {}", topicId, email);
         Topic topic = topicService.getTopic(topicId);
         Contact contact = contactService.findByEmail(email);
 
         validateSubscription(topic, contact);
 
-        Message savedMessage = messageRepository.save(Message.builder()
-            .sender(contact)
-            .content(message.getContent())
-            .timestamp(LocalDateTime.now())
-            .topic(topic)
-            .build());
+        Message savedMessage = messageRepository.save(
+            new Message(topic, contact, message.getContent())
+        );
 
         log.trace("Public message from email: {} to topic id: {} was created", email, topicId);
         return messageMapper.toResponseDto(savedMessage, contact);
@@ -65,29 +61,24 @@ public class MessageServiceImpl implements MessageService {
 
     @Transactional
     @Override
-    public MessageResponseDto createPrivate(MessagePrivateRequestDto message, String email) {
-        String sendTo = message.getSendTo();
+    public MessageResponseDto sendToContact(String sendToEmail, MessageRequestDto message,
+        String sendFromEmail) {
+        Contact sendToContact = contactService.findByEmail(sendToEmail);
+        if (!sendToContact.isPermittedSendingPrivateMessage()) {
+            throw new MessagePermissionDeniedException(
+                String.format("You cannot send private messages to a contact from an sendFromEmail: %s",
+                    sendToEmail));
+        }
+        Contact sendFromContact = contactService.findByEmail(sendFromEmail);
 
-        log.trace("Creating private message from contact email: {} to recipient: {}", email,
-            sendTo);
-        String privateName = topicService.generatePrivateName(sendTo, email);
-        TopicResponseDto topic = topicService.findByName(privateName);
+        Topic topic = topicService.getPrivateTopic(sendToContact, sendFromContact);
+        Message savedMessage = messageRepository.save(
+            new Message(topic, sendFromContact, message.getContent())
+        );
 
-//    if (topicSubscriberService.hasProhibitionSendingPrivateMessages(topic.getId())) {
-//      throw new MessagePermissionDeniedException(
-//          "You do not have permission for sending message to private topic");
-//    }
-
-        Message savedMessage = messageRepository.save(Message.builder()
-            //.sentFrom(email)
-            //.sendTo(message.getSendTo())
-            .content(message.getContent())
-            .timestamp(LocalDateTime.now())
-            .topic(topicMapper.toEntity(topic))
-            .build());
-
-        log.trace("Private message from email: {} to email: {} was created", email, sendTo);
-        return messageMapper.toResponseDto(savedMessage, savedMessage.getSender()); //TODO fix contact
+        log.trace("Private message from sendFromEmail: {} to sendFromEmail id: {} was created",
+            sendFromEmail, sendToEmail);
+        return messageMapper.toResponseDto(savedMessage, sendFromContact);
     }
 
     @Override

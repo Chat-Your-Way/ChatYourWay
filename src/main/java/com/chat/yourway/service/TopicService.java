@@ -8,6 +8,7 @@ import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
+import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Tag;
 import java.util.List;
 import java.util.Set;
@@ -145,4 +146,6 @@ public interface TopicService {
    * @see TopicResponseDto
    */
   List<TopicInfoResponseDto> findPopularPublicTopics();
+
+  Topic getPrivateTopic(Contact contact1, Contact contact2);
 }

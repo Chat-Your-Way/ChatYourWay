@@ -1,5 +1,7 @@
 package com.chat.yourway.service.impl;
 
+import static java.util.stream.Collectors.toSet;
+
 import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
@@ -18,20 +20,15 @@ import com.chat.yourway.repository.jpa.TagRepository;
 import com.chat.yourway.repository.jpa.TopicRepository;
 import com.chat.yourway.service.ContactService;
 import com.chat.yourway.service.TopicService;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toSet;
 
 @Service
 @RequiredArgsConstructor
@@ -50,12 +47,12 @@ public class TopicServiceImpl implements TopicService {
         validateName(topicRequestDto.getTopicName());
         Contact creatorContact = contactService.findByEmail(email);
         Topic topic = Topic.builder()
-                .name(topicRequestDto.getTopicName())
-                .scope(TopicScope.PUBLIC)
-                .createdBy(creatorContact)
-                .topicSubscribers(List.of(creatorContact))
-                .tags(addUniqTags(topicRequestDto.getTags()))
-                .build();
+            .name(topicRequestDto.getTopicName())
+            .scope(TopicScope.PUBLIC)
+            .createdBy(creatorContact)
+            .topicSubscribers(List.of(creatorContact))
+            .tags(addUniqTags(topicRequestDto.getTags()))
+            .build();
         topicRepository.save(topic);
         log.trace("Topic name: {} was saved", topic.getName());
         return topicMapper.toResponseDto(topic);
@@ -65,15 +62,16 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TopicResponseDto createPrivate(TopicPrivateRequestDto topicPrivateDto, String email) {
         String sendTo = topicPrivateDto.getSendTo();
-        log.trace("Started create private topic by sendTo: {} and creator email: {}", sendTo, email);
+        log.trace("Started create private topic by sendTo: {} and creator email: {}", sendTo,
+            email);
         Contact creatorContact = contactService.findByEmail(email);
         Contact sendToContact = contactService.findByEmail(sendTo);
         Topic topic = Topic.builder()
-                .name(generatePrivateName(sendTo, email))
-                .scope(TopicScope.PRIVATE)
-                .createdBy(creatorContact)
-                .topicSubscribers(List.of(creatorContact,sendToContact))
-                .build();
+            .name(generatePrivateName(sendTo, email))
+            .scope(TopicScope.PRIVATE)
+            .createdBy(creatorContact)
+            .topicSubscribers(List.of(creatorContact, sendToContact))
+            .build();
         topicRepository.save(topic);
         log.trace("Topic name: {} was saved", topic.getName());
         //TODO send notification
@@ -157,10 +155,9 @@ public class TopicServiceImpl implements TopicService {
     public Set<Tag> addUniqTags(Set<TagRequestDto> tags) {
         log.trace("Started addUniqTags tags: {}", tags);
 
-
         Set<String> tagNames = tags.stream()
-                .map(tag -> tag.getName().trim().toLowerCase())
-                .collect(toSet());
+            .map(tag -> tag.getName().trim().toLowerCase())
+            .collect(toSet());
 
         Set<Tag> existingTags = tagRepository.findAllByNameIn(tagNames);
         log.trace("Found existing tags: {}", existingTags);
@@ -168,10 +165,10 @@ public class TopicServiceImpl implements TopicService {
         Set<String> existingTagNames = existingTags.stream().map(Tag::getName).collect(toSet());
 
         Set<Tag> uniqueTags =
-                tagNames.stream()
-                        .filter(tag -> !existingTagNames.contains(tag))
-                        .map(Tag::new)
-                        .collect(toSet());
+            tagNames.stream()
+                .filter(tag -> !existingTagNames.contains(tag))
+                .map(Tag::new)
+                .collect(toSet());
         log.trace("Creating new uniq tags: {}", uniqueTags);
 
         List<Tag> savedTags = tagRepository.saveAll(uniqueTags);
@@ -203,7 +200,24 @@ public class TopicServiceImpl implements TopicService {
         return topicMapper.toListInfoResponseDto(topicRepository.findPopularPublicTopics());
     }
 
-    private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email, TopicScope scope) {
+    @Override
+    public Topic getPrivateTopic(Contact contact1, Contact contact2) {
+        Topic topic = topicRepository.findPrivateTopic(contact1, contact2).orElseGet(
+            () -> {
+                Topic newPrivateTopic = Topic.builder()
+                    .createdBy(contact1)
+                    .name(generatePrivateName(contact1.getEmail(), contact2.getEmail()))
+                    .scope(TopicScope.PRIVATE)
+                    .topicSubscribers(List.of(contact1, contact2))
+                    .build();
+                topicRepository.save(newPrivateTopic);
+                return newPrivateTopic;
+            });
+        return topic;
+    }
+
+    private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email,
+        TopicScope scope) {
         String topicName = topicRequestDto.getTopicName();
         validateName(topicName);
         Contact contact = contactService.findByEmail(email);
@@ -213,13 +227,13 @@ public class TopicServiceImpl implements TopicService {
         if (topic == null) {
             log.trace("Create new topic");
             topic =
-                    Topic.builder()
-                            .name(topicName)
-                            .scope(scope)
-                            .createdBy(contact)
-                            .tags(tags)
-                            .topicSubscribers(List.of(contact))
-                            .build();
+                Topic.builder()
+                    .name(topicName)
+                    .scope(scope)
+                    .createdBy(contact)
+                    .tags(tags)
+                    .topicSubscribers(List.of(contact))
+                    .build();
         } else {
             log.trace("Update topic");
             topic.setName(topicName);
@@ -238,29 +252,31 @@ public class TopicServiceImpl implements TopicService {
 
     public Topic getTopic(UUID topicId) {
         return topicRepository
-                .findById(topicId)
-                .orElseThrow(
-                        () -> {
-                            log.warn("Topic id: {} wasn't found", topicId);
-                            return new TopicNotFoundException(
-                                    String.format("Topic id: %s wasn't found", topicId));
-                        });
+            .findById(topicId)
+            .orElseThrow(
+                () -> {
+                    log.warn("Topic id: {} wasn't found", topicId);
+                    return new TopicNotFoundException(
+                        String.format("Topic id: %s wasn't found", topicId));
+                });
     }
 
     private Topic getTopicByName(String name) {
         return topicRepository
-                .findByName(name)
-                .orElseThrow(
-                        () -> {
-                            log.warn("Topic name: {} wasn't found", name);
-                            return new TopicNotFoundException(String.format("Topic name: %s wasn't found", name));
-                        });
+            .findByName(name)
+            .orElseThrow(
+                () -> {
+                    log.warn("Topic name: {} wasn't found", name);
+                    return new TopicNotFoundException(
+                        String.format("Topic name: %s wasn't found", name));
+                });
     }
 
     private void validateName(String topicName) {
         if (isTopicNameExists(topicName)) {
             log.warn("Topic name: [{}] already in use", topicName);
-            throw new ValueNotUniqException(String.format("Topic name: %s already in use", topicName));
+            throw new ValueNotUniqException(
+                String.format("Topic name: %s already in use", topicName));
         }
     }
 
@@ -271,7 +287,8 @@ public class TopicServiceImpl implements TopicService {
     private void validateCreator(String email, Topic topic) {
         if (!isCreator(email, topic)) {
             log.warn("Email: {} wasn't the topic creator", email);
-            throw new TopicAccessException(String.format("Email: %s wasn't the topic creator", email));
+            throw new TopicAccessException(
+                String.format("Email: %s wasn't the topic creator", email));
         }
     }
 
@@ -287,9 +304,8 @@ public class TopicServiceImpl implements TopicService {
         if (!contactService.isEmailExists(sendTo)) {
             log.error("Private topic cannot be created, recipient email={} does not exist", sendTo);
             throw new ContactEmailNotExist(String.format(
-                    "Private topic cannot be created because recipient email: %s does not exist", sendTo));
+                "Private topic cannot be created because recipient email: %s does not exist",
+                sendTo));
         }
     }
-
-
 }

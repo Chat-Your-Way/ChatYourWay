@@ -39,5 +39,5 @@ public class TopicResponseDto {
   private Set<TagResponseDto> tags;
 
   @ArraySchema(schema = @Schema(description = "TopicSubscribers"))
-  private Set<TopicSubscriberResponseDto> topicSubscribers;
+  private Set<ContactResponseDto> topicSubscribers;
 }

@@ -1,5 +1,6 @@
 package com.chat.yourway.repository.jpa;
 
+import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Topic;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,14 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
   @Query(value = "SELECT t FROM Topic t Where t.id = :id and t.scope != 'DELETED'")
   @Override
   Optional<Topic> findById(UUID id);
+
+  @Query(value = """
+    SELECT t FROM Topic t JOIN FETCH t.topicSubscribers s
+    WHERE t.scope = 'PRIVATE'
+      AND EXISTS (SELECT 1 FROM t.topicSubscribers sub WHERE sub = :contact1)
+      AND EXISTS (SELECT 1 FROM t.topicSubscribers sub WHERE sub = :contact2)
+  """)
+  Optional<Topic> findPrivateTopic(@Param("contact1") Contact contact1, @Param("contact2") Contact contact2);
 
   List<Topic> findAllByScope(TopicScope scope);
 

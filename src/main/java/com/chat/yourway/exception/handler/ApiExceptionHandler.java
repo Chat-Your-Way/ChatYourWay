@@ -16,6 +16,7 @@ import com.chat.yourway.exception.InvalidCredentialsException;
 import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.exception.MessageHasAlreadyReportedException;
 import com.chat.yourway.exception.MessageNotFoundException;
+import com.chat.yourway.exception.MessagePermissionDeniedException;
 import com.chat.yourway.exception.NotSubscribedTopicException;
 import com.chat.yourway.exception.OwnerCantUnsubscribedException;
 import com.chat.yourway.exception.PasswordsAreNotEqualException;
@@ -105,7 +106,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   @ResponseStatus(FORBIDDEN)
   @ExceptionHandler({
       TopicAccessException.class,
-      OwnerCantUnsubscribedException.class
+      OwnerCantUnsubscribedException.class,
+      MessagePermissionDeniedException.class
   })
   public ApiErrorResponseDto handleForbiddenException(RuntimeException exception) {
     return new ApiErrorResponseDto(FORBIDDEN, exception.getMessage());

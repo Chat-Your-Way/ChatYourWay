@@ -35,6 +35,12 @@ public class Message {
     @Column(name = "message_text", nullable = false)
     private String content;
 
+    public Message(Topic topic, Contact sender, String content) {
+        this.topic = topic;
+        this.sender = sender;
+        this.content = content;
+        this.timestamp = LocalDateTime.now();
+    }
 //    @ManyToMany(fetch = FetchType.LAZY)
 //    @JoinTable(
 //            schema = "chat",
