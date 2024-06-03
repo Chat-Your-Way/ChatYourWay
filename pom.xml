@@ -165,6 +165,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>chat</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 ),
                 @Server(
                         description = "PROD ENV",
-                        url = "http://chat.eu-central-1.elasticbeanstalk.com"
+                        url = "https://chat.imperiaholoda.com.ua"
                 )
         },
         security = {
