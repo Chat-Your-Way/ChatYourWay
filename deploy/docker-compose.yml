@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres_service:
-    image: postgres:14.6
+    image: postgres:16.3
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
