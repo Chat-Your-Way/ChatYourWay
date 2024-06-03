@@ -26,7 +26,7 @@ public interface ContactRepository extends JpaRepository<Contact, Integer> {
   @Query(
           nativeQuery = true,
           value =
-                  "UPDATE chat.contact "
+                  "UPDATE chat.contacts "
                           + "SET is_permitted_sending_private_message = :isPermittedSendingPrivateMessage "
                           + "WHERE email = :contactEmail")
   void updatePermissionSendingPrivateMessageByContactEmail(
