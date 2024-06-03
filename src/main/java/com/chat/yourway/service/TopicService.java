@@ -148,4 +148,6 @@ public interface TopicService {
   List<TopicInfoResponseDto> findPopularPublicTopics();
 
   Topic getPrivateTopic(Contact contact1, Contact contact2);
+
+  List<TopicInfoResponseDto> findAllPrivate(String email);
 }

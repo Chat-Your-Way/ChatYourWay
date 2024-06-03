@@ -27,4 +27,6 @@ public class TopicInfoResponseDto {
 
   @Schema(description = "Created time")
   private LocalDateTime createdAt;
+
+  private MessageResponseDto lastMessage;
 }

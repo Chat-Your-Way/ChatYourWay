@@ -97,9 +97,7 @@ public class TopicServiceImpl implements TopicService {
     @Transactional(readOnly = true)
     public TopicResponseDto findById(UUID id) {
         log.trace("Started findById: {}", id);
-
         Topic topic = getTopic(id);
-
         log.trace("Topic id: {} was found", id);
         return topicMapper.toResponseDto(topic);
     }
@@ -107,9 +105,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TopicResponseDto findByName(String name) {
         log.trace("Started findByName: {}", name);
-
         Topic topic = getTopicByName(name);
-
         log.trace("Topic name: {} was found", name);
         return topicMapper.toResponseDto(topic);
     }
@@ -119,15 +115,22 @@ public class TopicServiceImpl implements TopicService {
         log.trace("Started findAllPublic");
         List<Topic> topics = topicRepository.findAllByScope(TopicScope.PUBLIC);
         log.trace("All public topics was found");
-        return topicMapper.toListInfoResponseDto(topics);
+        return topicMapper.toListInfoPrivateResponseDto(topics);
+    }
+
+    @Override
+    public List<TopicInfoResponseDto> findAllPrivate(String email) {
+        log.trace("Started findAllPrivate");
+        Contact contact = contactService.findByEmail(email);
+        List<Topic> topics = topicRepository.findPrivateTopics(contact);
+        log.trace("All private topics was found");
+        return topicMapper.toListInfoPrivateResponseDto(topics, contact);
     }
 
     @Override
     public List<TopicResponseDto> findTopicsByTagName(String tagName) {
         log.trace("Started findTopicsByTagName");
-
         List<Topic> topics = topicRepository.findAllByTagName(tagName);
-
         log.trace("All Topics by tag name was found");
         return topicMapper.toListResponseDto(topics);
     }
@@ -192,56 +195,27 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public List<TopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails) {
         Contact contact = contactService.findByEmail(userDetails.getUsername());
-        return topicMapper.toListInfoResponseDto(contact.getFavoriteTopics());
+        return topicMapper.toListInfoPrivateResponseDto(contact.getFavoriteTopics());
     }
 
     @Override
     public List<TopicInfoResponseDto> findPopularPublicTopics() {
-        return topicMapper.toListInfoResponseDto(topicRepository.findPopularPublicTopics());
+        return topicMapper.toListInfoPrivateResponseDto(topicRepository.findPopularPublicTopics());
     }
 
     @Override
-    public Topic getPrivateTopic(Contact contact1, Contact contact2) {
-        Topic topic = topicRepository.findPrivateTopic(contact1, contact2).orElseGet(
+    public Topic getPrivateTopic(Contact sendToContact, Contact sendFromContact) {
+        return topicRepository.findPrivateTopic(sendToContact, sendFromContact).orElseGet(
             () -> {
                 Topic newPrivateTopic = Topic.builder()
-                    .createdBy(contact1)
-                    .name(generatePrivateName(contact1.getEmail(), contact2.getEmail()))
+                    .createdBy(sendToContact)
+                    .name(generatePrivateName(sendToContact.getEmail(), sendFromContact.getEmail()))
                     .scope(TopicScope.PRIVATE)
-                    .topicSubscribers(List.of(contact1, contact2))
+                    .topicSubscribers(List.of(sendToContact, sendFromContact))
                     .build();
                 topicRepository.save(newPrivateTopic);
                 return newPrivateTopic;
             });
-        return topic;
-    }
-
-    private Topic createOrUpdateTopic(Topic topic, TopicRequestDto topicRequestDto, String email,
-        TopicScope scope) {
-        String topicName = topicRequestDto.getTopicName();
-        validateName(topicName);
-        Contact contact = contactService.findByEmail(email);
-
-        Set<Tag> tags = addUniqTags(topicRequestDto.getTags());
-
-        if (topic == null) {
-            log.trace("Create new topic");
-            topic =
-                Topic.builder()
-                    .name(topicName)
-                    .scope(scope)
-                    .createdBy(contact)
-                    .tags(tags)
-                    .topicSubscribers(List.of(contact))
-                    .build();
-        } else {
-            log.trace("Update topic");
-            topic.setName(topicName);
-            topic.setTags(tags);
-        }
-
-        log.trace("Topic name: {} was saved", topicName);
-        return topicRepository.save(topic);
     }
 
     @Transactional

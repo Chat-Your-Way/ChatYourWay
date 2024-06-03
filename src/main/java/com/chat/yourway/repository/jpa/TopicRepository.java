@@ -47,6 +47,13 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
 
   List<Topic> findAllByScope(TopicScope scope);
 
+  @Query(value = """
+    SELECT t FROM Topic t JOIN FETCH t.topicSubscribers s
+    WHERE t.scope = 'PRIVATE'
+      AND EXISTS (SELECT 1 FROM t.topicSubscribers sub WHERE sub = :contact)
+  """)
+  List<Topic> findPrivateTopics(@Param("contact") Contact contact);
+
   @Query(nativeQuery = true, value =
           """
                   SELECT t.*, COUNT(DISTINCT ts.contact_id) AS ts_count, COUNT(DISTINCT m.id) AS m_count FROM chat.topics t

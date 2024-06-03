@@ -148,6 +148,21 @@ public class TopicController {
     }
 
     @Operation(
+            summary = "Find all private topics",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = CONTACT_UNAUTHORIZED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
+    @GetMapping(path = "/private", produces = APPLICATION_JSON_VALUE)
+    public List<TopicInfoResponseDto> findAllPrivate(Principal principal) {
+        String email = principal.getName();
+        return topicService.findAllPrivate(email);
+    }
+
+    @Operation(
         summary = "Delete topic by id",
         responses = {
             @ApiResponse(responseCode = "200", description = SUCCESSFULLY_DELETE_TOPIC),
