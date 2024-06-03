@@ -195,12 +195,12 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public List<TopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails) {
         Contact contact = contactService.findByEmail(userDetails.getUsername());
-        return topicMapper.toListInfoPrivateResponseDto(contact.getFavoriteTopics());
+        return topicMapper.toListInfoResponseDto(contact.getFavoriteTopics());
     }
 
     @Override
     public List<TopicInfoResponseDto> findPopularPublicTopics() {
-        return topicMapper.toListInfoPrivateResponseDto(topicRepository.findPopularPublicTopics());
+        return topicMapper.toListInfoResponseDto(topicRepository.findPopularPublicTopics());
     }
 
     @Override

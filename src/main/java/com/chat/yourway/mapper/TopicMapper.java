@@ -26,8 +26,9 @@ public interface TopicMapper {
     TopicInfoResponseDto toInfoPrivateResponseDto(Topic topic, @Context Contact me);
 
     List<TopicInfoResponseDto> toListInfoPrivateResponseDto(List<Topic> topics);
+    List<TopicInfoResponseDto> toListInfoResponseDto(List<Topic> topics);
 
-    List<TopicInfoResponseDto> toListInfoPrivateResponseDto(Set<Topic> topics);
+    List<TopicInfoResponseDto> toListInfoResponseDto(Set<Topic> topics);
 
     default List<TopicInfoResponseDto> toListInfoPrivateResponseDto(List<Topic> topics, @Context Contact me) {
         return topics.stream()
