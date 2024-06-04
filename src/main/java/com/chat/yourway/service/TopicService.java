@@ -3,7 +3,8 @@ package com.chat.yourway.service;
 import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
-import com.chat.yourway.dto.response.TopicInfoResponseDto;
+import com.chat.yourway.dto.response.PrivateTopicInfoResponseDto;
+import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
@@ -77,7 +78,7 @@ public interface TopicService {
    *
    * @return A list of public topics.
    */
-  List<TopicInfoResponseDto> findAllPublic();
+  List<PublicTopicInfoResponseDto> findAllPublic();
 
   /**
    * Deletes a topic by ID if the specified email is the creator of the topic.
@@ -132,7 +133,7 @@ public interface TopicService {
    * @param userDetails The details of the user for whom favorite topics are to be retrieved.
    * @return A list of {@code TopicInfoResponseDto} objects representing the user's favorite topics.
    */
-  List<TopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails);
+  List<PublicTopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails);
 
 
   /**
@@ -145,9 +146,9 @@ public interface TopicService {
    * @return A list of {@code TopicInfoResponseDto} objects representing popular public topics.
    * @see TopicResponseDto
    */
-  List<TopicInfoResponseDto> findPopularPublicTopics();
+  List<PublicTopicInfoResponseDto> findPopularPublicTopics();
 
   Topic getPrivateTopic(Contact contact1, Contact contact2);
 
-  List<TopicInfoResponseDto> findAllPrivate(String email);
+  List<PrivateTopicInfoResponseDto> findAllPrivate(String email);
 }

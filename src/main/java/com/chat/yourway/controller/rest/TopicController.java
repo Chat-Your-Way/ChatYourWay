@@ -24,7 +24,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.ContactResponseDto;
-import com.chat.yourway.dto.response.TopicInfoResponseDto;
+import com.chat.yourway.dto.response.PrivateTopicInfoResponseDto;
+import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.service.TopicService;
@@ -143,7 +144,7 @@ public class TopicController {
                 content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
         })
     @GetMapping(path = "/all", produces = APPLICATION_JSON_VALUE)
-    public List<TopicInfoResponseDto> findAllPublic() {
+    public List<PublicTopicInfoResponseDto> findAllPublic() {
         return topicService.findAllPublic();
     }
 
@@ -157,7 +158,7 @@ public class TopicController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/private", produces = APPLICATION_JSON_VALUE)
-    public List<TopicInfoResponseDto> findAllPrivate(Principal principal) {
+    public List<PrivateTopicInfoResponseDto> findAllPrivate(Principal principal) {
         String email = principal.getName();
         return topicService.findAllPrivate(email);
     }
@@ -323,7 +324,7 @@ public class TopicController {
                 content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
         })
     @GetMapping(path = "/favourite", produces = APPLICATION_JSON_VALUE)
-    public List<TopicInfoResponseDto> findAllFavouriteTopics(
+    public List<PublicTopicInfoResponseDto> findAllFavouriteTopics(
         @AuthenticationPrincipal UserDetails userDetails) {
         return topicService.findAllFavouriteTopics(userDetails);
     }
@@ -334,7 +335,7 @@ public class TopicController {
             @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC)
         })
     @GetMapping(path = "/popular/public", produces = APPLICATION_JSON_VALUE)
-    public List<TopicInfoResponseDto> findAllPopularPublicTopics() {
+    public List<PublicTopicInfoResponseDto> findAllPopularPublicTopics() {
         return topicService.findPopularPublicTopics();
     }
 

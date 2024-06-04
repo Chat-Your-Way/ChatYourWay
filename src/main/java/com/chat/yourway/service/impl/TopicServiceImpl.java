@@ -5,7 +5,8 @@ import static java.util.stream.Collectors.toSet;
 import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
-import com.chat.yourway.dto.response.TopicInfoResponseDto;
+import com.chat.yourway.dto.response.PrivateTopicInfoResponseDto;
+import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.exception.ContactEmailNotExist;
 import com.chat.yourway.exception.TopicAccessException;
@@ -111,15 +112,15 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public List<TopicInfoResponseDto> findAllPublic() {
+    public List<PublicTopicInfoResponseDto> findAllPublic() {
         log.trace("Started findAllPublic");
         List<Topic> topics = topicRepository.findAllByScope(TopicScope.PUBLIC);
         log.trace("All public topics was found");
-        return topicMapper.toListInfoPrivateResponseDto(topics);
+        return topicMapper.toListInfoResponseDto(topics);
     }
 
     @Override
-    public List<TopicInfoResponseDto> findAllPrivate(String email) {
+    public List<PrivateTopicInfoResponseDto> findAllPrivate(String email) {
         log.trace("Started findAllPrivate");
         Contact contact = contactService.findByEmail(email);
         List<Topic> topics = topicRepository.findPrivateTopics(contact);
@@ -193,13 +194,13 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public List<TopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails) {
+    public List<PublicTopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails) {
         Contact contact = contactService.findByEmail(userDetails.getUsername());
         return topicMapper.toListInfoResponseDto(contact.getFavoriteTopics());
     }
 
     @Override
-    public List<TopicInfoResponseDto> findPopularPublicTopics() {
+    public List<PublicTopicInfoResponseDto> findPopularPublicTopics() {
         return topicMapper.toListInfoResponseDto(topicRepository.findPopularPublicTopics());
     }
 
