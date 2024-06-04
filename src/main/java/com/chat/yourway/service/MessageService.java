@@ -2,11 +2,15 @@ package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.MessageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.exception.MessageHasAlreadyReportedException;
 import com.chat.yourway.exception.MessageNotFoundException;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+
+import com.chat.yourway.model.TopicScope;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -49,4 +53,7 @@ public interface MessageService {
      */
     int countMessagesBetweenTimestampByTopicId(UUID topicId, String sentFrom,
         LocalDateTime timestamp);
+
+    List<LastMessageResponseDto> getLastMessages(TopicScope aPublic);
+
 }

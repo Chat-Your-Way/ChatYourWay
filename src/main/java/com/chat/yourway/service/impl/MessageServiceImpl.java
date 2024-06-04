@@ -1,14 +1,12 @@
 package com.chat.yourway.service.impl;
 
-import com.chat.yourway.dto.request.MessagePrivateRequestDto;
 import com.chat.yourway.dto.request.MessageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
-import com.chat.yourway.dto.response.TopicResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.exception.MessageNotFoundException;
 import com.chat.yourway.exception.MessagePermissionDeniedException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
 import com.chat.yourway.mapper.MessageMapper;
-import com.chat.yourway.mapper.TopicMapper;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
 import com.chat.yourway.model.Topic;
@@ -21,6 +19,7 @@ import com.chat.yourway.service.TopicSubscriberService;
 import jakarta.transaction.Transactional;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -105,6 +104,11 @@ public class MessageServiceImpl implements MessageService {
         return messageRepository.countMessagesBetweenTimestampByTopicId(topicId, sentFrom,
             timestamp,
             LocalDateTime.now());
+    }
+
+    @Override
+    public List<LastMessageResponseDto> getLastMessages(TopicScope scope) {
+        return messageRepository.getLastMessages(scope);
     }
 
     @Override

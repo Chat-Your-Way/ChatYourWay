@@ -1,16 +1,11 @@
 package com.chat.yourway.controller.rest;
 
-import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_UNAUTHORIZED;
-import static com.chat.yourway.config.openapi.OpenApiMessages.INVALID_VALUE;
-import static com.chat.yourway.config.openapi.OpenApiMessages.MESSAGE_HAS_ALREADY_REPORTED;
-import static com.chat.yourway.config.openapi.OpenApiMessages.MESSAGE_NOT_FOUND;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_REPORTED_MESSAGE;
-import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_ACCESS;
-import static com.chat.yourway.config.openapi.OpenApiMessages.TOPIC_NOT_FOUND;
-
 import com.chat.yourway.dto.request.MessageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
+import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
+import com.chat.yourway.model.TopicScope;
 import com.chat.yourway.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,6 +30,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.chat.yourway.config.openapi.OpenApiMessages.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Tag(name = "Message")
 @RestController
@@ -142,5 +141,19 @@ public class MessageController {
         @PathVariable int id, Principal principal) {
         String email = principal.getName();
         messageService.reportMessageById(id, email);
+    }
+
+    @Operation(
+            summary = "Get last messages from public topics",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REPORTED_MESSAGE),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = CONTACT_UNAUTHORIZED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
+    @GetMapping(path = "/last", produces = APPLICATION_JSON_VALUE)
+    public List<LastMessageResponseDto> getLastMessages() {
+        return messageService.getLastMessages(TopicScope.PUBLIC);
     }
 }
