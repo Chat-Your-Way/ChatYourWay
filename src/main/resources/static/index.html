@@ -26,7 +26,7 @@
   <div>
 
     <label for="subscribeToTopic">
-      <input type="number" id="subscribeToTopic" placeholder="Enter topic id">
+      <input type="text" id="subscribeToTopic" placeholder="Enter topic id">
     </label>
 
     <button onclick="subscribeToTopic()">Subscribe</button>
@@ -59,45 +59,6 @@
   <div id="topics"></div>
   <br/>
 
-  <p style="font-style: italic">
-    Get message history [/app/history/topic/{id}]
-  </p>
-  <div>
-    <label for="page">
-      <input type="number" id="page" placeholder="Enter page">
-    </label>
-    <label for="pageSize">
-      <input type="number" id="pageSize" placeholder="Enter pageSize">
-    </label>
-
-    <button onclick="getHistoryTopic()">GetMessageHistory</button>
-  </div>
-
-  <p style="font-style: italic">
-    Send message to public topic [/app/topic/public/{topicId}]
-  </p>
-  <div>
-    <label for="message">
-      <input type="text" id="message" placeholder="Enter your message">
-    </label>
-
-    <button onclick="sendToPublicTopic()">Send to public Topic</button>
-  </div>
-
-  <p style="font-style: italic">
-    Send message to private topic [/app/topic/private/{topicId}]
-  </p>
-  <div>
-    <label for="privateMessage">
-      <input type="text" id="privateMessage" placeholder="Enter your message">
-    </label>
-
-    <label for="sendToContact">
-      <input type="text" id="sendToContact" placeholder="Enter contact email"/>
-    </label>
-
-    <button onclick="sendToPrivateTopic()">Send to Contact</button>
-  </div>
 
   <br/>
   <br/>
@@ -131,28 +92,14 @@
     stompClient.connect({}, function (frame) {
       console.log('Connected: ' + frame);
 
-      subscribeToError();
-      subscribeToAllTopics();
+     // subscribeToError();
+      //subscribeToAllTopics();
     });
   }
 
-  function subscribeToMessageHistory() {
-    let topicId = document.getElementById('subscribeToTopic').value;
-
-    stompClient.subscribe('/user' + subToTopicDest + topicId, function (messages) {
-      let parseMessage = JSON.parse(messages.body);
-
-      parseMessage.forEach(function (message) {
-        showMessage(message);
-      });
-
-    });
-  }
 
   function subscribeToTopic() {
     let topicId = document.getElementById('subscribeToTopic').value;
-
-    subscribeToMessageHistory();
 
     stompClient.subscribe(subToTopicDest + topicId, function (messages) {
       let parseMessage = JSON.parse(messages.body);
@@ -197,38 +144,6 @@
       console.log(topics);
       showAllTopics(topics);
     });
-  }
-
-  function sendToPublicTopic() {
-    let topicId = document.getElementById('subscribeToTopic').value;
-    let message = document.getElementById('message').value;
-    let request = JSON.stringify({'content': message});
-    let response = document.getElementById('messages');
-
-    stompClient.send(sendToPublicTopicDest + topicId, {}, request);
-    response.innerText += ('<<< ' + request + '\n');
-  }
-
-  function sendToPrivateTopic() {
-    let topicId = document.getElementById('subscribeToTopic').value;
-    let message = document.getElementById('privateMessage').value;
-    let sendTo = document.getElementById('sendToContact').value;
-    let request = JSON.stringify({'sendTo': sendTo, 'content': message});
-    let response = document.getElementById('messages');
-
-    stompClient.send(sendToPrivateTopicDest + topicId, {}, request);
-    response.innerText += ('<<< ' + request + '\n');
-  }
-
-  function getHistoryTopic() {
-    let topicId = document.getElementById('subscribeToTopic').value;
-    let page = document.getElementById('page').value;
-    let pageSize = document.getElementById('pageSize').value;
-    let request = JSON.stringify({'page': page, 'pageSize': pageSize});
-    let response = document.getElementById('messages');
-
-    stompClient.send(getHistoryTopicDest + topicId, {}, request);
-    response.innerText += ('<<< ' + request + '\n');
   }
 
   function sendTyping(isTyping) {

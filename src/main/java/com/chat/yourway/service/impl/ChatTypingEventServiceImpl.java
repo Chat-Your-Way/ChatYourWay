@@ -20,15 +20,15 @@ public class ChatTypingEventServiceImpl implements ChatTypingEventService {
 
   @Override
   public void updateTypingEvent(Boolean isTyping, String email) {
-    log.info("Start updateTypingEvent isTyping={}, email={}", isTyping, email);
-    contactEventService.updateTypingEvent(email, isTyping);
-
-    UUID topicId = contactEventService.getAllByEmail(email).stream()
-        .filter(e -> e.getEventType().equals(EventType.SUBSCRIBED))
-        .findFirst()
-        .orElseThrow()
-        .getTopicId();
-
-    chatNotificationService.updateNotificationForAllWhoSubscribedToTopic(topicId);
+//    log.info("Start updateTypingEvent isTyping={}, email={}", isTyping, email);
+//    contactEventService.updateTypingEvent(email, isTyping);
+//
+//    UUID topicId = contactEventService.getAllByEmail(email).stream()
+//        .filter(e -> e.getEventType().equals(EventType.SUBSCRIBED))
+//        .findFirst()
+//        .orElseThrow()
+//        .getTopicId();
+//
+//    chatNotificationService.updateNotificationForAllWhoSubscribedToTopic(topicId);
   }
 }

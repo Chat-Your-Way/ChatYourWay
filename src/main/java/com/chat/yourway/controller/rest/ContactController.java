@@ -5,9 +5,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
+import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.ContactProfileResponseDto;
+import com.chat.yourway.model.Contact;
 import com.chat.yourway.service.ContactService;
+import com.chat.yourway.service.impl.ContactOnlineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -20,6 +23,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.UUID;
+
 @Tag(name = "Contact")
 @RestController
 @RequestMapping("/contacts")
@@ -27,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class ContactController {
 
   private final ContactService contactService;
+  private final ContactOnlineService contactOnlineService;
 
   @Operation(
       summary = "Edit contact profile",
@@ -121,4 +128,18 @@ public class ContactController {
   public void permitSendingPrivateMessages(@AuthenticationPrincipal UserDetails userDetails) {
     contactService.permitSendingPrivateMessages(userDetails);
   }
+
+    @Operation(
+            summary = "Find all online contacts by topic id",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = CONTACT_UNAUTHORIZED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
+    @GetMapping(path = "/online/{topic-id}", produces = APPLICATION_JSON_VALUE)
+    public List<Contact> findAllOnlineContactsByTopicId(@PathVariable("topic-id") UUID topicId) {
+        return contactOnlineService.getOnlineUsersByTopicId(topicId);
+    }
 }

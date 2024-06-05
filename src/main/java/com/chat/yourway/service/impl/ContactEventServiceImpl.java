@@ -87,17 +87,17 @@ public class ContactEventServiceImpl implements ContactEventService {
   @Override
   public void updateTypingEvent(String email, boolean isTyping) {
 
-    UUID topicId = getAllByEmail(email).stream()
-        .filter(e -> e.getEventType().equals(EventType.SUBSCRIBED))
-        .findFirst()
-        .orElseThrow()
-        .getTopicId();
-
-    getAllByTopicId(topicId)
-        .forEach(event -> {
-          event.setTypingEvent(new TypingEventResponseDto(email, isTyping));
-          contactEventRedisRepository.save(event);
-        });
+//    UUID topicId = getAllByEmail(email).stream()
+//        .filter(e -> e.getEventType().equals(EventType.SUBSCRIBED))
+//        .findFirst()
+//        .orElseThrow()
+//        .getTopicId();
+//
+//    getAllByTopicId(topicId)
+//        .forEach(event -> {
+//          event.setTypingEvent(new TypingEventResponseDto(email, isTyping));
+//          contactEventRedisRepository.save(event);
+//        });
 
 
   }
