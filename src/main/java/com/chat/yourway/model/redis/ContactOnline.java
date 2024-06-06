@@ -22,6 +22,7 @@ public class ContactOnline {
     @Indexed
     private String id;
     private LocalDateTime timestamp;
+    @Indexed
     private UUID topicId;
 
 }

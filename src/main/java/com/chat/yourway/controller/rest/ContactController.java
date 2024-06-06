@@ -5,6 +5,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
+import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.ContactProfileResponseDto;
@@ -139,7 +140,7 @@ public class ContactController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/online/{topic-id}", produces = APPLICATION_JSON_VALUE)
-    public List<Contact> findAllOnlineContactsByTopicId(@PathVariable("topic-id") UUID topicId) {
+    public List<ContactResponseDto> findAllOnlineContactsByTopicId(@PathVariable("topic-id") UUID topicId) {
         return contactOnlineService.getOnlineUsersByTopicId(topicId);
     }
 }

@@ -1,20 +1,7 @@
 package com.chat.yourway.listener;
 
-import static com.chat.yourway.model.event.EventType.ONLINE;
-import static com.chat.yourway.model.event.EventType.SUBSCRIBED;
-
 import com.chat.yourway.config.websocket.WebsocketProperties;
-import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
-import com.chat.yourway.dto.response.notification.TypingEventResponseDto;
-import com.chat.yourway.model.event.ContactEvent;
-import com.chat.yourway.service.ChatNotificationService;
-import com.chat.yourway.service.ContactEventService;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.TimeZone;
-import java.util.UUID;
-
+import com.chat.yourway.service.impl.ContactOnlineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -24,124 +11,79 @@ import org.springframework.web.socket.messaging.AbstractSubProtocolEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
+import java.util.Objects;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class StompSubscriptionListener {
 
-  private final WebsocketProperties properties;
-  private final ContactEventService contactEventService;
-  private final ChatNotificationService chatNotificationService;
+    private final WebsocketProperties properties;
+    private final ContactOnlineService contactOnlineService;
 
-  private static LastMessageResponseDto lastMessageDto;
-  private static TypingEventResponseDto typingEvent;
-  private static final String USER_DESTINATION = "/user";
-  private static final String TOPICS_DESTINATION = "/topics";
-  private static final String SLASH = "/";
+    private static final String SLASH = "/";
+    private static final String UUID_REGEX_PATTERN = "\\b[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\\b";
 
-  @EventListener
-  public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {
-    String destination = getDestination(event);
-    String email = getEmail(event);
+    @EventListener
+    public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {
+        String destination = getDestination(event);
+        String email = getEmail(event);
 
-    try {
-      if (isTopicDestination(destination)) {
-        lastMessageDto = contactEventService.getByTopicIdAndEmail(getTopicId(event), email)
-            .getLastMessage();
-        int unreadMessages = contactEventService.getByTopicIdAndEmail(getTopicId(event), email)
-            .getUnreadMessages();
-        typingEvent = contactEventService.getByTopicIdAndEmail(
-            getTopicId(event), email).getTypingEvent();
-
-        var contactEvent = new ContactEvent(email, getTopicId(event), SUBSCRIBED,
-            getTimestamp(event), unreadMessages, lastMessageDto, typingEvent);
-        contactEventService.updateEventTypeByEmail(ONLINE, email);
-        contactEventService.save(contactEvent);
-      }
-
-      chatNotificationService.notifyAllWhoSubscribedToSameUserTopic(email);
-      chatNotificationService.notifyAllWhoSubscribedToTopic(getTopicId(event));
-
-    } catch (NumberFormatException e) {
-      log.warn("Contact [{}] subscribe to destination [{}] without topic id", email, destination);
+        if (isTopicDestination(destination)) {
+            UUID topicId = getTopicId(event);
+            contactOnlineService.setUserOnline(email, topicId);
+            log.info("Contact [{}] open topic [{}]", email, destination);
+        }
     }
 
-    if (destination.equals(USER_DESTINATION + properties.getNotifyPrefix() + TOPICS_DESTINATION)) {
-      chatNotificationService.notifyAllTopics(getEmail(event));
+    @EventListener
+    public void handleWebSocketUnsubscribeListener(SessionUnsubscribeEvent event) {
+        String destination = getDestination(event);
+        String email = getEmail(event);
+
+        if (isTopicDestination(destination)) {
+            UUID topicId = getTopicId(event);
+            contactOnlineService.setUserOnline(email);
+            log.info("Contact [{}] unsubscribe from [{}]", email, destination);
+        }
     }
 
-    log.info("Contact [{}] subscribe to [{}]", email, destination);
-  }
-
-  @EventListener
-  public void handleWebSocketUnsubscribeListener(SessionUnsubscribeEvent event) {
-    String destination = getDestination(event);
-    String email = getEmail(event);
-
-    try {
-      if (isTopicDestination(destination)) {
-        var contactEvent = new ContactEvent(email, getTopicId(event), ONLINE,
-            getTimestamp(event), 0, lastMessageDto, typingEvent);
-        contactEventService.save(contactEvent);
-      }
-
-      chatNotificationService.notifyTopicSubscribers(getTopicId(event));
-
-    } catch (NumberFormatException e) {
-      log.warn("Contact [{}] unsubscribe from destination [{}] without topic id", email,
-          destination);
+    private String getEmail(AbstractSubProtocolEvent event) {
+        return Objects.requireNonNull(event.getUser()).getName();
     }
 
-    log.info("Contact [{}] unsubscribe from [{}]", email, destination);
-  }
-
-  private String getEmail(AbstractSubProtocolEvent event) {
-    return Objects.requireNonNull(event.getUser()).getName();
-  }
-
-  private String getDestination(AbstractSubProtocolEvent event) {
-    return SimpMessageHeaderAccessor.wrap(event.getMessage())
-        .getDestination();
-  }
-
-  private LocalDateTime getTimestamp(AbstractSubProtocolEvent event) {
-    return LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getTimestamp()),
-        TimeZone.getDefault().toZoneId());
-  }
-
-  private UUID getTopicId(AbstractSubProtocolEvent event) throws NumberFormatException {
-    String destination = getDestination(event);
-
-    if (isNotificationDestination(destination)) {
-      return UUID.fromString(destination.substring(getNotifyDestination().length()));
-    } else if (isPrivateTopicDestination(destination)) {
-      return UUID.fromString(destination.substring(getPrivateTopicDestination().length()));
+    private String getDestination(AbstractSubProtocolEvent event) {
+        return SimpMessageHeaderAccessor.wrap(event.getMessage())
+                .getDestination();
     }
-    return UUID.fromString(destination.substring(getTopicDestination().length()));
-  }
 
-  private String getTopicDestination() {
-    return properties.getTopicPrefix() + SLASH;
-  }
+    private UUID getTopicId(AbstractSubProtocolEvent event) {
+        String destination = getDestination(event);
+        String topicId = "";
 
-  private String getNotifyDestination() {
-    return USER_DESTINATION + properties.getNotifyPrefix() + SLASH;
-  }
+        Pattern pattern = Pattern.compile(UUID_REGEX_PATTERN);
+        Matcher matcher = pattern.matcher(destination);
 
-  private String getPrivateTopicDestination() {
-    return USER_DESTINATION + getTopicDestination();
-  }
+        while (matcher.find()) {
+            topicId = matcher.group();
+        }
 
-  private boolean isTopicDestination(String destination) {
-    return destination.startsWith(getTopicDestination());
-  }
+        if (topicId.isEmpty()) {
+            return null;
+        }
 
-  private boolean isPrivateTopicDestination(String destination) {
-    return destination.startsWith(getPrivateTopicDestination());
-  }
+        return UUID.fromString(topicId);
+    }
 
-  private boolean isNotificationDestination(String destination) {
-    return destination.startsWith(getNotifyDestination());
-  }
+    private String getTopicDestination() {
+        return properties.getTopicPrefix() + SLASH;
+    }
 
+
+    private boolean isTopicDestination(String destination) {
+        return destination.startsWith(getTopicDestination());
+    }
 }

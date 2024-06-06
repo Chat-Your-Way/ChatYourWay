@@ -29,7 +29,6 @@ public class ContactServiceImpl implements ContactService {
 
   @Transactional
   @Override
-  @CacheEvict(value = "contacts", key = "#contact.getEmail()")
   public Contact save(Contact contact) {
     return contactRepository.save(contact);
   }
@@ -61,7 +60,6 @@ public class ContactServiceImpl implements ContactService {
 
   @Override
   @Transactional(readOnly = true)
-  @Cacheable(value = "contacts", key = "#email")
   public Contact findByEmail(String email) {
     log.trace("Started findByEmail: [{}]", email);
     Contact contact = contactRepository
@@ -77,7 +75,6 @@ public class ContactServiceImpl implements ContactService {
 
   @Override
   @Transactional
-  @CacheEvict(value = "contacts", key = "#email")
   public void changePasswordByEmail(String password, String email) {
     log.trace("Started change password by email [{}]", email);
     contactRepository.changePasswordByEmail(passwordEncoder.encode(password), email);
@@ -97,7 +94,6 @@ public class ContactServiceImpl implements ContactService {
 
   @Override
   @Transactional
-  @CacheEvict(value = "contacts", key = "#userDetails.getUsername()")
   public void updateContactProfile(
       EditContactProfileRequestDto editContactProfileRequestDto, UserDetails userDetails) {
     log.trace("Started updating contact profile: [{}]", editContactProfileRequestDto);
@@ -139,7 +135,6 @@ public class ContactServiceImpl implements ContactService {
 
   @Override
   @Transactional
-  @CacheEvict(value = "contacts", key = "#userDetails.getUsername()")
   public void permitSendingPrivateMessages(UserDetails userDetails) {
     log.trace("Started permit sending private messages by email [{}]", userDetails.getUsername());
     boolean isPermittedSendingPrivateMessage = true;
@@ -150,7 +145,6 @@ public class ContactServiceImpl implements ContactService {
 
   @Override
   @Transactional
-  @CacheEvict(value = "contacts", key = "#userDetails.getUsername()")
   public void prohibitSendingPrivateMessages(UserDetails userDetails) {
     log.trace("Started prohibit sending private messages by email [{}]", userDetails.getUsername());
     boolean isPermittedSendingPrivateMessage = false;

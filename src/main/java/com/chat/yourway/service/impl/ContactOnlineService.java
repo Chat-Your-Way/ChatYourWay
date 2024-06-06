@@ -1,5 +1,7 @@
 package com.chat.yourway.service.impl;
 
+import com.chat.yourway.dto.response.ContactResponseDto;
+import com.chat.yourway.mapper.ContactMapper;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.redis.ContactOnline;
 import com.chat.yourway.repository.redis.ContactOnlineRedisRepository;
@@ -20,6 +22,7 @@ public class ContactOnlineService {
 
     private final ContactOnlineRedisRepository contactOnlineRedisRepository;
     private final ContactService contactService;
+    private final ContactMapper contactMapper;
 
     public void setUserOnline(String contactEmail) {
         setUserOnline(contactEmail, null);
@@ -32,18 +35,21 @@ public class ContactOnlineService {
                 .topicId(topicId)
                 .build();
         contactOnlineRedisRepository.save(contactOnline);
+        //TODO відправити нотифікацію всім юзерам які онлайн в топіку що змінився склад юзерів
+        //щоб фронт міг завантажити оновлений список юзерів
     }
 
     public void setUserOffline(String contactEmail) {
         contactOnlineRedisRepository.deleteById(contactEmail);
     }
 
-    public List<Contact> getOnlineUsersByTopicId(UUID topicId) {
+    public List<ContactResponseDto> getOnlineUsersByTopicId(UUID topicId) {
+        //TODO додати перевірку на приватний топік. якщо це id чужого прив.топіку, то ексепшен
         List<Contact> result = new ArrayList<>();
         List<ContactOnline> contactOnlines = contactOnlineRedisRepository.findAllByTopicId(topicId);
         for (ContactOnline contactOnline : contactOnlines) {
             result.add(contactService.findByEmail(contactOnline.getId()));
         }
-        return result;
+        return contactMapper.toListResponseDto(result);
     }
 }
