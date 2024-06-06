@@ -40,6 +40,8 @@ public class ContactOnlineService {
     }
 
     public void setUserOffline(String contactEmail) {
+        //TODO відправити нотифікацію всім юзерам які онлайн в топіку що змінився склад юзерів
+        //щоб фронт міг завантажити оновлений список юзерів
         contactOnlineRedisRepository.deleteById(contactEmail);
     }
 
@@ -51,5 +53,13 @@ public class ContactOnlineService {
             result.add(contactService.findByEmail(contactOnline.getId()));
         }
         return contactMapper.toListResponseDto(result);
+    }
+
+    public ContactOnline getContactOnline(String contactEmail) {
+        return contactOnlineRedisRepository.findById(contactEmail).orElse(null);
+    }
+
+    public ContactOnline save(ContactOnline contactOnline) {
+        return contactOnlineRedisRepository.save(contactOnline);
     }
 }

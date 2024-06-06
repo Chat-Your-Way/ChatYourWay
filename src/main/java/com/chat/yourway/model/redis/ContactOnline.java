@@ -1,6 +1,5 @@
 package com.chat.yourway.model.redis;
 
-import com.chat.yourway.model.Contact;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
@@ -24,5 +23,6 @@ public class ContactOnline {
     private LocalDateTime timestamp;
     @Indexed
     private UUID topicId;
+    private boolean typingStatus;
 
 }

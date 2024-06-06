@@ -340,7 +340,7 @@ public class TopicController {
     }
 
     @Operation(
-        summary = "Complain topic",
+        summary = "Complain about the topic",
         responses = {
             @ApiResponse(responseCode = "204", description = SUCCESSFULLY_COMPLAIN_TOPIC),
             @ApiResponse(

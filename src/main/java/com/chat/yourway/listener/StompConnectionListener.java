@@ -1,6 +1,5 @@
 package com.chat.yourway.listener;
 
-import com.chat.yourway.service.ChatNotificationService;
 import com.chat.yourway.service.impl.ContactOnlineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ import java.util.Objects;
 public class StompConnectionListener {
 
     private final ContactOnlineService contactOnlineService;
-    private final ChatNotificationService chatNotificationService;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
@@ -31,7 +29,6 @@ public class StompConnectionListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         String email = getUserEmailFromEvent(event);
         contactOnlineService.setUserOffline(email);
-        chatNotificationService.notifyAllWhoSubscribedToSameUserTopic(email);
         log.info("Contact [{}] is disconnected", email);
     }
 
