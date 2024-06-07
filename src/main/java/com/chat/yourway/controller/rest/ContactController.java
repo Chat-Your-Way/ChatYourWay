@@ -143,4 +143,18 @@ public class ContactController {
     public List<ContactResponseDto> findAllOnlineContactsByTopicId(@PathVariable("topic-id") UUID topicId) {
         return contactOnlineService.getOnlineUsersByTopicId(topicId);
     }
+
+    @Operation(
+            summary = "Find all online contacts",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = CONTACT_UNAUTHORIZED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
+    @GetMapping(path = "/online", produces = APPLICATION_JSON_VALUE)
+    public List<ContactResponseDto> findAllOnlineContacts() {
+        return contactOnlineService.getOnlineUsers();
+    }
 }
