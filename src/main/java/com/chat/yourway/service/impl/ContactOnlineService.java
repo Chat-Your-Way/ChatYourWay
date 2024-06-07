@@ -63,12 +63,16 @@ public class ContactOnlineService {
         return contactOnlineRedisRepository.save(contactOnline);
     }
 
-    public List<ContactResponseDto> getOnlineUsers() {
+    public List<ContactResponseDto> getOnlineContactsDto() {
+        return contactMapper.toListResponseDto(getOnlineContacts());
+    }
+
+    public List<Contact> getOnlineContacts() {
         List<Contact> result = new ArrayList<>();
         Iterable<ContactOnline> all = contactOnlineRedisRepository.findAll();
         for (ContactOnline contactOnline : all) {
             result.add(contactService.findByEmail(contactOnline.getId()));
         }
-        return contactMapper.toListResponseDto(result);
+        return result;
     }
 }

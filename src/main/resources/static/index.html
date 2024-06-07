@@ -32,29 +32,9 @@
     <button onclick="subscribeToTopic()">Subscribe</button>
   </div>
 
-  <p style="font-style: italic">
-    Get topic notification [/user/specific/notify/{id}]
-  </p>
-  <div>
-    <label for="getTopicNotification">
-      <input type="number" id="getTopicNotification" placeholder="Enter topic id">
-    </label>
-
-    <button
-        onclick="subscribeToNotificationFromTopic(document.getElementById('getTopicNotification').value)">
-      Get notification
-    </button>
-  </div>
-  <br/>
-
   <div id="notification"></div>
   <br/>
 
-  <p style="font-style: italic">
-    Get all topics [/user/specific/notify/topics]
-  </p>
-
-  <br/>
 
   <div id="topics"></div>
   <br/>
@@ -92,6 +72,7 @@
     stompClient.connect({}, function (frame) {
       console.log('Connected: ' + frame);
 
+    subscribeToMessageNotification();
      // subscribeToError();
       //subscribeToAllTopics();
     });
@@ -130,6 +111,14 @@
 
   function subscribeToNotificationFromTopic(topicId) {
     stompClient.subscribe(subToNotificationDest + topicId, function (messages) {
+      let notificationMessage = JSON.parse(messages.body);
+      console.log(notificationMessage);
+      showNotification(notificationMessage);
+    });
+  }
+
+  function subscribeToMessageNotification() {
+    stompClient.subscribe(subToNotificationDest + 'messages', function (messages) {
       let notificationMessage = JSON.parse(messages.body);
       console.log(notificationMessage);
       showNotification(notificationMessage);

@@ -17,17 +17,17 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
 
   private final WebsocketProperties properties;
   private final SimpMessagingTemplate simpMessagingTemplate;
-  private final NotificationServiceImpl notificationService;
+  private final NotificationService notificationService;
   private final ContactEventService contactEventService;
 
   @Override
   public void notifyTopicSubscribers(UUID topicId) {
     log.trace("Started notifyTopicSubscribers, topic id = [{}]", topicId);
 
-    var notifications = notificationService.notifyTopicSubscribers(topicId);
-    notifications
-        .forEach(n -> simpMessagingTemplate.convertAndSendToUser(
-            n.getEmail(), toNotifyMessageDest(topicId), notifications));
+//    var notifications = notificationService.notifyTopicSubscribers(topicId);
+//    notifications
+//        .forEach(n -> simpMessagingTemplate.convertAndSendToUser(
+//            n.getEmail(), toNotifyMessageDest(topicId), notifications));
 
     log.info("All subscribers was notified by topic id = [{}]", topicId);
   }
@@ -46,8 +46,8 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
   public void notifyAllTopics(String email) {
     log.trace("Started notifyAllTopics, email = [{}]", email);
 
-    var notifiedTopics = notificationService.notifyAllTopicsByEmail(email);
-    simpMessagingTemplate.convertAndSendToUser(email, toNotifyTopicsDest(), notifiedTopics);
+//    var notifiedTopics = notificationService.notifyAllTopicsByEmail(email);
+//    simpMessagingTemplate.convertAndSendToUser(email, toNotifyTopicsDest(), notifiedTopics);
 
     log.info("All topics was notified for user email = [{}]", email);
   }
@@ -66,8 +66,8 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
   public void updateNotificationForAllTopics(String email) {
     log.trace("Started updateNotificationForAllTopics, email = [{}]", email);
 
-    var notifiedTopics = notificationService.updateTopicNotification(email);
-    simpMessagingTemplate.convertAndSendToUser(email, toNotifyTopicsDest(), notifiedTopics);
+//    var notifiedTopics = notificationService.updateTopicNotification(email);
+//    simpMessagingTemplate.convertAndSendToUser(email, toNotifyTopicsDest(), notifiedTopics);
 
     log.info("All topics for user was notified, email = [{}]", email);
   }

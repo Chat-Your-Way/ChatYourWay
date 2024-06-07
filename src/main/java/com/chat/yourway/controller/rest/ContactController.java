@@ -6,10 +6,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
 import com.chat.yourway.dto.response.ContactResponseDto;
-import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.ContactProfileResponseDto;
-import com.chat.yourway.model.Contact;
 import com.chat.yourway.service.ContactService;
 import com.chat.yourway.service.impl.ContactOnlineService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -155,6 +153,6 @@ public class ContactController {
             })
     @GetMapping(path = "/online", produces = APPLICATION_JSON_VALUE)
     public List<ContactResponseDto> findAllOnlineContacts() {
-        return contactOnlineService.getOnlineUsers();
+        return contactOnlineService.getOnlineContactsDto();
     }
 }

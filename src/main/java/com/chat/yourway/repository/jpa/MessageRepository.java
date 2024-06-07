@@ -54,4 +54,12 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
         """)
     List<LastMessageResponseDto> getLastMessages(@Param("scope") TopicScope scope);
 
+    @Query("""
+        SELECT new com.chat.yourway.dto.response.notification.LastMessageResponseDto(
+            tm.timestamp, tm.sender.nickname, tm.content, t.id) FROM Topic t
+        LEFT JOIN t.messages tm
+        WHERE t.scope = :scope AND t.id in :topicIds
+        AND (tm.timestamp IN (SELECT MAX(tm2.timestamp) FROM Message tm2 WHERE tm2.topic = t) OR tm IS NULL)
+        """)
+    List<LastMessageResponseDto> getLastMessagesByTopicIds(@Param("scope") TopicScope scope, @Param("topicIds") List<UUID> topicIds);
 }

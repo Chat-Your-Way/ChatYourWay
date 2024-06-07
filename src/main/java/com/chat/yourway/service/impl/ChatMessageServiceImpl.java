@@ -7,12 +7,12 @@ import com.chat.yourway.service.ChatMessageService;
 import com.chat.yourway.service.ChatNotificationService;
 import com.chat.yourway.service.ContactEventService;
 import com.chat.yourway.service.ContactService;
-import com.chat.yourway.service.MessageService;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

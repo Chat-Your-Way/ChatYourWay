@@ -13,7 +13,6 @@ import com.chat.yourway.model.Topic;
 import com.chat.yourway.model.TopicScope;
 import com.chat.yourway.repository.jpa.MessageRepository;
 import com.chat.yourway.service.ContactService;
-import com.chat.yourway.service.MessageService;
 import com.chat.yourway.service.TopicService;
 import com.chat.yourway.service.TopicSubscriberService;
 import jakarta.transaction.Transactional;
@@ -31,18 +30,19 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MessageServiceImpl implements MessageService {
+public class MessageService {
 
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
     private final TopicService topicService;
     private final TopicSubscriberService topicSubscriberService;
     private final ContactService contactService;
+    private final NotificationService notificationService;
+
     @Value("${message.max.amount.reports}")
     private Byte maxAmountReports;
 
     @Transactional
-    @Override
     public MessageResponseDto sendToTopic(UUID topicId, MessageRequestDto message, String email) {
         log.trace("Creating public message in topic ID: {} by contact email: {}", topicId, email);
         Topic topic = topicService.getTopic(topicId);
@@ -53,13 +53,13 @@ public class MessageServiceImpl implements MessageService {
         Message savedMessage = messageRepository.save(
             new Message(topic, contact, message.getContent())
         );
+        notificationService.sendPublicMessage(savedMessage);
 
         log.trace("Public message from email: {} to topic id: {} was created", email, topicId);
         return messageMapper.toResponseDto(savedMessage, contact);
     }
 
     @Transactional
-    @Override
     public MessageResponseDto sendToContact(String sendToEmail, MessageRequestDto message,
         String sendFromEmail) {
         Contact sendToContact = contactService.findByEmail(sendToEmail);
@@ -75,12 +75,12 @@ public class MessageServiceImpl implements MessageService {
             new Message(topic, sendFromContact, message.getContent())
         );
 
+        notificationService.sendPrivateMessage(savedMessage);
         log.trace("Private message from sendFromEmail: {} to sendFromEmail id: {} was created",
             sendFromEmail, sendToEmail);
         return messageMapper.toResponseDto(savedMessage, sendFromContact);
     }
 
-    @Override
     @Transactional
     public void reportMessageById(Integer messageId, String email) {
         log.trace("Contact email: {} is reporting message with ID: {}", email, messageId);
@@ -96,7 +96,6 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
-    @Override
     public int countMessagesBetweenTimestampByTopicId(UUID topicId, String sentFrom,
         LocalDateTime timestamp) {
         log.trace("Started countMessagesBetweenTimestampByTopicId [{}]", topicId);
@@ -106,12 +105,14 @@ public class MessageServiceImpl implements MessageService {
             LocalDateTime.now());
     }
 
-    @Override
-    public List<LastMessageResponseDto> getLastMessages(TopicScope scope) {
-        return messageRepository.getLastMessages(scope);
+    public List<LastMessageResponseDto> getLastMessages(List<UUID> topicIds, TopicScope scope) {
+        if (topicIds == null) {
+            return messageRepository.getLastMessages(scope);
+        } else {
+            return messageRepository.getLastMessagesByTopicIds(scope, topicIds);
+        }
     }
 
-    @Override
     public Page<MessageResponseDto> findAllByTopicId(UUID topicId, Pageable pageable,
         Principal principal) {
         Topic topic = topicService.getTopic(topicId);
