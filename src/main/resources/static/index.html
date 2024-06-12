@@ -73,6 +73,7 @@
       console.log('Connected: ' + frame);
 
     subscribeToMessageNotification();
+    subscribeToContactsNotification();
      // subscribeToError();
       //subscribeToAllTopics();
     });
@@ -119,6 +120,14 @@
 
   function subscribeToMessageNotification() {
     stompClient.subscribe(subToNotificationDest + 'messages', function (messages) {
+      let notificationMessage = JSON.parse(messages.body);
+      console.log(notificationMessage);
+      showNotification(notificationMessage);
+    });
+  }
+
+  function subscribeToContactsNotification() {
+    stompClient.subscribe(subToNotificationDest + 'contacts', function (messages) {
       let notificationMessage = JSON.parse(messages.body);
       console.log(notificationMessage);
       showNotification(notificationMessage);

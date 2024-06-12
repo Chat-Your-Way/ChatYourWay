@@ -38,6 +38,7 @@ public class MessageService {
     private final TopicSubscriberService topicSubscriberService;
     private final ContactService contactService;
     private final NotificationService notificationService;
+    private final ContactOnlineService contactOnlineService;
 
     @Value("${message.max.amount.reports}")
     private Byte maxAmountReports;
@@ -53,7 +54,7 @@ public class MessageService {
         Message savedMessage = messageRepository.save(
             new Message(topic, contact, message.getContent())
         );
-        notificationService.sendPublicMessage(savedMessage);
+        notificationService.sendPublicMessage(contactOnlineService.getOnlineContacts(), savedMessage);
 
         log.trace("Public message from email: {} to topic id: {} was created", email, topicId);
         return messageMapper.toResponseDto(savedMessage, contact);

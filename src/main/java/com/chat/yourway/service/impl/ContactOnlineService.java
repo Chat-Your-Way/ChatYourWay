@@ -22,6 +22,7 @@ public class ContactOnlineService {
 
     private final ContactOnlineRedisRepository contactOnlineRedisRepository;
     private final ContactService contactService;
+    private final NotificationService notificationService;
     private final ContactMapper contactMapper;
 
     public void setUserOnline(String contactEmail) {
@@ -35,14 +36,12 @@ public class ContactOnlineService {
                 .topicId(topicId)
                 .build();
         contactOnlineRedisRepository.save(contactOnline);
-        //TODO відправити нотифікацію всім юзерам які онлайн в топіку що змінився склад юзерів
-        //щоб фронт міг завантажити оновлений список юзерів
+        notificationService.contactChangeStatus(getOnlineContacts(), contactService.findByEmail(contactEmail), contactOnline);
     }
 
     public void setUserOffline(String contactEmail) {
-        //TODO відправити нотифікацію всім юзерам які онлайн в топіку що змінився склад юзерів
-        //щоб фронт міг завантажити оновлений список юзерів
         contactOnlineRedisRepository.deleteById(contactEmail);
+        notificationService.contactChangeStatus(getOnlineContacts(), contactService.findByEmail(contactEmail));
     }
 
     public List<ContactResponseDto> getOnlineUsersByTopicId(UUID topicId) {
