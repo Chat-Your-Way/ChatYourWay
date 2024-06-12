@@ -159,7 +159,7 @@
   }
 
   function sendTyping(isTyping) {
-    //stompClient.send(sendIsTypingDest + '/' + isTyping, {});
+    stompClient.send(sendIsTypingDest + '/' + isTyping, {});
   }
 
   document.addEventListener('keydown', function() {

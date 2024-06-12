@@ -60,6 +60,7 @@ public class NotificationService {
         if (contactOnline != null) {
             online = true;
             contactResponseDto.setCurrentTopicId(contactOnline.getTopicId());
+            contactResponseDto.setTypingStatus(contactOnline.isTypingStatus());
         }
         contactResponseDto.setOnline(online);
 

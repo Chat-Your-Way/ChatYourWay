@@ -15,6 +15,7 @@ public class ContactResponseDto {
     private UUID id;
     private boolean online;
     private UUID currentTopicId;
+    private boolean typingStatus;
 
     public ContactResponseDto(UUID id) {
         this.id = id;
