@@ -63,6 +63,7 @@
 
   let socket = null;
   let stompClient = null;
+  let reconnectDelay = 1000;
 
   function initializeWebSocket() {
     const jwtToken = document.getElementById('jwtToken').value;
@@ -70,14 +71,21 @@
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function (frame) {
-      console.log('Connected: ' + frame);
+        console.log('Connected: ' + frame);
 
-    subscribeToMessageNotification();
-    subscribeToContactsNotification();
-     // subscribeToError();
-      //subscribeToAllTopics();
+        subscribeToMessageNotification();
+        subscribeToContactsNotification();
+    }, function (error) {
+        console.error('Connection error: ' + error);
+        setTimeout(initializeWebSocket, reconnectDelay);
     });
-  }
+
+    socket.onclose = function(event) {
+        console.log('Connection closed: ' + event.code + ' - ' + event.reason);
+        setTimeout(initializeWebSocket, reconnectDelay);
+    };
+}
+
 
 
   function subscribeToTopic() {
@@ -151,7 +159,7 @@
   }
 
   function sendTyping(isTyping) {
-    stompClient.send(sendIsTypingDest + '/' + isTyping, {});
+    //stompClient.send(sendIsTypingDest + '/' + isTyping, {});
   }
 
   document.addEventListener('keydown', function() {

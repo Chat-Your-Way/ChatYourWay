@@ -30,7 +30,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   @Override
   public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-    registry.setTimeToFirstMessage(properties.getTimeToFirstMessage());
+    registry.setTimeToFirstMessage(properties.getTimeToFirstMessage())
+            .setSendTimeLimit(15 * 1000)
+            .setSendBufferSizeLimit(512 * 1024)
+            .setMessageSizeLimit(128 * 1024);
   }
 
 }
