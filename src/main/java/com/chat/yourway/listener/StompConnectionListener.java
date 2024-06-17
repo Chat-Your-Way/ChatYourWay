@@ -1,6 +1,6 @@
 package com.chat.yourway.listener;
 
-import com.chat.yourway.service.impl.ContactOnlineService;
+import com.chat.yourway.service.ContactOnlineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

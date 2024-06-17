@@ -4,87 +4,152 @@ import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
 import com.chat.yourway.dto.response.ContactProfileResponseDto;
 import com.chat.yourway.exception.ContactNotFoundException;
+import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.Role;
+import com.chat.yourway.repository.jpa.ContactRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface ContactService {
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class ContactService {
 
-  Contact save(Contact contact);
-  /**
-   * Creates a new contact.
-   *
-   * @param contactRequestDto Contact request details.
-   * @return {@link Contact} entity.
-   * @throws ValueNotUniqException If the provided email or username is already in use.
-   */
-  Contact create(ContactRequestDto contactRequestDto);
+    private final ContactRepository contactRepository;
+    private final PasswordEncoder passwordEncoder;
 
-  /**
-   * Finds a contact entity by email.
-   *
-   * @param email Email of the contact.
-   * @return {@link Contact} entity.
-   * @throws ContactNotFoundException If contact by email wasn't found.
-   */
-  Contact findByEmail(String email);
+    @Transactional
+    public Contact save(Contact contact) {
+        return contactRepository.save(contact);
+    }
 
-  /**
-   * Changes a password of contact by email
-   *
-   * @param password Password of contact
-   * @param email Email of contact
-   */
-  void changePasswordByEmail(String password, String email);
+    @Transactional
+    public Contact create(ContactRequestDto contactRequestDto) {
+        log.trace("Started create contact, contact email: [{}]", contactRequestDto.getEmail());
 
-  /**
-   * Changes a password of contact by email
-   *
-   * @param password Password for checking
-   * @param encodedPassword Encoded password of contact
-   */
-  void verifyPassword(String password, String encodedPassword);
+        if (isEmailExists(contactRequestDto.getEmail())) {
+            log.warn("Email [{}] already in use", contactRequestDto.getEmail());
+            throw new ValueNotUniqException(
+                    String.format("Email [%s] already in use", contactRequestDto.getEmail()));
+        }
 
-  /**
-   * Edit contact profile (nickname and avatarId)
-   *
-   * @param editContactProfileRequestDto Request object for changing data
-   * */
-  void updateContactProfile(EditContactProfileRequestDto editContactProfileRequestDto, UserDetails userDetails);
+        Contact contact = contactRepository.save(
+                Contact.builder()
+                        .nickname(contactRequestDto.getNickname())
+                        .avatarId(contactRequestDto.getAvatarId())
+                        .email(contactRequestDto.getEmail())
+                        .password(passwordEncoder.encode(contactRequestDto.getPassword()))
+                        .isActive(false)
+                        .role(Role.USER)
+                        .build());
 
-  /**
-   * Check is contact with email exist in repository
-   *
-   * @param email Email of contact
-   * @return true if contact with email exists in repository
-   */
-  boolean isEmailExists(String email);
+        log.info("New contact with email [{}] was created", contactRequestDto.getEmail());
+        return contact;
+    }
 
-  /**
-   * Retrieves the contact profile information for a given user.
-   * This method fetches and returns a ContactProfileResponseDto containing details
-   * such as contact information, preferences, and other relevant data for the specified user.
-   *
-   * @param userDetails The UserDetails object representing the user for whom the contact profile
-   *                    information is to be retrieved.
-   * @return A ContactProfileResponseDto containing the contact profile information for the user.
-   *
-   * @see UserDetails
-   * @see ContactProfileResponseDto
-   */
-  ContactProfileResponseDto getContactProfile(UserDetails userDetails);
+    @Transactional(readOnly = true)
+    public Contact findByEmail(String email) {
+        log.trace("Started findByEmail: [{}]", email);
+        Contact contact = contactRepository
+                .findByEmailIgnoreCase(email)
+                .orElseThrow(() -> {
+                    log.warn("Email [{}] wasn't found", email);
+                    return new ContactNotFoundException(String.format("Email [%s] wasn't found", email));
+                });
 
-  /**
-   * Permits the sending of private messages for private topics to the given user.
-   *
-   * @param userDetails  the UserDetails object representing the user
-   */
-  void permitSendingPrivateMessages(UserDetails userDetails);
+        log.info("Contact was found by email [{}]", email);
+        return contact;
+    }
 
-  /**
-   * Prohibits the sending of private messages for private topics to the given user.
-   *
-   * @param userDetails  the UserDetails object representing the user
-   */
-  void prohibitSendingPrivateMessages(UserDetails userDetails);
+    @Transactional
+    public void changePasswordByEmail(String password, String email) {
+        log.trace("Started change password by email [{}]", email);
+        contactRepository.changePasswordByEmail(passwordEncoder.encode(password), email);
+        log.info("Password was changed by email [{}]", email);
+    }
+
+    public void verifyPassword(String password, String encodedPassword) {
+        log.trace("Started verify password");
+
+        if (!passwordEncoder.matches(password, encodedPassword)) {
+            log.warn("Password was not verify");
+            throw new PasswordsAreNotEqualException();
+        }
+        log.info("Password was verified");
+    }
+
+    @Transactional
+    public void updateContactProfile(
+            EditContactProfileRequestDto editContactProfileRequestDto, UserDetails userDetails) {
+        log.trace("Started updating contact profile: [{}]", editContactProfileRequestDto);
+
+        String email = userDetails.getUsername();
+
+        Contact contact = findByEmail(email);
+
+        contact.setNickname(editContactProfileRequestDto.getNickname());
+        contact.setAvatarId(editContactProfileRequestDto.getAvatarId());
+
+        contactRepository.save(contact);
+
+        log.info("Updated contact by email [{}]", email);
+    }
+
+    public boolean isEmailExists(String email) {
+        log.trace("Started check is email exists in repository");
+        return contactRepository.existsByEmailIgnoreCase(email);
+    }
+
+    public ContactProfileResponseDto getContactProfile(UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        log.trace("Started get contact profile by email [{}]", email);
+
+        Contact contact = findByEmail(email);
+        ContactProfileResponseDto responseDto = new ContactProfileResponseDto();
+
+        responseDto.setNickname(contact.getNickname());
+        responseDto.setAvatarId(contact.getAvatarId());
+        responseDto.setEmail(email);
+        responseDto.setHasPermissionSendingPrivateMessage(contact.isPermittedSendingPrivateMessage());
+
+        log.info("Contact profile was got by email [{}]", email);
+        return responseDto;
+    }
+
+    @Transactional
+    public void permitSendingPrivateMessages(UserDetails userDetails) {
+        log.trace("Started permit sending private messages by email [{}]", userDetails.getUsername());
+        boolean isPermittedSendingPrivateMessage = true;
+
+        changePermissionSendingPrivateMessages(userDetails, isPermittedSendingPrivateMessage);
+        log.info("Permitted sending private messages by email [{}]", userDetails.getUsername());
+    }
+
+    @Transactional
+    public void prohibitSendingPrivateMessages(UserDetails userDetails) {
+        log.trace("Started prohibit sending private messages by email [{}]", userDetails.getUsername());
+        boolean isPermittedSendingPrivateMessage = false;
+
+        changePermissionSendingPrivateMessages(userDetails, isPermittedSendingPrivateMessage);
+        log.info("Prohibited sending private messages by email [{}]", userDetails.getUsername());
+    }
+
+    private void changePermissionSendingPrivateMessages(
+            UserDetails userDetails, boolean isPermittedSendingPrivateMessage) {
+        String contactEmail = userDetails.getUsername();
+
+        if (!contactRepository.existsByEmailIgnoreCase(contactEmail)) {
+            throw new ContactNotFoundException(
+                    String.format("Contact with email [%s] is not found.", contactEmail));
+        }
+
+        contactRepository.updatePermissionSendingPrivateMessageByContactEmail(
+                contactEmail, isPermittedSendingPrivateMessage);
+    }
 }

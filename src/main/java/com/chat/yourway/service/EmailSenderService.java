@@ -1,4 +1,4 @@
-package com.chat.yourway.service.impl;
+package com.chat.yourway.service;
 
 import com.chat.yourway.dto.common.EmailMessageDto;
 import com.chat.yourway.exception.EmailSendingException;

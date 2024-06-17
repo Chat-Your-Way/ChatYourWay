@@ -1,4 +1,4 @@
-package com.chat.yourway.service.impl;
+package com.chat.yourway.service;
 
 import com.chat.yourway.config.websocket.WebsocketProperties;
 import com.chat.yourway.dto.response.MessageResponseDto;
@@ -32,6 +32,7 @@ public class NotificationService {
                 simpMessagingTemplate.convertAndSendToUser(
                         onlineUser.getEmail(), notifyMessageDestination, responseDto
                 );
+                //якщо підписані на топік то додаємо повідомлення в список не прочитаних юзера
             }
         }
     }

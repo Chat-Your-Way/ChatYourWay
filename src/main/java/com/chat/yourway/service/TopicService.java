@@ -1,154 +1,269 @@
 package com.chat.yourway.service;
 
+import static java.util.stream.Collectors.toSet;
+
 import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.PrivateTopicInfoResponseDto;
 import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
+import com.chat.yourway.exception.ContactEmailNotExist;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
+import com.chat.yourway.mapper.TopicMapper;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Tag;
+import com.chat.yourway.model.Topic;
+import com.chat.yourway.model.TopicScope;
+import com.chat.yourway.repository.jpa.TagRepository;
+import com.chat.yourway.repository.jpa.TopicRepository;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import com.chat.yourway.model.Topic;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface TopicService {
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class TopicService {
 
-  public Topic getTopic(UUID topicId);
-  public Topic save(Topic topic);
-  /**
-   * Creates a new topic with the specified email of the creator.
-   *
-   * @param topicRequestDto Request object for creating topic.
-   * @param email           The email of the creator.
-   * @return Created topic.
-   * @throws ValueNotUniqException If the topic name already in use.
-   */
-  TopicResponseDto create(TopicRequestDto topicRequestDto, String email);
+    private final TopicRepository topicRepository;
+    private final TagRepository tagRepository;
+    private final TopicMapper topicMapper;
+    private final ContactService contactService;
 
-  /**
-   * Creates a new private topic with name sendTo + sendFor, and subscribe to this topic both
-   * contacts.
-   *
-   * @param topicPrivateDto Request object for creating topic.
-   * @param email           The email of the creator.
-   * @return Created private topic.
-   * @throws ValueNotUniqException If the topic name already in use.
-   */
-  TopicResponseDto createPrivate(TopicPrivateRequestDto topicPrivateDto, String email);
+    @Transactional
+    public TopicResponseDto create(TopicRequestDto topicRequestDto, String email) {
+        log.trace("Started create topic: {} by creator email: {}", topicRequestDto, email);
+        validateName(topicRequestDto.getTopicName());
+        Contact creatorContact = contactService.findByEmail(email);
+        Topic topic = Topic.builder()
+            .name(topicRequestDto.getTopicName())
+            .scope(TopicScope.PUBLIC)
+            .createdBy(creatorContact)
+            .topicSubscribers(List.of(creatorContact))
+            .tags(addUniqTags(topicRequestDto.getTags()))
+            .build();
+        topicRepository.save(topic);
+        log.trace("Topic name: {} was saved", topic.getName());
+        return topicMapper.toResponseDto(topic);
+    }
 
-  /**
-   * Update an existing topic with the specified email of the creator.
-   *
-   * @param topicId         The ID of the topic to find.
-   * @param topicRequestDto Request object for creating topic.
-   * @param email           The email of the creator.
-   * @return Updated topic.
-   * @throws ValueNotUniqException If the topic name already in use.
-   * @throws TopicAccessException  if the email is not the creator of the topic.
-   */
-  TopicResponseDto update(UUID topicId, TopicRequestDto topicRequestDto, String email);
+    @Transactional
+    public TopicResponseDto createPrivate(TopicPrivateRequestDto topicPrivateDto, String email) {
+        String sendTo = topicPrivateDto.getSendTo();
+        log.trace("Started create private topic by sendTo: {} and creator email: {}", sendTo,
+            email);
+        Contact creatorContact = contactService.findByEmail(email);
+        Contact sendToContact = contactService.findByEmail(sendTo);
+        Topic topic = Topic.builder()
+            .name(generatePrivateName(sendTo, email))
+            .scope(TopicScope.PRIVATE)
+            .createdBy(creatorContact)
+            .topicSubscribers(List.of(creatorContact, sendToContact))
+            .build();
+        topicRepository.save(topic);
+        log.trace("Topic name: {} was saved", topic.getName());
+        //TODO send notification
+        return topicMapper.toResponseDto(topic);
+    }
 
-  /**
-   * Finds a topic by ID.
-   *
-   * @param id The ID of the topic to find.
-   * @return The found topic if it exists.
-   * @throws TopicNotFoundException If the topic with the specified ID does not exist.
-   */
-  TopicResponseDto findById(UUID id);
+    @Transactional
+    public TopicResponseDto update(UUID topicId, TopicRequestDto topicRequestDto, String email) {
+        log.trace("Started update topic: {} by contact email: {}", topicRequestDto, email);
+        validateName(topicRequestDto.getTopicName());
 
-  /**
-   * Finds a topic by topic name.
-   *
-   * @param name The name of the topic to find.
-   * @return The found topic if it exists.
-   * @throws TopicNotFoundException If the topic with the specified name does not exist.
-   */
-  TopicResponseDto findByName(String name);
+        Topic topic = getTopic(topicId);
+        validateCreator(email, topic);
+        topic.setName(topicRequestDto.getTopicName());
+        topic.setTags(addUniqTags(topicRequestDto.getTags()));
+        Topic updatedTopic = topicRepository.save(topic);
+        log.trace("Topic name: {} was saved", topic.getName());
+        return topicMapper.toResponseDto(updatedTopic);
+    }
 
-  /**
-   * Retrieves a list of all public topics.
-   *
-   * @return A list of public topics.
-   */
-  List<PublicTopicInfoResponseDto> findAllPublic();
+    @Transactional(readOnly = true)
+    public TopicResponseDto findById(UUID id) {
+        log.trace("Started findById: {}", id);
+        Topic topic = getTopic(id);
+        log.trace("Topic id: {} was found", id);
+        return topicMapper.toResponseDto(topic);
+    }
 
-  /**
-   * Deletes a topic by ID if the specified email is the creator of the topic.
-   *
-   * @param id    The ID of the topic to delete.
-   * @param email The email of the user.
-   * @throws TopicAccessException if the email is not the creator of the topic.
-   */
-  void delete(UUID id, String email);
+    public TopicResponseDto findByName(String name) {
+        log.trace("Started findByName: {}", name);
+        Topic topic = getTopicByName(name);
+        log.trace("Topic name: {} was found", name);
+        return topicMapper.toResponseDto(topic);
+    }
 
-  /**
-   * Retrieves a list of topics that are associated with the specified tag identified by its name.
-   *
-   * @param tagName The unique name of the tag for which topics are to be retrieved.
-   * @return A list of {@link TopicResponseDto} objects associated with the given tag. An empty list
-   * is returned if no topics are found for the specified tag.
-   */
-  List<TopicResponseDto> findTopicsByTagName(String tagName);
+    public List<PublicTopicInfoResponseDto> findAllPublic() {
+        log.trace("Started findAllPublic");
+        List<Topic> topics = topicRepository.findAllByScope(TopicScope.PUBLIC);
+        log.trace("All public topics was found");
+        return topicMapper.toListInfoResponseDto(topics);
+    }
 
-  /**
-   * Adds unique tags to the repository. It trims and converts tag names to lowercase, and then
-   * checks for the existence of these tags in the repository. Tags that do not already exist in the
-   * repository are created and saved. The method returns a set of all tags, including both the
-   * existing ones and the newly created unique tags.
-   *
-   * @param tags A set of tag names to be added.
-   * @return A set of tags that includes both the existing tags and the newly created unique tags.
-   */
-  Set<Tag> addUniqTags(Set<TagRequestDto> tags);
+    public List<PrivateTopicInfoResponseDto> findAllPrivate(String email) {
+        log.trace("Started findAllPrivate");
+        Contact contact = contactService.findByEmail(email);
+        List<Topic> topics = topicRepository.findPrivateTopics(contact);
+        log.trace("All private topics was found");
+        return topicMapper.toListInfoPrivateResponseDto(topics, contact);
+    }
 
-  /**
-   * Search topics by topic name and return list of topics
-   *
-   * @param topicName A name for searching topics
-   */
-  List<TopicResponseDto> findTopicsByTopicName(String topicName);
+    public List<TopicResponseDto> findTopicsByTagName(String tagName) {
+        log.trace("Started findTopicsByTagName");
+        List<Topic> topics = topicRepository.findAllByTagName(tagName);
+        log.trace("All Topics by tag name was found");
+        return topicMapper.toListResponseDto(topics);
+    }
 
-  /**
-   * Generates a unique private topic name based on the email addresses of the sender and receiver.
-   * The private name is created by concatenating the email addresses in lexicographical order,
-   * separated by "<->" symbol.
-   *
-   * @param sendTo Email address of the receiver.
-   * @param email  Email address of the sender.
-   * @return Unique private topic name.
-   */
-  String generatePrivateName(String sendTo, String email);
+    @Transactional
+    public void delete(UUID id, String email) {
+        log.trace("Started delete emil: {} and topicId: {}", email, id);
 
-  /**
-   * Retrieves a list of favorite topics for the specified user.
-   *
-   * @param userDetails The details of the user for whom favorite topics are to be retrieved.
-   * @return A list of {@code TopicInfoResponseDto} objects representing the user's favorite topics.
-   */
-  List<PublicTopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails);
+        Topic topic = getTopic(id);
+        validateCreator(email, topic);
+
+        topic.getTopicSubscribers().forEach(contact -> {
+            contact.getFavoriteTopics().remove(topic);
+            contactService.save(contact);
+        });
+        topic.setScope(TopicScope.DELETED);
+        topic.setTopicSubscribers(Collections.EMPTY_LIST);
+        topicRepository.save(topic);
+        log.trace("Deleted Topic by creator email: {} and topicId: {}", email, id);
+    }
+
+    @Transactional
+    public Set<Tag> addUniqTags(Set<TagRequestDto> tags) {
+        log.trace("Started addUniqTags tags: {}", tags);
+
+        Set<String> tagNames = tags.stream()
+            .map(tag -> tag.getName().trim().toLowerCase())
+            .collect(toSet());
+
+        Set<Tag> existingTags = tagRepository.findAllByNameIn(tagNames);
+        log.trace("Found existing tags: {}", existingTags);
+
+        Set<String> existingTagNames = existingTags.stream().map(Tag::getName).collect(toSet());
+
+        Set<Tag> uniqueTags =
+            tagNames.stream()
+                .filter(tag -> !existingTagNames.contains(tag))
+                .map(Tag::new)
+                .collect(toSet());
+        log.trace("Creating new uniq tags: {}", uniqueTags);
+
+        List<Tag> savedTags = tagRepository.saveAll(uniqueTags);
+        log.trace("Saved new uniq tags: {}", savedTags);
+
+        existingTags.addAll(savedTags);
+        return existingTags;
+    }
+
+    @Transactional(readOnly = true)
+    public List<TopicResponseDto> findTopicsByTopicName(String topicName) {
+        return topicMapper.toListResponseDto(topicRepository.findAllByName(topicName));
+    }
+
+    public String generatePrivateName(String sendTo, String email) {
+        return UUID.randomUUID().toString();
+    }
+
+    public List<PublicTopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails) {
+        Contact contact = contactService.findByEmail(userDetails.getUsername());
+        return topicMapper.toListInfoResponseDto(contact.getFavoriteTopics());
+    }
+
+    public List<PublicTopicInfoResponseDto> findPopularPublicTopics() {
+        return topicMapper.toListInfoResponseDto(topicRepository.findPopularPublicTopics());
+    }
+
+    public Topic getPrivateTopic(Contact sendToContact, Contact sendFromContact) {
+        return topicRepository.findPrivateTopic(sendToContact, sendFromContact).orElseGet(
+            () -> {
+                Topic newPrivateTopic = Topic.builder()
+                    .createdBy(sendToContact)
+                    .name(generatePrivateName(sendToContact.getEmail(), sendFromContact.getEmail()))
+                    .scope(TopicScope.PRIVATE)
+                    .topicSubscribers(List.of(sendToContact, sendFromContact))
+                    .build();
+                topicRepository.save(newPrivateTopic);
+                return newPrivateTopic;
+            });
+    }
+
+    @Transactional
+    public Topic save(Topic topic) {
+        return topicRepository.save(topic);
+    }
+
+    public Topic getTopic(UUID topicId) {
+        return topicRepository
+            .findById(topicId)
+            .orElseThrow(
+                () -> {
+                    log.warn("Topic id: {} wasn't found", topicId);
+                    return new TopicNotFoundException(
+                        String.format("Topic id: %s wasn't found", topicId));
+                });
+    }
+
+    private Topic getTopicByName(String name) {
+        return topicRepository
+            .findByName(name)
+            .orElseThrow(
+                () -> {
+                    log.warn("Topic name: {} wasn't found", name);
+                    return new TopicNotFoundException(
+                        String.format("Topic name: %s wasn't found", name));
+                });
+    }
+
+    private void validateName(String topicName) {
+        if (isTopicNameExists(topicName)) {
+            log.warn("Topic name: [{}] already in use", topicName);
+            throw new ValueNotUniqException(
+                String.format("Topic name: %s already in use", topicName));
+        }
+    }
+
+    private boolean isTopicNameExists(String topicName) {
+        return topicRepository.existsByName(topicName);
+    }
+
+    private void validateCreator(String email, Topic topic) {
+        if (!isCreator(email, topic)) {
+            log.warn("Email: {} wasn't the topic creator", email);
+            throw new TopicAccessException(
+                String.format("Email: %s wasn't the topic creator", email));
+        }
+    }
+
+    private boolean isCreator(String email, Topic topic) {
+        if (topic == null) {
+            throw new TopicNotFoundException("Topic not found");
+        }
+        return topic.getCreatedBy().getEmail().equals(email);
+    }
 
 
-  /**
-   * Retrieves a list of popular public topics.
-   * <p>
-   * This method returns a list of {@code TopicResponseDto} objects representing popular topics that
-   * are marked as public. The popularity is determined by the number of subscribers and messages
-   * associated with each topic.
-   *
-   * @return A list of {@code TopicInfoResponseDto} objects representing popular public topics.
-   * @see TopicResponseDto
-   */
-  List<PublicTopicInfoResponseDto> findPopularPublicTopics();
-
-  Topic getPrivateTopic(Contact contact1, Contact contact2);
-
-  List<PrivateTopicInfoResponseDto> findAllPrivate(String email);
+    private void validateRecipientEmail(String sendTo) {
+        if (!contactService.isEmailExists(sendTo)) {
+            log.error("Private topic cannot be created, recipient email={} does not exist", sendTo);
+            throw new ContactEmailNotExist(String.format(
+                "Private topic cannot be created because recipient email: %s does not exist",
+                sendTo));
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.chat.yourway.service.impl;
+package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.MessageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
@@ -12,20 +12,17 @@ import com.chat.yourway.model.Message;
 import com.chat.yourway.model.Topic;
 import com.chat.yourway.model.TopicScope;
 import com.chat.yourway.repository.jpa.MessageRepository;
-import com.chat.yourway.service.ContactService;
-import com.chat.yourway.service.TopicService;
-import com.chat.yourway.service.TopicSubscriberService;
 import jakarta.transaction.Transactional;
-import java.security.Principal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.security.Principal;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +49,7 @@ public class MessageService {
         validateSubscription(topic, contact);
 
         Message savedMessage = messageRepository.save(
-            new Message(topic, contact, message.getContent())
+                new Message(topic, contact, message.getContent())
         );
         notificationService.sendPublicMessage(contactOnlineService.getOnlineContacts(), savedMessage);
 
@@ -62,23 +59,23 @@ public class MessageService {
 
     @Transactional
     public MessageResponseDto sendToContact(String sendToEmail, MessageRequestDto message,
-        String sendFromEmail) {
+                                            String sendFromEmail) {
         Contact sendToContact = contactService.findByEmail(sendToEmail);
         if (!sendToContact.isPermittedSendingPrivateMessage()) {
             throw new MessagePermissionDeniedException(
-                String.format("You cannot send private messages to a contact from an sendFromEmail: %s",
-                    sendToEmail));
+                    String.format("You cannot send private messages to a contact from an sendFromEmail: %s",
+                            sendToEmail));
         }
         Contact sendFromContact = contactService.findByEmail(sendFromEmail);
 
         Topic topic = topicService.getPrivateTopic(sendToContact, sendFromContact);
         Message savedMessage = messageRepository.save(
-            new Message(topic, sendFromContact, message.getContent())
+                new Message(topic, sendFromContact, message.getContent())
         );
 
         notificationService.sendPrivateMessage(savedMessage);
         log.trace("Private message from sendFromEmail: {} to sendFromEmail id: {} was created",
-            sendFromEmail, sendToEmail);
+                sendFromEmail, sendToEmail);
         return messageMapper.toResponseDto(savedMessage, sendFromContact);
     }
 
@@ -88,22 +85,11 @@ public class MessageService {
 
         if (!messageRepository.existsById(messageId)) {
             throw new MessageNotFoundException();
-//    } else if (messageRepository.hasReportByContactEmailAndMessageId(email, messageId)) {
-//      throw new MessageHasAlreadyReportedException();
         } else if (messageRepository.getCountReportsByMessageId(messageId) >= maxAmountReports) {
             messageRepository.deleteById(messageId);
         } else {
             messageRepository.saveReportFromContactToMessage(email, messageId);
         }
-    }
-
-    public int countMessagesBetweenTimestampByTopicId(UUID topicId, String sentFrom,
-        LocalDateTime timestamp) {
-        log.trace("Started countMessagesBetweenTimestampByTopicId [{}]", topicId);
-
-        return messageRepository.countMessagesBetweenTimestampByTopicId(topicId, sentFrom,
-            timestamp,
-            LocalDateTime.now());
     }
 
     public List<LastMessageResponseDto> getLastMessages(List<UUID> topicIds, TopicScope scope) {
@@ -115,7 +101,7 @@ public class MessageService {
     }
 
     public Page<MessageResponseDto> findAllByTopicId(UUID topicId, Pageable pageable,
-        Principal principal) {
+                                                     Principal principal) {
         Topic topic = topicService.getTopic(topicId);
         Contact contact = contactService.findByEmail(principal.getName());
 
@@ -129,13 +115,13 @@ public class MessageService {
 
     private void validateSubscription(Topic topic, Contact contact) {
         log.trace("Validating subscription of contact email: {} to topic ID: {}",
-            contact.getEmail(), topic.getId());
+                contact.getEmail(), topic.getId());
         if (!topicSubscriberService.hasContactSubscribedToTopic(topic, contact)) {
             log.warn("Contact email: {} wasn't subscribed to the topic id: {}", contact.getEmail(),
-                topic.getId());
+                    topic.getId());
             throw new TopicSubscriberNotFoundException(
-                String.format("Contact email: %s wasn't subscribed to the topic id: %s",
-                    contact.getEmail(), topic.getId()));
+                    String.format("Contact email: %s wasn't subscribed to the topic id: %s",
+                            contact.getEmail(), topic.getId()));
         }
     }
 }

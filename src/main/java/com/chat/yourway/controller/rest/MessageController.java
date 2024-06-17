@@ -5,7 +5,7 @@ import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.TopicScope;
-import com.chat.yourway.service.impl.MessageService;
+import com.chat.yourway.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

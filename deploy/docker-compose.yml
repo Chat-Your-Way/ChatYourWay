@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /var/docker-volumes/postgres-data:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data/
 
   master:
     container_name: redis-chat-master
@@ -33,3 +33,5 @@ services:
       - REDIS_HOSTS=local:redis-chat:6379:0:admin
     ports:
       - "8081:8081"
+volumes:
+  postgres_data:

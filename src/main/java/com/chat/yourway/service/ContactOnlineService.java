@@ -1,11 +1,10 @@
-package com.chat.yourway.service.impl;
+package com.chat.yourway.service;
 
 import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.mapper.ContactMapper;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.redis.ContactOnline;
 import com.chat.yourway.repository.redis.ContactOnlineRedisRepository;
-import com.chat.yourway.service.ContactService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

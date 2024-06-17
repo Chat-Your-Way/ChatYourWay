@@ -1,13 +1,33 @@
 package com.chat.yourway.service;
 
-public interface ChatTypingEventService {
+import com.chat.yourway.model.redis.ContactOnline;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
-  /**
-   * Update typing event by user email.
-   *
-   * @param isTyping typing status.
-   * @param email    user email.
-   */
-  void updateTypingEvent(Boolean isTyping, String email);
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class ChatTypingEventService {
 
+    private final ContactOnlineService contactOnlineService;
+    private final ContactService contactService;
+    private final NotificationService notificationService;
+
+    public void updateTypingEvent(Boolean isTyping, String email) {
+        log.info("Start updateTypingEvent isTyping={}, email={}", isTyping, email);
+        ContactOnline contactOnline = contactOnlineService.getContactOnline(email);
+        if (contactOnline != null) {
+            contactOnline.setTypingStatus(isTyping);
+        } else {
+            contactOnline = new ContactOnline();
+            contactOnline.setId(email);
+            contactOnline.setTypingStatus(isTyping);
+        }
+        contactOnline = contactOnlineService.save(contactOnline);
+        notificationService.contactChangeStatus(
+                contactOnlineService.getOnlineContacts(),
+                contactService.findByEmail(email),
+                contactOnline);
+    }
 }
