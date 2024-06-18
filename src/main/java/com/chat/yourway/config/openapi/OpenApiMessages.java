@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OpenApiMessages {
 
+  public static final String SUCCESSFULLY = "Successfully";
   public static final String SUCCESSFULLY_REGISTERED = "Contact successfully registered";
   public static final String VALUE_NOT_UNIQUE = "The field value is not unique";
   public static final String ERR_SENDING_EMAIL = "Sending email error";

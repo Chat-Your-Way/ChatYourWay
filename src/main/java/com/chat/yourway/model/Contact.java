@@ -56,6 +56,15 @@ public class Contact implements UserDetails {
     @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY)
     private List<Message> messages;
 
+    @ManyToMany
+    @JoinTable(
+            schema = "chat",
+            name = "unread_messages",
+            joinColumns = @JoinColumn(name = "contact_id"),
+            inverseJoinColumns = @JoinColumn(name = "message_id")
+    )
+    private Set<Message> unreadMessages = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

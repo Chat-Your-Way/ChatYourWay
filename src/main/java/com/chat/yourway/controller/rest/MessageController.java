@@ -132,7 +132,7 @@ public class MessageController {
         })
     @PostMapping("/{id}/report")
     public void reportMessage(
-        @PathVariable int id, Principal principal) {
+        @PathVariable UUID id, Principal principal) {
         String email = principal.getName();
         messageService.reportMessageById(id, email);
     }
@@ -147,7 +147,25 @@ public class MessageController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/last", produces = APPLICATION_JSON_VALUE)
-    public List<LastMessageResponseDto> getLastMessages(@RequestParam(required = false) List<UUID> topicIds) {
+    public List<LastMessageResponseDto> getLastMessages(@RequestParam(required = false) List<UUID> topicIds,
+                                                        Principal principal) {
+        String email = principal.getName();
         return messageService.getLastMessages(topicIds, TopicScope.PUBLIC);
+    }
+
+    @Operation(summary = "Read message",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY,
+                            content = @Content),
+                    @ApiResponse(responseCode = "400", description = MESSAGE_HAS_ALREADY_REPORTED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = MESSAGE_NOT_FOUND,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
+    @PostMapping("/{id}/read")
+    public void readMessage(
+            @PathVariable UUID id, Principal principal) {
+        String email = principal.getName();
+        messageService.readMessage(id, email);
     }
 }

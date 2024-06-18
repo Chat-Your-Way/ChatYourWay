@@ -7,6 +7,7 @@ import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.Message;
 import com.chat.yourway.model.Role;
 import com.chat.yourway.repository.jpa.ContactRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -151,5 +154,21 @@ public class ContactService {
 
         contactRepository.updatePermissionSendingPrivateMessageByContactEmail(
                 contactEmail, isPermittedSendingPrivateMessage);
+    }
+
+    public void addUnreadMessageToTopicSubscribers(Contact excludeСontact, Message message) {
+        List<Contact> topicSubscribers = message.getTopic().getTopicSubscribers()
+                .stream()
+                .filter(c -> !c.equals(excludeСontact))
+                .toList();
+        for (Contact topicSubscriber : topicSubscribers) {
+            topicSubscriber.getUnreadMessages().add(message);
+            save(topicSubscriber);
+        }
+    }
+
+    public void deleteUnreadMessage(Contact contact, Message message) {
+        contact.getUnreadMessages().remove(message);
+        save(contact);
     }
 }

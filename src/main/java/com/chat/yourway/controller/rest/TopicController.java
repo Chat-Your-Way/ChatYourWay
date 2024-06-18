@@ -144,8 +144,9 @@ public class TopicController {
                 content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
         })
     @GetMapping(path = "/all", produces = APPLICATION_JSON_VALUE)
-    public List<PublicTopicInfoResponseDto> findAllPublic() {
-        return topicService.findAllPublic();
+    public List<PublicTopicInfoResponseDto> findAllPublic(Principal principal) {
+        String email = principal.getName();
+        return topicService.findAllPublic(email);
     }
 
     @Operation(

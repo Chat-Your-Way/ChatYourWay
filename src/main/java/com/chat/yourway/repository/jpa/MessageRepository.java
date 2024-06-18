@@ -1,6 +1,7 @@
 package com.chat.yourway.repository.jpa;
 
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
+import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
 
 import java.time.LocalDateTime;
@@ -17,12 +18,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MessageRepository extends JpaRepository<Message, Integer> {
+public interface MessageRepository extends JpaRepository<Message, UUID> {
 
     @Query(value = "SELECT COUNT(c.id) FROM chat.contact_message_report mc " +
             "JOIN chat.contact c ON mc.contact_id = c.id " +
             "WHERE mc.message_id = :messageId", nativeQuery = true)
-    Integer getCountReportsByMessageId(Integer messageId);
+    Integer getCountReportsByMessageId(UUID messageId);
 
     @Modifying
     @Query(
@@ -31,7 +32,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
                     "FROM chat.contact c " +
                     "WHERE c.email = :email",
             nativeQuery = true)
-    void saveReportFromContactToMessage(String email, Integer messageId);
+    void saveReportFromContactToMessage(String email, UUID messageId);
 
     Page<Message> findAllByTopicId(UUID topic_id, Pageable pageable);
 
@@ -47,7 +48,8 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
 
     @Query("""
         SELECT new com.chat.yourway.dto.response.notification.LastMessageResponseDto(
-            tm.timestamp, tm.sender.nickname, tm.content, t.id) FROM Topic t
+            tm.timestamp, tm.sender.nickname, tm.content, t.id
+        ) FROM Topic t
         LEFT JOIN t.messages tm
         WHERE t.scope = :scope
         AND (tm.timestamp IN (SELECT MAX(tm2.timestamp) FROM Message tm2 WHERE tm2.topic = t) OR tm IS NULL)
@@ -56,10 +58,13 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
 
     @Query("""
         SELECT new com.chat.yourway.dto.response.notification.LastMessageResponseDto(
-            tm.timestamp, tm.sender.nickname, tm.content, t.id) FROM Topic t
+            tm.timestamp, tm.sender.nickname, tm.content, t.id
+        )
+        FROM Topic t
         LEFT JOIN t.messages tm
         WHERE t.scope = :scope AND t.id in :topicIds
         AND (tm.timestamp IN (SELECT MAX(tm2.timestamp) FROM Message tm2 WHERE tm2.topic = t) OR tm IS NULL)
         """)
-    List<LastMessageResponseDto> getLastMessagesByTopicIds(@Param("scope") TopicScope scope, @Param("topicIds") List<UUID> topicIds);
+    List<LastMessageResponseDto> getLastMessagesByTopicIds(@Param("scope") TopicScope scope,
+                                                           @Param("topicIds") List<UUID> topicIds);
 }

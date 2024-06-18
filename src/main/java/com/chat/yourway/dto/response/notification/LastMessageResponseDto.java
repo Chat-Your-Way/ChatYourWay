@@ -23,7 +23,11 @@ public class LastMessageResponseDto {
     private String lastMessage;
     private UUID topicId;
 
-    public LastMessageResponseDto(LocalDateTime timestamp, String sentFrom, String lastMessage, UUID topicId) {
+    public LastMessageResponseDto(LocalDateTime timestamp,
+                                  String sentFrom,
+                                  String lastMessage,
+                                  UUID topicId
+    ) {
         this.timestamp = timestamp;
         this.sentFrom = sentFrom;
         this.lastMessage = lastMessage;

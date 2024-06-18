@@ -32,7 +32,6 @@ public class NotificationService {
                 simpMessagingTemplate.convertAndSendToUser(
                         onlineUser.getEmail(), notifyMessageDestination, responseDto
                 );
-                //якщо підписані на топік то додаємо повідомлення в список не прочитаних юзера
             }
         }
     }

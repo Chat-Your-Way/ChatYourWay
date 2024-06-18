@@ -8,15 +8,13 @@ import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.PrivateTopicInfoResponseDto;
 import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.exception.ContactEmailNotExist;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.mapper.TopicMapper;
-import com.chat.yourway.model.Contact;
-import com.chat.yourway.model.Tag;
-import com.chat.yourway.model.Topic;
-import com.chat.yourway.model.TopicScope;
+import com.chat.yourway.model.*;
 import com.chat.yourway.repository.jpa.TagRepository;
 import com.chat.yourway.repository.jpa.TopicRepository;
 
@@ -105,11 +103,21 @@ public class TopicService {
         return topicMapper.toResponseDto(topic);
     }
 
-    public List<PublicTopicInfoResponseDto> findAllPublic() {
+    public List<PublicTopicInfoResponseDto> findAllPublic(String email) {
         log.trace("Started findAllPublic");
+        Contact contact = contactService.findByEmail(email);
         List<Topic> topics = topicRepository.findAllByScope(TopicScope.PUBLIC);
         log.trace("All public topics was found");
-        return topicMapper.toListInfoResponseDto(topics);
+        List<PublicTopicInfoResponseDto> listInfoResponseDto = topicMapper.toListInfoResponseDto(topics);
+
+        Set<Message> unreadMessages = contact.getUnreadMessages();
+        for (PublicTopicInfoResponseDto topic : listInfoResponseDto) {
+            topic.setUnreadMessageCount(unreadMessages.stream()
+                    .filter(m -> m.getTopic().getId().equals(topic.getId()))
+                    .count());
+        }
+
+        return listInfoResponseDto;
     }
 
     public List<PrivateTopicInfoResponseDto> findAllPrivate(String email) {
@@ -117,7 +125,17 @@ public class TopicService {
         Contact contact = contactService.findByEmail(email);
         List<Topic> topics = topicRepository.findPrivateTopics(contact);
         log.trace("All private topics was found");
-        return topicMapper.toListInfoPrivateResponseDto(topics, contact);
+
+        List<PrivateTopicInfoResponseDto> listInfoResponseDto = topicMapper.toListInfoPrivateResponseDto(topics, contact);
+
+        Set<Message> unreadMessages = contact.getUnreadMessages();
+        for (PrivateTopicInfoResponseDto topic : listInfoResponseDto) {
+            topic.setUnreadMessageCount(unreadMessages.stream()
+                    .filter(m -> m.getTopic().getId().equals(topic.getId()))
+                    .count());
+        }
+
+        return listInfoResponseDto;
     }
 
     public List<TopicResponseDto> findTopicsByTagName(String tagName) {

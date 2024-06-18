@@ -25,5 +25,7 @@ public class PrivateTopicInfoResponseDto {
   @Schema(description = "Created time")
   private LocalDateTime createdAt;
 
+  private long unreadMessageCount;
+
   private LastMessageResponseDto lastMessage;
 }

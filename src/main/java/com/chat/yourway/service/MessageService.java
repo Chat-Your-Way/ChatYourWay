@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -51,6 +52,8 @@ public class MessageService {
         Message savedMessage = messageRepository.save(
                 new Message(topic, contact, message.getContent())
         );
+
+        contactService.addUnreadMessageToTopicSubscribers(contact, savedMessage);
         notificationService.sendPublicMessage(contactOnlineService.getOnlineContacts(), savedMessage);
 
         log.trace("Public message from email: {} to topic id: {} was created", email, topicId);
@@ -73,14 +76,19 @@ public class MessageService {
                 new Message(topic, sendFromContact, message.getContent())
         );
 
+        contactService.addUnreadMessageToTopicSubscribers(sendFromContact, savedMessage);
         notificationService.sendPrivateMessage(savedMessage);
         log.trace("Private message from sendFromEmail: {} to sendFromEmail id: {} was created",
                 sendFromEmail, sendToEmail);
         return messageMapper.toResponseDto(savedMessage, sendFromContact);
     }
 
+    public Message findById(UUID messageId) {
+        return messageRepository.findById(messageId).orElseThrow(MessageNotFoundException::new);
+    }
+
     @Transactional
-    public void reportMessageById(Integer messageId, String email) {
+    public void reportMessageById(UUID messageId, String email) {
         log.trace("Contact email: {} is reporting message with ID: {}", email, messageId);
 
         if (!messageRepository.existsById(messageId)) {
@@ -111,6 +119,14 @@ public class MessageService {
 
         Page<Message> messages = messageRepository.findAllByTopicId(topicId, pageable);
         return messages.map(m -> messageMapper.toResponseDto(m, contact));
+    }
+
+    @Transactional
+    public void readMessage(UUID messageId, String email) {
+        Contact contact = contactService.findByEmail(email);
+        Message message = findById(messageId);
+        contactService.deleteUnreadMessage(contact, message);
+        //notification
     }
 
     private void validateSubscription(Topic topic, Contact contact) {
