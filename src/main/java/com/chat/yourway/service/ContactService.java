@@ -12,7 +12,7 @@ import com.chat.yourway.model.Role;
 import com.chat.yourway.repository.jpa.ContactRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,20 +88,15 @@ public class ContactService {
     }
 
     @Transactional
-    public void updateContactProfile(
-            EditContactProfileRequestDto editContactProfileRequestDto, UserDetails userDetails) {
+    public void updateContactProfile(EditContactProfileRequestDto editContactProfileRequestDto) {
         log.trace("Started updating contact profile: [{}]", editContactProfileRequestDto);
-
-        String email = userDetails.getUsername();
-
-        Contact contact = findByEmail(email);
-
+        Contact contact = getCurrentContact();
         contact.setNickname(editContactProfileRequestDto.getNickname());
         contact.setAvatarId(editContactProfileRequestDto.getAvatarId());
 
         contactRepository.save(contact);
 
-        log.info("Updated contact by email [{}]", email);
+        log.info("Updated contact by email [{}]", contact.getEmail());
     }
 
     public boolean isEmailExists(String email) {
@@ -109,51 +104,49 @@ public class ContactService {
         return contactRepository.existsByEmailIgnoreCase(email);
     }
 
-    public ContactProfileResponseDto getContactProfile(UserDetails userDetails) {
-        String email = userDetails.getUsername();
-        log.trace("Started get contact profile by email [{}]", email);
+    public ContactProfileResponseDto getContactProfile() {
+        Contact contact = getCurrentContact();
+        log.trace("Started get contact profile by email [{}]", contact.getEmail());
 
-        Contact contact = findByEmail(email);
         ContactProfileResponseDto responseDto = new ContactProfileResponseDto();
 
         responseDto.setNickname(contact.getNickname());
         responseDto.setAvatarId(contact.getAvatarId());
-        responseDto.setEmail(email);
+        responseDto.setEmail(contact.getEmail());
         responseDto.setHasPermissionSendingPrivateMessage(contact.isPermittedSendingPrivateMessage());
 
-        log.info("Contact profile was got by email [{}]", email);
+        log.info("Contact profile was got by email [{}]", contact.getEmail());
         return responseDto;
     }
 
     @Transactional
-    public void permitSendingPrivateMessages(UserDetails userDetails) {
-        log.trace("Started permit sending private messages by email [{}]", userDetails.getUsername());
+    public void permitSendingPrivateMessages() {
+        Contact contact = getCurrentContact();
+        log.trace("Started permit sending private messages by email [{}]", contact.getEmail());
         boolean isPermittedSendingPrivateMessage = true;
 
-        changePermissionSendingPrivateMessages(userDetails, isPermittedSendingPrivateMessage);
-        log.info("Permitted sending private messages by email [{}]", userDetails.getUsername());
+        changePermissionSendingPrivateMessages(contact.getEmail(), isPermittedSendingPrivateMessage);
+        log.info("Permitted sending private messages by email [{}]", contact.getEmail());
     }
 
     @Transactional
-    public void prohibitSendingPrivateMessages(UserDetails userDetails) {
-        log.trace("Started prohibit sending private messages by email [{}]", userDetails.getUsername());
+    public void prohibitSendingPrivateMessages() {
+        Contact contact = getCurrentContact();
+        log.trace("Started prohibit sending private messages by email [{}]", contact.getEmail());
         boolean isPermittedSendingPrivateMessage = false;
 
-        changePermissionSendingPrivateMessages(userDetails, isPermittedSendingPrivateMessage);
-        log.info("Prohibited sending private messages by email [{}]", userDetails.getUsername());
+        changePermissionSendingPrivateMessages(contact.getEmail(), isPermittedSendingPrivateMessage);
+        log.info("Prohibited sending private messages by email [{}]", contact.getEmail());
     }
 
-    private void changePermissionSendingPrivateMessages(
-            UserDetails userDetails, boolean isPermittedSendingPrivateMessage) {
-        String contactEmail = userDetails.getUsername();
-
-        if (!contactRepository.existsByEmailIgnoreCase(contactEmail)) {
+    private void changePermissionSendingPrivateMessages(String email, boolean isPermittedSendingPrivateMessage) {
+        if (!contactRepository.existsByEmailIgnoreCase(email)) {
             throw new ContactNotFoundException(
-                    String.format("Contact with email [%s] is not found.", contactEmail));
+                    String.format("Contact with email [%s] is not found.", email));
         }
 
         contactRepository.updatePermissionSendingPrivateMessageByContactEmail(
-                contactEmail, isPermittedSendingPrivateMessage);
+                email, isPermittedSendingPrivateMessage);
     }
 
     public void addUnreadMessageToTopicSubscribers(Contact excludeСontact, Message message) {
@@ -170,5 +163,14 @@ public class ContactService {
     public void deleteUnreadMessage(Contact contact, Message message) {
         contact.getUnreadMessages().remove(message);
         save(contact);
+    }
+
+    public Contact getCurrentContact() {
+        try {
+            Contact principal = (Contact) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return findByEmail(principal.getEmail());
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

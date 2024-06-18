@@ -39,10 +39,10 @@ public class TopicService {
     private final ContactService contactService;
 
     @Transactional
-    public TopicResponseDto create(TopicRequestDto topicRequestDto, String email) {
-        log.trace("Started create topic: {} by creator email: {}", topicRequestDto, email);
+    public TopicResponseDto create(TopicRequestDto topicRequestDto) {
+        log.trace("Started create topic: {}}", topicRequestDto);
         validateName(topicRequestDto.getTopicName());
-        Contact creatorContact = contactService.findByEmail(email);
+        Contact creatorContact = contactService.getCurrentContact();
         Topic topic = Topic.builder()
             .name(topicRequestDto.getTopicName())
             .scope(TopicScope.PUBLIC)
@@ -52,40 +52,40 @@ public class TopicService {
             .build();
         topicRepository.save(topic);
         log.trace("Topic name: {} was saved", topic.getName());
-        return topicMapper.toResponseDto(topic);
+        return topicMapper.toResponseDto(topic, creatorContact);
     }
 
-    @Transactional
-    public TopicResponseDto createPrivate(TopicPrivateRequestDto topicPrivateDto, String email) {
-        String sendTo = topicPrivateDto.getSendTo();
-        log.trace("Started create private topic by sendTo: {} and creator email: {}", sendTo,
-            email);
-        Contact creatorContact = contactService.findByEmail(email);
-        Contact sendToContact = contactService.findByEmail(sendTo);
-        Topic topic = Topic.builder()
-            .name(generatePrivateName(sendTo, email))
-            .scope(TopicScope.PRIVATE)
-            .createdBy(creatorContact)
-            .topicSubscribers(List.of(creatorContact, sendToContact))
-            .build();
-        topicRepository.save(topic);
-        log.trace("Topic name: {} was saved", topic.getName());
-        //TODO send notification
-        return topicMapper.toResponseDto(topic);
-    }
+//    @Transactional
+//    public TopicResponseDto createPrivate(TopicPrivateRequestDto topicPrivateDto) {
+//        String sendTo = topicPrivateDto.getSendTo();
+//        log.trace("Started create private topic by sendTo: {}", sendTo);
+//        Contact creatorContact = contactService.getCurrentContact();
+//        Contact sendToContact = contactService.findByEmail(sendTo);
+//        Topic topic = Topic.builder()
+//            .name(generatePrivateName(sendTo, creatorContact.getEmail()))
+//            .scope(TopicScope.PRIVATE)
+//            .createdBy(creatorContact)
+//            .topicSubscribers(List.of(creatorContact, sendToContact))
+//            .build();
+//        topicRepository.save(topic);
+//        log.trace("Topic name: {} was saved", topic.getName());
+//        //TODO send notification
+//        return topicMapper.toResponseDto(topic, creatorContact);
+//    }
 
     @Transactional
-    public TopicResponseDto update(UUID topicId, TopicRequestDto topicRequestDto, String email) {
-        log.trace("Started update topic: {} by contact email: {}", topicRequestDto, email);
+    public TopicResponseDto update(UUID topicId, TopicRequestDto topicRequestDto) {
+        log.trace("Started update topic: {}", topicRequestDto);
         validateName(topicRequestDto.getTopicName());
 
+        Contact contact = contactService.getCurrentContact();
         Topic topic = getTopic(topicId);
-        validateCreator(email, topic);
+        validateCreator(contact, topic);
         topic.setName(topicRequestDto.getTopicName());
         topic.setTags(addUniqTags(topicRequestDto.getTags()));
         Topic updatedTopic = topicRepository.save(topic);
         log.trace("Topic name: {} was saved", topic.getName());
-        return topicMapper.toResponseDto(updatedTopic);
+        return topicMapper.toResponseDto(updatedTopic, contact);
     }
 
     @Transactional(readOnly = true)
@@ -93,22 +93,22 @@ public class TopicService {
         log.trace("Started findById: {}", id);
         Topic topic = getTopic(id);
         log.trace("Topic id: {} was found", id);
-        return topicMapper.toResponseDto(topic);
+        return topicMapper.toResponseDto(topic, contactService.getCurrentContact());
     }
 
     public TopicResponseDto findByName(String name) {
         log.trace("Started findByName: {}", name);
         Topic topic = getTopicByName(name);
         log.trace("Topic name: {} was found", name);
-        return topicMapper.toResponseDto(topic);
+        return topicMapper.toResponseDto(topic, contactService.getCurrentContact());
     }
 
-    public List<PublicTopicInfoResponseDto> findAllPublic(String email) {
+    public List<PublicTopicInfoResponseDto> findAllPublic() {
         log.trace("Started findAllPublic");
-        Contact contact = contactService.findByEmail(email);
+        Contact contact = contactService.getCurrentContact();
         List<Topic> topics = topicRepository.findAllByScope(TopicScope.PUBLIC);
         log.trace("All public topics was found");
-        List<PublicTopicInfoResponseDto> listInfoResponseDto = topicMapper.toListInfoResponseDto(topics);
+        List<PublicTopicInfoResponseDto> listInfoResponseDto = topicMapper.toListInfoResponseDto(topics, contact);
 
         Set<Message> unreadMessages = contact.getUnreadMessages();
         for (PublicTopicInfoResponseDto topic : listInfoResponseDto) {
@@ -120,9 +120,9 @@ public class TopicService {
         return listInfoResponseDto;
     }
 
-    public List<PrivateTopicInfoResponseDto> findAllPrivate(String email) {
+    public List<PrivateTopicInfoResponseDto> findAllPrivate() {
         log.trace("Started findAllPrivate");
-        Contact contact = contactService.findByEmail(email);
+        Contact contact = contactService.getCurrentContact();
         List<Topic> topics = topicRepository.findPrivateTopics(contact);
         log.trace("All private topics was found");
 
@@ -142,24 +142,25 @@ public class TopicService {
         log.trace("Started findTopicsByTagName");
         List<Topic> topics = topicRepository.findAllByTagName(tagName);
         log.trace("All Topics by tag name was found");
-        return topicMapper.toListResponseDto(topics);
+        return topicMapper.toListResponseDto(topics, contactService.getCurrentContact());
     }
 
     @Transactional
-    public void delete(UUID id, String email) {
-        log.trace("Started delete emil: {} and topicId: {}", email, id);
+    public void delete(UUID id) {
+        log.trace("Started delete Topic: {}", id);
 
         Topic topic = getTopic(id);
-        validateCreator(email, topic);
+        Contact contact = contactService.getCurrentContact();
+        validateCreator(contact, topic);
 
-        topic.getTopicSubscribers().forEach(contact -> {
-            contact.getFavoriteTopics().remove(topic);
-            contactService.save(contact);
+        topic.getTopicSubscribers().forEach(subscriber -> {
+            subscriber.getFavoriteTopics().remove(topic);
+            contactService.save(subscriber);
         });
         topic.setScope(TopicScope.DELETED);
         topic.setTopicSubscribers(Collections.EMPTY_LIST);
         topicRepository.save(topic);
-        log.trace("Deleted Topic by creator email: {} and topicId: {}", email, id);
+        log.trace("Deleted Topic: {}", id);
     }
 
     @Transactional
@@ -191,20 +192,20 @@ public class TopicService {
 
     @Transactional(readOnly = true)
     public List<TopicResponseDto> findTopicsByTopicName(String topicName) {
-        return topicMapper.toListResponseDto(topicRepository.findAllByName(topicName));
+        return topicMapper.toListResponseDto(topicRepository.findAllByName(topicName), contactService.getCurrentContact());
     }
 
     public String generatePrivateName(String sendTo, String email) {
         return UUID.randomUUID().toString();
     }
 
-    public List<PublicTopicInfoResponseDto> findAllFavouriteTopics(UserDetails userDetails) {
-        Contact contact = contactService.findByEmail(userDetails.getUsername());
-        return topicMapper.toListInfoResponseDto(contact.getFavoriteTopics());
+    public List<PublicTopicInfoResponseDto> findAllFavouriteTopics() {
+        Contact contact = contactService.getCurrentContact();
+        return topicMapper.toListInfoResponseDto(contact.getFavoriteTopics(), contact);
     }
 
     public List<PublicTopicInfoResponseDto> findPopularPublicTopics() {
-        return topicMapper.toListInfoResponseDto(topicRepository.findPopularPublicTopics());
+        return topicMapper.toListInfoResponseDto(topicRepository.findPopularPublicTopics(), contactService.getCurrentContact());
     }
 
     public Topic getPrivateTopic(Contact sendToContact, Contact sendFromContact) {
@@ -260,19 +261,19 @@ public class TopicService {
         return topicRepository.existsByName(topicName);
     }
 
-    private void validateCreator(String email, Topic topic) {
-        if (!isCreator(email, topic)) {
-            log.warn("Email: {} wasn't the topic creator", email);
+    private void validateCreator(Contact contact, Topic topic) {
+        if (!isCreator(contact, topic)) {
+            log.warn("Email: {} wasn't the topic creator", contact.getEmail());
             throw new TopicAccessException(
-                String.format("Email: %s wasn't the topic creator", email));
+                String.format("Email: %s wasn't the topic creator", contact.getEmail()));
         }
     }
 
-    private boolean isCreator(String email, Topic topic) {
+    private boolean isCreator(Contact contact, Topic topic) {
         if (topic == null) {
             throw new TopicNotFoundException("Topic not found");
         }
-        return topic.getCreatedBy().getEmail().equals(email);
+        return topic.getCreatedBy().equals(contact);
     }
 
 

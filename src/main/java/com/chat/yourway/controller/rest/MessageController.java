@@ -21,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,104 +36,97 @@ public class MessageController {
     private final MessageService messageService;
 
     @Operation(summary = "Send message to topic",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = SUCCESSFULLY_REPORTED_MESSAGE,
-                content = @Content),
-            @ApiResponse(responseCode = "400", description = INVALID_VALUE),
-            @ApiResponse(
-                responseCode = "403",
-                description = TOPIC_NOT_ACCESS,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-            @ApiResponse(
-                responseCode = "403",
-                description = CONTACT_UNAUTHORIZED,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-        })
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = SUCCESSFULLY_REPORTED_MESSAGE,
+                            content = @Content),
+                    @ApiResponse(responseCode = "400", description = INVALID_VALUE),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = TOPIC_NOT_ACCESS,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = CONTACT_UNAUTHORIZED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
     @PostMapping("/topic/{topicId}")
     public MessageResponseDto sendToPublicTopic(@PathVariable UUID topicId,
-        @Valid @RequestBody MessageRequestDto message, Principal principal) {
-        String email = principal.getName();
-        return messageService.sendToTopic(topicId, message, email);
+                                                @Valid @RequestBody MessageRequestDto message) {
+        return messageService.sendToTopic(topicId, message);
     }
 
     @Operation(summary = "Send message to private",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = SUCCESSFULLY_REPORTED_MESSAGE,
-                content = @Content),
-            @ApiResponse(responseCode = "400", description = INVALID_VALUE),
-            @ApiResponse(
-                responseCode = "403",
-                description = TOPIC_NOT_ACCESS,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-            @ApiResponse(
-                responseCode = "403",
-                description = CONTACT_UNAUTHORIZED,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-        })
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = SUCCESSFULLY_REPORTED_MESSAGE,
+                            content = @Content),
+                    @ApiResponse(responseCode = "400", description = INVALID_VALUE),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = TOPIC_NOT_ACCESS,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = CONTACT_UNAUTHORIZED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
     @PostMapping("/private/{sendToEmail}")
     public MessageResponseDto sendToPrivateContact(@PathVariable String sendToEmail,
-        @Valid @RequestBody MessageRequestDto message, Principal principal) {
-        String email = principal.getName();
-        return messageService.sendToContact(sendToEmail, message, email);
+                                                   @Valid @RequestBody MessageRequestDto message) {
+        return messageService.sendToContact(sendToEmail, message);
     }
 
     @Operation(summary = "Get messages by topic",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = SUCCESSFULLY_REPORTED_MESSAGE,
-                content = @Content),
-            @ApiResponse(responseCode = "400", description = INVALID_VALUE),
-            @ApiResponse(
-                responseCode = "403",
-                description = TOPIC_NOT_ACCESS,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-            @ApiResponse(
-                responseCode = "403",
-                description = CONTACT_UNAUTHORIZED,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-        })
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = SUCCESSFULLY_REPORTED_MESSAGE,
+                            content = @Content),
+                    @ApiResponse(responseCode = "400", description = INVALID_VALUE),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = TOPIC_NOT_ACCESS,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = CONTACT_UNAUTHORIZED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
     @GetMapping(path = "/topic/{topicId}")
     public Page<MessageResponseDto> getMessagesByTopic(
-        @Parameter(description = "Number of page (1..N)", required = true,
-            schema = @Schema(type = "integer", defaultValue = "1")
-        ) @RequestParam(defaultValue = "1") @Positive int page,
-        @Parameter(description = "The size of the page to be returned", required = true,
-            schema = @Schema(type = "integer", defaultValue = "12")
-        ) @RequestParam(defaultValue = "30") @Positive int size,
-        Principal principal,
-        @PathVariable UUID topicId
-    ) {
+            @Parameter(description = "Number of page (1..N)", required = true,
+                    schema = @Schema(type = "integer", defaultValue = "1")
+            ) @RequestParam(defaultValue = "1") @Positive int page,
+            @Parameter(description = "The size of the page to be returned", required = true,
+                    schema = @Schema(type = "integer", defaultValue = "12")
+            ) @RequestParam(defaultValue = "30") @Positive int size, @PathVariable UUID topicId) {
         Pageable pageable = PageRequest.of(page - 1, size, Direction.ASC, "timestamp");
-        return messageService.findAllByTopicId(topicId, pageable, principal);
+        return messageService.findAllByTopicId(topicId, pageable);
     }
 
     @Operation(summary = "Make report to message",
-        responses = {
-            @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REPORTED_MESSAGE,
-                content = @Content),
-            @ApiResponse(responseCode = "400", description = MESSAGE_HAS_ALREADY_REPORTED,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = MESSAGE_NOT_FOUND,
-                content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-        })
+            responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REPORTED_MESSAGE,
+                            content = @Content),
+                    @ApiResponse(responseCode = "400", description = MESSAGE_HAS_ALREADY_REPORTED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = MESSAGE_NOT_FOUND,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
     @PostMapping("/{id}/report")
-    public void reportMessage(
-        @PathVariable UUID id, Principal principal) {
-        String email = principal.getName();
-        messageService.reportMessageById(id, email);
+    public void reportMessage(@PathVariable UUID id) {
+        messageService.reportMessageById(id);
     }
 
     @Operation(
@@ -147,9 +139,7 @@ public class MessageController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/last", produces = APPLICATION_JSON_VALUE)
-    public List<LastMessageResponseDto> getLastMessages(@RequestParam(required = false) List<UUID> topicIds,
-                                                        Principal principal) {
-        String email = principal.getName();
+    public List<LastMessageResponseDto> getLastMessages(@RequestParam(required = false) List<UUID> topicIds) {
         return messageService.getLastMessages(topicIds, TopicScope.PUBLIC);
     }
 
@@ -163,9 +153,7 @@ public class MessageController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @PostMapping("/{id}/read")
-    public void readMessage(
-            @PathVariable UUID id, Principal principal) {
-        String email = principal.getName();
-        messageService.readMessage(id, email);
+    public void readMessage(@PathVariable UUID id) {
+        messageService.readMessage(id);
     }
 }

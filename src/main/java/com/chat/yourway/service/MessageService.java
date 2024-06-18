@@ -20,9 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -42,10 +40,10 @@ public class MessageService {
     private Byte maxAmountReports;
 
     @Transactional
-    public MessageResponseDto sendToTopic(UUID topicId, MessageRequestDto message, String email) {
-        log.trace("Creating public message in topic ID: {} by contact email: {}", topicId, email);
+    public MessageResponseDto sendToTopic(UUID topicId, MessageRequestDto message) {
         Topic topic = topicService.getTopic(topicId);
-        Contact contact = contactService.findByEmail(email);
+        Contact contact = contactService.getCurrentContact();
+        log.trace("Creating public message in topic ID: {} by contact email: {}", topicId, contact.getEmail());
 
         validateSubscription(topic, contact);
 
@@ -56,20 +54,19 @@ public class MessageService {
         contactService.addUnreadMessageToTopicSubscribers(contact, savedMessage);
         notificationService.sendPublicMessage(contactOnlineService.getOnlineContacts(), savedMessage);
 
-        log.trace("Public message from email: {} to topic id: {} was created", email, topicId);
+        log.trace("Public message from email: {} to topic id: {} was created", contact.getEmail(), topicId);
         return messageMapper.toResponseDto(savedMessage, contact);
     }
 
     @Transactional
-    public MessageResponseDto sendToContact(String sendToEmail, MessageRequestDto message,
-                                            String sendFromEmail) {
+    public MessageResponseDto sendToContact(String sendToEmail, MessageRequestDto message) {
         Contact sendToContact = contactService.findByEmail(sendToEmail);
         if (!sendToContact.isPermittedSendingPrivateMessage()) {
             throw new MessagePermissionDeniedException(
                     String.format("You cannot send private messages to a contact from an sendFromEmail: %s",
                             sendToEmail));
         }
-        Contact sendFromContact = contactService.findByEmail(sendFromEmail);
+        Contact sendFromContact = contactService.getCurrentContact();
 
         Topic topic = topicService.getPrivateTopic(sendToContact, sendFromContact);
         Message savedMessage = messageRepository.save(
@@ -79,7 +76,7 @@ public class MessageService {
         contactService.addUnreadMessageToTopicSubscribers(sendFromContact, savedMessage);
         notificationService.sendPrivateMessage(savedMessage);
         log.trace("Private message from sendFromEmail: {} to sendFromEmail id: {} was created",
-                sendFromEmail, sendToEmail);
+                sendFromContact.getEmail(), sendToEmail);
         return messageMapper.toResponseDto(savedMessage, sendFromContact);
     }
 
@@ -88,15 +85,16 @@ public class MessageService {
     }
 
     @Transactional
-    public void reportMessageById(UUID messageId, String email) {
-        log.trace("Contact email: {} is reporting message with ID: {}", email, messageId);
+    public void reportMessageById(UUID messageId) {
+        Contact contact = contactService.getCurrentContact();
+        log.trace("Contact email: {} is reporting message with ID: {}", contact.getEmail(), messageId);
 
         if (!messageRepository.existsById(messageId)) {
             throw new MessageNotFoundException();
         } else if (messageRepository.getCountReportsByMessageId(messageId) >= maxAmountReports) {
             messageRepository.deleteById(messageId);
         } else {
-            messageRepository.saveReportFromContactToMessage(email, messageId);
+            messageRepository.saveReportFromContactToMessage(contact.getEmail(), messageId);
         }
     }
 
@@ -108,10 +106,9 @@ public class MessageService {
         }
     }
 
-    public Page<MessageResponseDto> findAllByTopicId(UUID topicId, Pageable pageable,
-                                                     Principal principal) {
+    public Page<MessageResponseDto> findAllByTopicId(UUID topicId, Pageable pageable) {
         Topic topic = topicService.getTopic(topicId);
-        Contact contact = contactService.findByEmail(principal.getName());
+        Contact contact = contactService.getCurrentContact();
 
         if (TopicScope.PRIVATE.equals(topic.getScope())) {
             validateSubscription(topic, contact);
@@ -122,8 +119,8 @@ public class MessageService {
     }
 
     @Transactional
-    public void readMessage(UUID messageId, String email) {
-        Contact contact = contactService.findByEmail(email);
+    public void readMessage(UUID messageId) {
+        Contact contact = contactService.getCurrentContact();
         Message message = findById(messageId);
         contactService.deleteUnreadMessage(contact, message);
         //notification

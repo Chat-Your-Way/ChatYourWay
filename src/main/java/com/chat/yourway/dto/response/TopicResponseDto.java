@@ -40,4 +40,6 @@ public class TopicResponseDto {
 
   @ArraySchema(schema = @Schema(description = "TopicSubscribers"))
   private Set<ContactResponseDto> topicSubscribers;
+
+  private long unreadMessageCount;
 }

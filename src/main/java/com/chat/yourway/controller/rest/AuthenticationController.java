@@ -1,22 +1,10 @@
 package com.chat.yourway.controller.rest;
 
-import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_NOT_FOUND;
-import static com.chat.yourway.config.openapi.OpenApiMessages.CONTACT_UNAUTHORIZED;
-import static com.chat.yourway.config.openapi.OpenApiMessages.EMAIL_TOKEN_NOT_FOUND;
-import static com.chat.yourway.config.openapi.OpenApiMessages.ERR_SENDING_EMAIL;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_ACTIVATED_ACCOUNT;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_AUTHORIZATION;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_LOGGED_OUT;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_REFRESHED_TOKEN;
-import static com.chat.yourway.config.openapi.OpenApiMessages.SUCCESSFULLY_REGISTERED;
-import static com.chat.yourway.config.openapi.OpenApiMessages.VALUE_NOT_UNIQUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
-import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
+import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.security.LogoutService;
 import com.chat.yourway.service.ActivateAccountService;
 import com.chat.yourway.service.AuthenticationService;
@@ -37,92 +25,94 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+import static com.chat.yourway.config.openapi.OpenApiMessages.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication")
 public class AuthenticationController {
 
-  private final AuthenticationService authService;
-  private final ActivateAccountService activateAccountService;
-  private final LogoutService logoutService;
+    private final AuthenticationService authService;
+    private final ActivateAccountService activateAccountService;
+    private final LogoutService logoutService;
 
-  @Operation(summary = "Registration a new contact",
-      responses = {
-          @ApiResponse(responseCode = "201", description = SUCCESSFULLY_REGISTERED,
-              content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
-          @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-          @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-      },
-      requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-          content = @Content(schema = @Schema(implementation = ContactRequestDto.class),
-              examples = @ExampleObject(value = OpenApiExamples.NEW_CONTACT,
-                  description = "New Contact for registration"))))
-  @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-  public AuthResponseDto register(@Valid @RequestBody ContactRequestDto request,
-      @RequestHeader(HttpHeaders.REFERER) String clientHost) {
-    return authService.register(request, clientHost);
-  }
+    @Operation(summary = "Registration a new contact",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = SUCCESSFULLY_REGISTERED,
+                            content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
+                    @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(schema = @Schema(implementation = ContactRequestDto.class),
+                            examples = @ExampleObject(value = OpenApiExamples.NEW_CONTACT,
+                                    description = "New Contact for registration"))))
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    public AuthResponseDto register(@Valid @RequestBody ContactRequestDto request,
+                                    @RequestHeader(HttpHeaders.REFERER) String clientHost) {
+        return authService.register(request, clientHost);
+    }
 
-  @Operation(summary = "Authorization",
-      responses = {
-          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_AUTHORIZATION,
-              content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
-          @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-          @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-      },
-      requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-          content = @Content(schema = @Schema(implementation = AuthRequestDto.class),
-              examples = @ExampleObject(value = OpenApiExamples.LOGIN,
-                  description = "Login credentials"))))
-  @PostMapping(path = "/login", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-  public AuthResponseDto authenticate(@Valid @RequestBody AuthRequestDto request) {
+    @Operation(summary = "Authorization",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_AUTHORIZATION,
+                            content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(schema = @Schema(implementation = AuthRequestDto.class),
+                            examples = @ExampleObject(value = OpenApiExamples.LOGIN,
+                                    description = "Login credentials"))))
+    @PostMapping(path = "/login", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    public AuthResponseDto authenticate(@Valid @RequestBody AuthRequestDto request) {
+        return authService.authenticate(request);
+    }
 
-    return authService.authenticate(request);
-  }
+    @Operation(summary = "Refresh token",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REFRESHED_TOKEN,
+                            content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+                    @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
+    @PostMapping(path = "/refresh", produces = APPLICATION_JSON_VALUE)
+    public AuthResponseDto refreshToken(HttpServletRequest request) {
+        return authService.refreshToken(request);
+    }
 
-  @Operation(summary = "Refresh token",
-      responses = {
-          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REFRESHED_TOKEN,
-              content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
-          @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-          @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-      })
-  @PostMapping(path = "/refresh", produces = APPLICATION_JSON_VALUE)
-  public AuthResponseDto refreshToken(HttpServletRequest request) {
-    return authService.refreshToken(request);
-  }
+    @Operation(summary = "Activate account",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT,
+                            content = @Content),
+                    @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
+    @PostMapping(path = "/activate", produces = APPLICATION_JSON_VALUE)
+    public void activateAccount(@RequestParam(name = "Email token") UUID token) {
+        activateAccountService.activateAccount(token);
+    }
 
-  @Operation(summary = "Activate account",
-      responses = {
-          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT,
-              content = @Content),
-          @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-      })
-  @PostMapping(path = "/activate", produces = APPLICATION_JSON_VALUE)
-  public void activateAccount(@RequestParam(name = "Email token") UUID token) {
-    activateAccountService.activateAccount(token);
-  }
-
-  @Operation(summary = "Logout",
-      responses = {
-          @ApiResponse(responseCode = "200", description = SUCCESSFULLY_LOGGED_OUT,
-              content = @Content),
-          @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
-              content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-      })
-  @PostMapping("/logout")
-  public void logout(HttpServletRequest request, HttpServletResponse response,
-      Authentication auth) {
-    logoutService.logout(request, response, auth);
-  }
+    @Operation(summary = "Logout",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_LOGGED_OUT,
+                            content = @Content),
+                    @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
+                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+            })
+    @PostMapping("/logout")
+    public void logout(HttpServletRequest request, HttpServletResponse response,
+                       Authentication auth) {
+        logoutService.logout(request, response, auth);
+    }
 
 }

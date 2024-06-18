@@ -4,12 +4,12 @@ import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.dto.request.RestorePasswordDto;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
+import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.email.EmailMessageType;
 import com.chat.yourway.model.email.EmailToken;
 import com.chat.yourway.repository.jpa.EmailTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +26,10 @@ public class ChangePasswordService {
     private final EmailSenderService emailSenderService;
 
     @Transactional
-    public void changePassword(ChangePasswordDto request, UserDetails userDetails) {
-        contactService.verifyPassword(request.getOldPassword(), userDetails.getPassword());
-        contactService.changePasswordByEmail(request.getNewPassword(), userDetails.getUsername());
+    public void changePassword(ChangePasswordDto request) {
+        Contact contact = contactService.getCurrentContact();
+        contactService.verifyPassword(request.getOldPassword(), contact.getPassword());
+        contactService.changePasswordByEmail(request.getNewPassword(), contact.getEmail());
     }
 
     @Transactional

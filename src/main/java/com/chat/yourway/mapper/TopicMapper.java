@@ -5,6 +5,7 @@ import com.chat.yourway.dto.response.PrivateTopicInfoResponseDto;
 import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.Message;
 import com.chat.yourway.model.Topic;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -21,22 +22,33 @@ public abstract class TopicMapper {
     @Autowired
     private ContactMapper contactMapper;
 
-    public abstract TopicResponseDto toResponseDto(Topic topic);
+    @Mapping(target = "unreadMessageCount", expression = "java(getUnreadMessageCount(topic, me))")
+    public abstract TopicResponseDto toResponseDto(Topic topic, @Context Contact me);
 
-    public abstract List<TopicResponseDto> toListResponseDto(List<Topic> topics);
+    public List<TopicResponseDto> toListResponseDto(List<Topic> topics, @Context Contact me) {
+        return topics.stream()
+                .map(topic -> toResponseDto(topic, me))
+                .toList();
+    }
 
     @Mapping(target = "messages", ignore = true)
     public abstract Topic toEntity(TopicResponseDto topicResponseDto);
 
     @Mapping(target = "name", expression = "java(getNamePrivateTopic(topic, me))")
     @Mapping(target = "contact", expression = "java(getContactPrivateTopic(topic, me))")
+    @Mapping(target = "unreadMessageCount", expression = "java(getUnreadMessageCount(topic, me))")
     public abstract PrivateTopicInfoResponseDto toInfoPrivateResponseDto(Topic topic, @Context Contact me);
 
-    public abstract List<PrivateTopicInfoResponseDto> toListInfoPrivateResponseDto(List<Topic> topics);
+    @Mapping(target = "unreadMessageCount", expression = "java(getUnreadMessageCount(topic, me))")
+    public abstract PublicTopicInfoResponseDto toInfoPublicResponseDto(Topic topic, @Context Contact me);
 
-    public abstract List<PublicTopicInfoResponseDto> toListInfoResponseDto(List<Topic> topics);
+    public abstract List<PublicTopicInfoResponseDto> toListInfoResponseDto(List<Topic> topics, @Context Contact me);
 
-    public abstract List<PublicTopicInfoResponseDto> toListInfoResponseDto(Set<Topic> topics);
+    public List<PublicTopicInfoResponseDto> toListInfoResponseDto(Set<Topic> topics, @Context Contact me) {
+        return topics.stream()
+                .map(topic -> toInfoPublicResponseDto(topic, me))
+                .toList();
+    }
 
     public List<PrivateTopicInfoResponseDto> toListInfoPrivateResponseDto(List<Topic> topics, @Context Contact me) {
         return topics.stream()
@@ -63,5 +75,12 @@ public abstract class TopicMapper {
         } else {
             return null;
         }
+    }
+
+    public long getUnreadMessageCount(Topic topic, @Context Contact contact) {
+        Set<Message> unreadMessages = contact.getUnreadMessages();
+        return unreadMessages.stream()
+                    .filter(m -> m.getTopic().getId().equals(topic.getId()))
+                    .count();
     }
 }
