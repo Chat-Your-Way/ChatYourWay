@@ -98,14 +98,6 @@ public class MessageService {
         }
     }
 
-    public List<LastMessageResponseDto> getLastMessages(List<UUID> topicIds, TopicScope scope) {
-        if (topicIds == null) {
-            return messageRepository.getLastMessages(scope);
-        } else {
-            return messageRepository.getLastMessagesByTopicIds(scope, topicIds);
-        }
-    }
-
     public Page<MessageResponseDto> findAllByTopicId(UUID topicId, Pageable pageable) {
         Topic topic = topicService.getTopic(topicId);
         Contact contact = contactService.getCurrentContact();

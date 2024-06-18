@@ -5,6 +5,7 @@ import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.TopicScope;
+import com.chat.yourway.service.LastMessagesService;
 import com.chat.yourway.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +35,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class MessageController {
 
     private final MessageService messageService;
+    private final LastMessagesService lastMessageService;
 
     @Operation(summary = "Send message to topic",
             responses = {
@@ -140,7 +142,7 @@ public class MessageController {
             })
     @GetMapping(path = "/last", produces = APPLICATION_JSON_VALUE)
     public List<LastMessageResponseDto> getLastMessages(@RequestParam(required = false) List<UUID> topicIds) {
-        return messageService.getLastMessages(topicIds, TopicScope.PUBLIC);
+        return lastMessageService.getLastMessages(topicIds, TopicScope.PUBLIC);
     }
 
     @Operation(summary = "Read message",

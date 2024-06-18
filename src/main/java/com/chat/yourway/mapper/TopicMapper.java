@@ -4,9 +4,11 @@ import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.dto.response.PrivateTopicInfoResponseDto;
 import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
 import com.chat.yourway.model.Topic;
+import com.chat.yourway.service.LastMessagesService;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,13 +18,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Mapper(componentModel = "spring", uses = ContactMapper.class)
+@Mapper(componentModel = "spring", uses = {ContactMapper.class, LastMessagesService.class})
 public abstract class TopicMapper {
 
     @Autowired
     private ContactMapper contactMapper;
 
+    @Autowired
+    private LastMessagesService lastMessagesService;
+
     @Mapping(target = "unreadMessageCount", expression = "java(getUnreadMessageCount(topic, me))")
+    @Mapping(target = "lastMessage", expression = "java(getLastMessage(topic, me))")
     public abstract TopicResponseDto toResponseDto(Topic topic, @Context Contact me);
 
     public List<TopicResponseDto> toListResponseDto(List<Topic> topics, @Context Contact me) {
@@ -37,9 +43,11 @@ public abstract class TopicMapper {
     @Mapping(target = "name", expression = "java(getNamePrivateTopic(topic, me))")
     @Mapping(target = "contact", expression = "java(getContactPrivateTopic(topic, me))")
     @Mapping(target = "unreadMessageCount", expression = "java(getUnreadMessageCount(topic, me))")
+    @Mapping(target = "lastMessage", expression = "java(getLastMessage(topic, me))")
     public abstract PrivateTopicInfoResponseDto toInfoPrivateResponseDto(Topic topic, @Context Contact me);
 
     @Mapping(target = "unreadMessageCount", expression = "java(getUnreadMessageCount(topic, me))")
+    @Mapping(target = "lastMessage", expression = "java(getLastMessage(topic, me))")
     public abstract PublicTopicInfoResponseDto toInfoPublicResponseDto(Topic topic, @Context Contact me);
 
     public abstract List<PublicTopicInfoResponseDto> toListInfoResponseDto(List<Topic> topics, @Context Contact me);
@@ -82,5 +90,14 @@ public abstract class TopicMapper {
         return unreadMessages.stream()
                     .filter(m -> m.getTopic().getId().equals(topic.getId()))
                     .count();
+    }
+
+    public LastMessageResponseDto getLastMessage(Topic topic, @Context Contact contact) {
+        List<LastMessageResponseDto> lastMessages = lastMessagesService.getLastMessages(List.of(topic.getId()), topic.getScope());
+        if (lastMessages.isEmpty()) {
+            return null;
+        } else {
+            return lastMessages.get(0);
+        }
     }
 }

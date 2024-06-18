@@ -108,16 +108,7 @@ public class TopicService {
         Contact contact = contactService.getCurrentContact();
         List<Topic> topics = topicRepository.findAllByScope(TopicScope.PUBLIC);
         log.trace("All public topics was found");
-        List<PublicTopicInfoResponseDto> listInfoResponseDto = topicMapper.toListInfoResponseDto(topics, contact);
-
-        Set<Message> unreadMessages = contact.getUnreadMessages();
-        for (PublicTopicInfoResponseDto topic : listInfoResponseDto) {
-            topic.setUnreadMessageCount(unreadMessages.stream()
-                    .filter(m -> m.getTopic().getId().equals(topic.getId()))
-                    .count());
-        }
-
-        return listInfoResponseDto;
+        return topicMapper.toListInfoResponseDto(topics, contact);
     }
 
     public List<PrivateTopicInfoResponseDto> findAllPrivate() {
@@ -126,16 +117,7 @@ public class TopicService {
         List<Topic> topics = topicRepository.findPrivateTopics(contact);
         log.trace("All private topics was found");
 
-        List<PrivateTopicInfoResponseDto> listInfoResponseDto = topicMapper.toListInfoPrivateResponseDto(topics, contact);
-
-        Set<Message> unreadMessages = contact.getUnreadMessages();
-        for (PrivateTopicInfoResponseDto topic : listInfoResponseDto) {
-            topic.setUnreadMessageCount(unreadMessages.stream()
-                    .filter(m -> m.getTopic().getId().equals(topic.getId()))
-                    .count());
-        }
-
-        return listInfoResponseDto;
+        return topicMapper.toListInfoPrivateResponseDto(topics, contact);
     }
 
     public List<TopicResponseDto> findTopicsByTagName(String tagName) {

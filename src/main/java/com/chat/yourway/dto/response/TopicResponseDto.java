@@ -1,5 +1,6 @@
 package com.chat.yourway.dto.response;
 
+import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.TopicScope;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -42,4 +43,6 @@ public class TopicResponseDto {
   private Set<ContactResponseDto> topicSubscribers;
 
   private long unreadMessageCount;
+
+  private LastMessageResponseDto lastMessage;
 }
