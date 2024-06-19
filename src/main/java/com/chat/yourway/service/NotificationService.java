@@ -2,10 +2,13 @@ package com.chat.yourway.service;
 
 import com.chat.yourway.config.websocket.WebsocketProperties;
 import com.chat.yourway.dto.response.MessageResponseDto;
+import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.dto.response.notification.ContactResponseDto;
 import com.chat.yourway.mapper.MessageMapper;
+import com.chat.yourway.mapper.TopicMapper;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
+import com.chat.yourway.model.Topic;
 import com.chat.yourway.model.TopicScope;
 import com.chat.yourway.model.redis.ContactOnline;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,19 @@ public class NotificationService {
     private final WebsocketProperties properties;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final MessageMapper messageMapper;
+    private final TopicMapper topicMapper;
+
+    public void topicChange(List<Contact> sendToContacts, Topic topic) {
+        if (TopicScope.PUBLIC.equals(topic.getScope())) {
+            String notifyDestination = toNotifyTopicsDestination();
+            for (Contact onlineUser : sendToContacts) {
+                TopicResponseDto responseDto = topicMapper.toResponseDto(topic, onlineUser);
+                simpMessagingTemplate.convertAndSendToUser(
+                        onlineUser.getEmail(), notifyDestination, responseDto
+                );
+            }
+        }
+    }
 
     public void sendPublicMessage(List<Contact> sendToContacts, Message message) {
         if (TopicScope.PUBLIC.equals(message.getTopic().getScope())) {

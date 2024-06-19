@@ -75,6 +75,7 @@
 
         subscribeToMessageNotification();
         subscribeToContactsNotification();
+        subscribeToTopicsNotification();
     }, function (error) {
         console.error('Connection error: ' + error);
         setTimeout(initializeWebSocket, reconnectDelay);
@@ -85,7 +86,6 @@
         setTimeout(initializeWebSocket, reconnectDelay);
     };
 }
-
 
 
   function subscribeToTopic() {
@@ -113,18 +113,6 @@
     response.innerText = JSON.stringify(notificationMessage);
   }
 
-  function showAllTopics(topics) {
-    let response = document.getElementById('topics');
-    response.innerText = JSON.stringify(topics);
-  }
-
-  function subscribeToNotificationFromTopic(topicId) {
-    stompClient.subscribe(subToNotificationDest + topicId, function (messages) {
-      let notificationMessage = JSON.parse(messages.body);
-      console.log(notificationMessage);
-      showNotification(notificationMessage);
-    });
-  }
 
   function subscribeToMessageNotification() {
     stompClient.subscribe(subToNotificationDest + 'messages', function (messages) {
@@ -142,19 +130,19 @@
     });
   }
 
+  function subscribeToTopicsNotification() {
+    stompClient.subscribe(subToNotificationDest + 'topics', function (messages) {
+      let notificationMessage = JSON.parse(messages.body);
+      console.log(notificationMessage);
+      showNotification(notificationMessage);
+    });
+  }
+
   function subscribeToError() {
     stompClient.subscribe(subToError, function (messages) {
       let errorMessage = JSON.parse(messages.body);
       console.log(errorMessage);
       showMessage(errorMessage);
-    });
-  }
-
-  function subscribeToAllTopics() {
-    stompClient.subscribe(subToAllTopicsDest, function (messages) {
-      let topics = JSON.parse(messages.body);
-      console.log(topics);
-      showAllTopics(topics);
     });
   }
 

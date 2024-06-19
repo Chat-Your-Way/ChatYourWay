@@ -1,32 +1,32 @@
 package com.chat.yourway.service;
 
-import static java.util.stream.Collectors.toSet;
-
 import com.chat.yourway.dto.request.TagRequestDto;
-import com.chat.yourway.dto.request.TopicPrivateRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
 import com.chat.yourway.dto.response.PrivateTopicInfoResponseDto;
 import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
-import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.exception.ContactEmailNotExist;
 import com.chat.yourway.exception.TopicAccessException;
 import com.chat.yourway.exception.TopicNotFoundException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.mapper.TopicMapper;
-import com.chat.yourway.model.*;
+import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.Tag;
+import com.chat.yourway.model.Topic;
+import com.chat.yourway.model.TopicScope;
 import com.chat.yourway.repository.jpa.TagRepository;
 import com.chat.yourway.repository.jpa.TopicRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import static java.util.stream.Collectors.toSet;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +37,9 @@ public class TopicService {
     private final TagRepository tagRepository;
     private final TopicMapper topicMapper;
     private final ContactService contactService;
+    private final ContactOnlineService contactOnlineService;
+    private final NotificationService notificationService;
 
-    @Transactional
     public TopicResponseDto create(TopicRequestDto topicRequestDto) {
         log.trace("Started create topic: {}}", topicRequestDto);
         validateName(topicRequestDto.getTopicName());
@@ -50,30 +51,11 @@ public class TopicService {
             .topicSubscribers(List.of(creatorContact))
             .tags(addUniqTags(topicRequestDto.getTags()))
             .build();
-        topicRepository.save(topic);
+        save(topic);
         log.trace("Topic name: {} was saved", topic.getName());
         return topicMapper.toResponseDto(topic, creatorContact);
     }
 
-//    @Transactional
-//    public TopicResponseDto createPrivate(TopicPrivateRequestDto topicPrivateDto) {
-//        String sendTo = topicPrivateDto.getSendTo();
-//        log.trace("Started create private topic by sendTo: {}", sendTo);
-//        Contact creatorContact = contactService.getCurrentContact();
-//        Contact sendToContact = contactService.findByEmail(sendTo);
-//        Topic topic = Topic.builder()
-//            .name(generatePrivateName(sendTo, creatorContact.getEmail()))
-//            .scope(TopicScope.PRIVATE)
-//            .createdBy(creatorContact)
-//            .topicSubscribers(List.of(creatorContact, sendToContact))
-//            .build();
-//        topicRepository.save(topic);
-//        log.trace("Topic name: {} was saved", topic.getName());
-//        //TODO send notification
-//        return topicMapper.toResponseDto(topic, creatorContact);
-//    }
-
-    @Transactional
     public TopicResponseDto update(UUID topicId, TopicRequestDto topicRequestDto) {
         log.trace("Started update topic: {}", topicRequestDto);
         validateName(topicRequestDto.getTopicName());
@@ -83,7 +65,8 @@ public class TopicService {
         validateCreator(contact, topic);
         topic.setName(topicRequestDto.getTopicName());
         topic.setTags(addUniqTags(topicRequestDto.getTags()));
-        Topic updatedTopic = topicRepository.save(topic);
+        Topic updatedTopic = save(topic);
+
         log.trace("Topic name: {} was saved", topic.getName());
         return topicMapper.toResponseDto(updatedTopic, contact);
     }
@@ -206,7 +189,12 @@ public class TopicService {
 
     @Transactional
     public Topic save(Topic topic) {
-        return topicRepository.save(topic);
+        topicRepository.save(topic);
+
+        List<Contact> onlineContacts = contactOnlineService.getOnlineContacts();
+        notificationService.topicChange(onlineContacts, topic);
+
+        return topic;
     }
 
     public Topic getTopic(UUID topicId) {
