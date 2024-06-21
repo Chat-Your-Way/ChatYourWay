@@ -3,8 +3,6 @@ package com.chat.yourway.controller.rest;
 import com.chat.yourway.dto.request.MessageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
-import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
-import com.chat.yourway.model.TopicScope;
 import com.chat.yourway.service.LastMessagesService;
 import com.chat.yourway.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,11 +20,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.chat.yourway.config.openapi.OpenApiMessages.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Tag(name = "Message")
 @RestController
@@ -131,21 +127,7 @@ public class MessageController {
         messageService.reportMessageById(id);
     }
 
-    @Operation(
-            summary = "Get last messages from public topics",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REPORTED_MESSAGE),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
-                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-            })
-    @GetMapping(path = "/last", produces = APPLICATION_JSON_VALUE)
-    public List<LastMessageResponseDto> getLastMessages(@RequestParam(required = false) List<UUID> topicIds) {
-        return lastMessageService.getLastMessages(topicIds, TopicScope.PUBLIC);
-    }
-
-    @Operation(summary = "Read message",
+    @Operation(summary = "Mark a message as read",
             responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY,
                             content = @Content),
