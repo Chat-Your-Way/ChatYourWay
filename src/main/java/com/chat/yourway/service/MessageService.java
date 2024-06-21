@@ -114,8 +114,11 @@ public class MessageService {
     public void readMessage(UUID messageId) {
         Contact contact = contactService.getCurrentContact();
         Message message = findById(messageId);
+
+        List<Contact> onlineContacts = contactOnlineService.getOnlineContacts();
+        notificationService.topicChange(onlineContacts, message.getTopic());
+
         contactService.deleteUnreadMessage(contact, message);
-        //notification
     }
 
     private void validateSubscription(Topic topic, Contact contact) {

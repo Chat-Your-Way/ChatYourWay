@@ -29,18 +29,20 @@ public class NotificationService {
     private final TopicMapper topicMapper;
 
     public void topicChange(List<Contact> sendToContacts, Topic topic) {
-        if (TopicScope.PUBLIC.equals(topic.getScope())) {
+        if (TopicScope.PRIVATE.equals(topic.getScope())) {
+            sendToContacts = topic.getTopicSubscribers();
+        }
+        for (Contact onlineUser : sendToContacts) {
+            TopicResponseDto responseDto = topicMapper.toResponseDto(topic, onlineUser);
             String notifyDestination = toNotifyTopicsDestination();
-            for (Contact onlineUser : sendToContacts) {
-                TopicResponseDto responseDto = topicMapper.toResponseDto(topic, onlineUser);
-                simpMessagingTemplate.convertAndSendToUser(
-                        onlineUser.getEmail(), notifyDestination, responseDto
-                );
-            }
+            simpMessagingTemplate.convertAndSendToUser(
+                    onlineUser.getEmail(), notifyDestination, responseDto
+            );
         }
     }
 
     public void sendPublicMessage(List<Contact> sendToContacts, Message message) {
+        topicChange(sendToContacts, message.getTopic());
         if (TopicScope.PUBLIC.equals(message.getTopic().getScope())) {
             String notifyMessageDestination = toNotifyMessageDestination();
             for (Contact onlineUser : sendToContacts) {
@@ -56,6 +58,7 @@ public class NotificationService {
         if (TopicScope.PRIVATE.equals(message.getTopic().getScope())) {
             String notifyMessageDestination = toNotifyMessageDestination();
             List<Contact> topicSubscribers = message.getTopic().getTopicSubscribers();
+            topicChange(topicSubscribers, message.getTopic());
             for (Contact onlineUser : topicSubscribers) {
                 MessageResponseDto responseDto = messageMapper.toResponseDto(message, onlineUser);
                 simpMessagingTemplate.convertAndSendToUser(

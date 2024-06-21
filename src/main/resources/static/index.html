@@ -32,18 +32,13 @@
     <button onclick="subscribeToTopic()">Subscribe</button>
   </div>
 
-  <div id="notification"></div>
   <br/>
 
+  <h2>Log Text</h2>
+  <textarea rows="30" cols="100" id="logtext">
 
-  <div id="topics"></div>
-  <br/>
+  </textarea>
 
-
-  <br/>
-  <br/>
-
-  <div id="messages"></div>
 
 </div>
 
@@ -103,14 +98,17 @@
     }
   }
 
-  function showMessage(message) {
-    let response = document.getElementById('messages');
-    response.innerText += ('>>> ' + JSON.stringify(message) + '\n');
-  }
+  function addToLog(destination, object) {
+    let logtextElement = document.getElementById('logtext');
 
-  function showNotification(notificationMessage) {
-    let response = document.getElementById('notification');
-    response.innerText = JSON.stringify(notificationMessage);
+    let now = new Date();
+    let formattedDateTime = now.toLocaleString();
+
+    logtextElement.append(formattedDateTime + ' ' + destination + '\n');
+    logtextElement.append('\n' + JSON.stringify(object, null, 2) + '\n');
+    logtextElement.append('=================================================================== \n');
+
+    logtextElement.scrollTop = logtextElement.scrollHeight;
   }
 
 
@@ -118,7 +116,7 @@
     stompClient.subscribe(subToNotificationDest + 'messages', function (messages) {
       let notificationMessage = JSON.parse(messages.body);
       console.log(notificationMessage);
-      showNotification(notificationMessage);
+      addToLog(subToNotificationDest + 'messages', notificationMessage);
     });
   }
 
@@ -126,7 +124,7 @@
     stompClient.subscribe(subToNotificationDest + 'contacts', function (messages) {
       let notificationMessage = JSON.parse(messages.body);
       console.log(notificationMessage);
-      showNotification(notificationMessage);
+      addToLog(subToNotificationDest + 'contacts', notificationMessage);
     });
   }
 
@@ -134,7 +132,7 @@
     stompClient.subscribe(subToNotificationDest + 'topics', function (messages) {
       let notificationMessage = JSON.parse(messages.body);
       console.log(notificationMessage);
-      showNotification(notificationMessage);
+      addToLog(subToNotificationDest + 'topics',notificationMessage);
     });
   }
 
@@ -142,7 +140,7 @@
     stompClient.subscribe(subToError, function (messages) {
       let errorMessage = JSON.parse(messages.body);
       console.log(errorMessage);
-      showMessage(errorMessage);
+      addToLog(errorMessage);
     });
   }
 

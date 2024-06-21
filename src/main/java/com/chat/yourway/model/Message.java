@@ -24,7 +24,7 @@ public class Message {
     @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "topic_id", referencedColumnName = "id", nullable = false)
     private Topic topic;
 
