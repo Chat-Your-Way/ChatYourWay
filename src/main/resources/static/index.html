@@ -9,16 +9,16 @@
 <div>
   <h1>WebSocket Chat Test Client</h1>
 
-  <p style="font-style: italic">
-    Connect to WebSocket [http://localhost/chat?Authorization=Bearer {jwt_token}]
-  </p>
-  <div>
-    <label for="jwtToken">
-      <input type="text" id="jwtToken" placeholder="Enter JWT Token">
-    </label>
-
-    <button onclick="initializeWebSocket()">Connect</button>
-  </div>
+  <h2>Login</h2>
+  <form id="loginForm">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    <br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br><br>
+    <button type="submit">Login</button>
+  </form>
 
   <p style="font-style: italic">
     Subscribe to topic [/topic/{id}]
@@ -59,20 +59,64 @@
   let socket = null;
   let stompClient = null;
   let reconnectDelay = 1000;
+  let accessToken = '';
+  let refreshToken = '';
+
+
+  document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const url = '/auth/login';
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const data = {
+                email: email,
+                password: password
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.accessToken && data.refreshToken) {
+                    accessToken = data.accessToken;
+                    refreshToken = data.refreshToken;
+
+                    console.log('Success:', data);
+                    addToLog('login', data);
+
+                    initializeWebSocket();
+
+                } else {
+                    throw new Error('Invalid response');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                addToLog('login error', error);
+            });
+        });
 
   function initializeWebSocket() {
-    const jwtToken = document.getElementById('jwtToken').value;
-    socket = new SockJS('/chat?Authorization=' + tokenType + ' ' + jwtToken);
+    socket = new SockJS('/chat?Authorization=' + tokenType + ' ' + accessToken);
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
+
+        addToLog('connection', {'connected': true });
 
         subscribeToMessageNotification();
         subscribeToContactsNotification();
         subscribeToTopicsNotification();
     }, function (error) {
         console.error('Connection error: ' + error);
+        addToLog('connection', {'connected': false });
         setTimeout(initializeWebSocket, reconnectDelay);
     });
 
