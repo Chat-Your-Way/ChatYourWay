@@ -69,7 +69,9 @@ public class ContactOnlineService {
         List<Contact> result = new ArrayList<>();
         Iterable<ContactOnline> all = contactOnlineRedisRepository.findAll();
         for (ContactOnline contactOnline : all) {
-            result.add(contactService.findByEmail(contactOnline.getId()));
+            if (contactOnline != null) {
+                result.add(contactService.findByEmail(contactOnline.getId()));
+            }
         }
         return result;
     }
