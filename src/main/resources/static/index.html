@@ -10,6 +10,7 @@
   <h1>WebSocket Chat Test Client</h1>
 
   <h2>Login</h2>
+  <h4 id="connection-status"></h4>
   <form id="loginForm">
     <label for="email">Email:</label>
     <input type="email" id="email" name="email" required>
@@ -20,9 +21,7 @@
     <button type="submit">Login</button>
   </form>
 
-  <p style="font-style: italic">
-    Subscribe to topic [/topic/{id}]
-  </p>
+  <h2>Subscribe to topic</h2>
   <div>
 
     <label for="subscribeToTopic">
@@ -61,6 +60,10 @@
   let reconnectDelay = 1000;
   let accessToken = '';
   let refreshToken = '';
+
+  const connectionStatusElement = document.getElementById('connection-status');
+  connectionStatusElement.innerText = 'websocket disconnected';
+  connectionStatusElement.style.color = 'red';
 
 
   document.getElementById('loginForm').addEventListener('submit', function(event) {
@@ -106,6 +109,7 @@
     socket = new SockJS('/chat?Authorization=' + tokenType + ' ' + accessToken);
     stompClient = Stomp.over(socket);
 
+
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
 
@@ -114,14 +118,20 @@
         subscribeToMessageNotification();
         subscribeToContactsNotification();
         subscribeToTopicsNotification();
+        connectionStatusElement.innerText = 'websocket connected';
+        connectionStatusElement.style.color = 'green';
     }, function (error) {
         console.error('Connection error: ' + error);
         addToLog('connection', {'connected': false });
+        connectionStatusElement.innerText = 'websocket disconnected';
+        connectionStatusElement.style.color = 'red';
         setTimeout(initializeWebSocket, reconnectDelay);
     });
 
     socket.onclose = function(event) {
         console.log('Connection closed: ' + event.code + ' - ' + event.reason);
+        connectionStatusElement.innerText = 'websocket disconnected';
+        connectionStatusElement.style.color = 'red';
         setTimeout(initializeWebSocket, reconnectDelay);
     };
 }
