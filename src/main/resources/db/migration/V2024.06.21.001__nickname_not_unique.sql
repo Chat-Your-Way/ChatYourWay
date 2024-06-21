@@ -1,0 +1,1 @@
+ALTER TABLE chat.contacts DROP CONSTRAINT contacts_nickname_key;
