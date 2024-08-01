@@ -57,26 +57,22 @@ public class JwtService {
   }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {
-    final String usernameEmail = userDetails.getUsername();
-    final String email = extractEmail(token);
-    return email.equals(usernameEmail) && !isTokenExpired(token);
+    return extractEmail(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
   }
 
   private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-    final Claims claims = extractAllClaims(token);
-    return claimsResolver.apply(claims);
+    return claimsResolver.apply(extractAllClaims(token));
   }
 
   private String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-    return buildToken(extraClaims, userDetails, jwtProperties.getExpiration());
+    return buildToken(extraClaims, userDetails, jwtProperties.getAccessExpiration());
   }
 
   private boolean isNotValidTokenType(String token, String tokenTypePrefix) {
     return token == null || !token.startsWith(tokenTypePrefix);
   }
 
-  private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails,
-      long expiration) {
+  private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
     return Jwts
         .builder()
         .setClaims(extraClaims)
@@ -105,7 +101,6 @@ public class JwtService {
   }
 
   private Key getSigningKey() {
-    byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecretKey());
-    return Keys.hmacShaKeyFor(keyBytes);
+    return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.getSecretKey()));
   }
 }
