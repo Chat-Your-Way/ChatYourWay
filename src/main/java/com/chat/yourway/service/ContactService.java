@@ -50,6 +50,7 @@ public class ContactService {
                         .password(passwordEncoder.encode(contactRequestDto.getPassword()))
                         .isActive(false)
                         .role(Role.USER)
+                        .isPermittedSendingPrivateMessage(true)
                         .build());
 
         log.info("New contact with email [{}] was created", contactRequestDto.getEmail());
