@@ -77,9 +77,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "400", description = INVALID_VALUE)
             })
     @PutMapping(path = "/update/{id}", produces = APPLICATION_JSON_VALUE)
-    public TopicResponseDto update(
-            @PathVariable UUID id,
-            @Valid @RequestBody TopicRequestDto topicRequestDto) {
+    public TopicResponseDto update(@PathVariable UUID id, @Valid @RequestBody TopicRequestDto topicRequestDto) {
         return topicService.update(id, topicRequestDto);
     }
 
@@ -96,9 +94,9 @@ public class TopicController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
-    public TopicResponseDto findById(@PathVariable UUID id) {
-        return topicService.findById(id);
+    @GetMapping(path = "/{name}", produces = APPLICATION_JSON_VALUE)
+    public TopicResponseDto findByName(@PathVariable String name) {
+        return topicService.findByName(name);
     }
 
     @Operation(
