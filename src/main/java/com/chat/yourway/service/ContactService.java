@@ -1,5 +1,6 @@
 package com.chat.yourway.service;
 
+import com.chat.yourway.config.security.MyPasswordEncoder;
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
 import com.chat.yourway.dto.response.ContactProfileResponseDto;
@@ -13,7 +14,6 @@ import com.chat.yourway.repository.jpa.ContactRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,7 @@ import java.util.List;
 public class ContactService {
 
     private final ContactRepository contactRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final MyPasswordEncoder myPasswordEncoder;
 
     @Transactional
     public Contact save(Contact contact) {
@@ -47,7 +47,7 @@ public class ContactService {
                         .nickname(contactRequestDto.getNickname())
                         .avatarId(contactRequestDto.getAvatarId())
                         .email(contactRequestDto.getEmail())
-                        .password(passwordEncoder.encode(contactRequestDto.getPassword()))
+                        .password(myPasswordEncoder.encode(contactRequestDto.getPassword()))
                         .isActive(false)
                         .role(Role.USER)
                         .isPermittedSendingPrivateMessage(true)
@@ -74,14 +74,14 @@ public class ContactService {
     @Transactional
     public void changePasswordByEmail(String password, String email) {
         log.trace("Started change password by email [{}]", email);
-        contactRepository.changePasswordByEmail(passwordEncoder.encode(password), email);
+        contactRepository.changePasswordByEmail(myPasswordEncoder.encode(password), email);
         log.info("Password was changed by email [{}]", email);
     }
 
     public void verifyPassword(String password, String encodedPassword) {
         log.trace("Started verify password");
 
-        if (!passwordEncoder.matches(password, encodedPassword)) {
+        if (!myPasswordEncoder.matches(password, encodedPassword)) {
             log.warn("Password was not verify");
             throw new PasswordsAreNotEqualException();
         }

@@ -1,6 +1,8 @@
 package com.chat.yourway.config.security;
 
 import com.chat.yourway.service.ContactService;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -13,13 +15,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
   private final ContactService contactService;
-
-  public SecurityConfig(@Lazy ContactService contactService) {
-    this.contactService = contactService;
-  }
+  private final MyPasswordEncoder myPasswordEncoder;
 
   @Bean
   public UserDetailsService userDetailsService() {
@@ -30,19 +30,13 @@ public class SecurityConfig {
   public AuthenticationProvider authenticationProvider() {
     var authProvider = new DaoAuthenticationProvider();
     authProvider.setUserDetailsService(userDetailsService());
-    authProvider.setPasswordEncoder(passwordEncoder());
+    authProvider.setPasswordEncoder(myPasswordEncoder);
     return authProvider;
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
-      throws Exception {
+  @SneakyThrows
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) {
     return authConfig.getAuthenticationManager();
   }
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
-
 }
