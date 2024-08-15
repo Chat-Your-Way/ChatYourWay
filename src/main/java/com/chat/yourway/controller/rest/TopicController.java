@@ -38,17 +38,11 @@ public class TopicController {
     private final TopicService topicService;
     private final TopicSubscriberService topicSubscriberService;
 
-    @Operation(
-            summary = "Create new public topic",
-            responses = {
+    @Operation(summary = "Create new public topic", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_CREATED_TOPIC),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = VALUE_NOT_UNIQUE,
+                    @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = INVALID_VALUE)
             })
@@ -58,21 +52,13 @@ public class TopicController {
         return topicService.create(topicRequestDto);
     }
 
-    @Operation(
-            summary = "Update topic",
-            responses = {
+    @Operation(summary = "Update topic", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_UPDATED_TOPIC),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = TOPIC_NOT_ACCESS,
+                    @ApiResponse(responseCode = "403", description = TOPIC_NOT_ACCESS,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = VALUE_NOT_UNIQUE,
+                    @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = INVALID_VALUE)
             })
@@ -81,17 +67,11 @@ public class TopicController {
         return topicService.update(id, topicRequestDto);
     }
 
-    @Operation(
-            summary = "Find topic by id",
-            responses = {
+    @Operation(summary = "Find topic by id", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = TOPIC_NOT_FOUND,
+                    @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/{name}", produces = APPLICATION_JSON_VALUE)
@@ -99,13 +79,9 @@ public class TopicController {
         return topicService.findByName(name);
     }
 
-    @Operation(
-            summary = "Find all public topics",
-            responses = {
+    @Operation(summary = "Find all public topics", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/all", produces = APPLICATION_JSON_VALUE)
@@ -113,13 +89,9 @@ public class TopicController {
         return topicService.findAllPublic();
     }
 
-    @Operation(
-            summary = "Find all private topics",
-            responses = {
+    @Operation(summary = "Find all private topics", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/private", produces = APPLICATION_JSON_VALUE)
@@ -127,17 +99,11 @@ public class TopicController {
         return topicService.findAllPrivate();
     }
 
-    @Operation(
-            summary = "Delete topic by id",
-            responses = {
+    @Operation(summary = "Delete topic by id", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_DELETE_TOPIC),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = TOPIC_NOT_ACCESS,
+                    @ApiResponse(responseCode = "403", description = TOPIC_NOT_ACCESS,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @DeleteMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
@@ -145,17 +111,11 @@ public class TopicController {
         topicService.delete(id);
     }
 
-    @Operation(
-            summary = "Subscribe to the topic",
-            responses = {
+    @Operation(summary = "Subscribe to the topic", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_SUBSCRIBED),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = ALREADY_SUBSCRIBED,
+                    @ApiResponse(responseCode = "409", description = ALREADY_SUBSCRIBED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @PostMapping(path = "/subscribe/{topicId}", produces = APPLICATION_JSON_VALUE)
@@ -163,21 +123,13 @@ public class TopicController {
         topicSubscriberService.subscribeToTopicById(topicId);
     }
 
-    @Operation(
-            summary = "Unsubscribe from the topic",
-            responses = {
+    @Operation(summary = "Unsubscribe from the topic", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_UNSUBSCRIBED),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = CONTACT_WASNT_SUBSCRIBED,
+                    @ApiResponse(responseCode = "404", description = CONTACT_WASNT_SUBSCRIBED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = OWNER_CANT_UNSUBSCRIBED,
+                    @ApiResponse(responseCode = "403", description = OWNER_CANT_UNSUBSCRIBED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @PatchMapping(path = "/unsubscribe/{topicId}", produces = APPLICATION_JSON_VALUE)
@@ -185,13 +137,9 @@ public class TopicController {
         topicSubscriberService.unsubscribeFromTopicById(topicId);
     }
 
-    @Operation(
-            summary = "Find all subscribers to topic by topicId",
-            responses = {
+    @Operation(summary = "Find all subscribers to topic by topicId", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/subscribers/{topicId}", produces = APPLICATION_JSON_VALUE)
@@ -199,13 +147,9 @@ public class TopicController {
         return topicSubscriberService.findAllSubscribersByTopicId(topicId);
     }
 
-    @Operation(
-            summary = "Find all topics by tag name",
-            responses = {
+    @Operation(summary = "Find all topics by tag name", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/all/{tag}", produces = APPLICATION_JSON_VALUE)
@@ -214,17 +158,11 @@ public class TopicController {
         return topicService.findTopicsByTagName(decodedTag);
     }
 
-    @Operation(
-            summary = "Find all topics by topic name",
-            responses = {
+    @Operation(summary = "Find all topics by topic name", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = SEARCH_TOPIC_VALIDATION,
+                    @ApiResponse(responseCode = "400", description = SEARCH_TOPIC_VALIDATION,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/search", produces = APPLICATION_JSON_VALUE)
@@ -235,17 +173,11 @@ public class TopicController {
         return topicService.findTopicsByTopicName(decodeTopicName);
     }
 
-    @Operation(
-            summary = "Add topic to favourite",
-            responses = {
+    @Operation(summary = "Add topic to favourite", responses = {
                     @ApiResponse(responseCode = "204", description = SUCCESSFULLY_ADD_TOPIC_TO_FAVOURITE),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = TOPIC_NOT_FOUND,
+                    @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
             })
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -255,17 +187,11 @@ public class TopicController {
         topicSubscriberService.addTopicToFavourite(topicId);
     }
 
-    @Operation(
-            summary = "Remove topic from favourite",
-            responses = {
+    @Operation(summary = "Remove topic from favourite", responses = {
                     @ApiResponse(responseCode = "204", description = SUCCESSFULLY_REMOVE_TOPIC_FROM_FAVOURITE),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = TOPIC_NOT_FOUND,
+                    @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -275,13 +201,9 @@ public class TopicController {
         topicSubscriberService.removeTopicFromFavourite(topicId);
     }
 
-    @Operation(
-            summary = "Find all favourite topics of contact",
-            responses = {
+    @Operation(summary = "Find all favourite topics of contact", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/favourite", produces = APPLICATION_JSON_VALUE)
@@ -289,31 +211,21 @@ public class TopicController {
         return topicService.findAllFavouriteTopics();
     }
 
-    @Operation(
-            summary = "List of popular topics",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC)
+    @Operation(summary = "List of popular topics", responses = {
+                @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC)
             })
     @GetMapping(path = "/popular/public", produces = APPLICATION_JSON_VALUE)
     public List<PublicTopicInfoResponseDto> findAllPopularPublicTopics() {
         return topicService.findPopularPublicTopics();
     }
 
-    @Operation(
-            summary = "Complain about the topic",
-            responses = {
+    @Operation(summary = "Complain about the topic", responses = {
                     @ApiResponse(responseCode = "204", description = SUCCESSFULLY_COMPLAIN_TOPIC),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = TOPIC_NOT_FOUND,
+                    @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = USER_DID_NOT_SUBSCRIBED_TO_TOPIC,
+                    @ApiResponse(responseCode = "409", description = USER_DID_NOT_SUBSCRIBED_TO_TOPIC,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @PatchMapping("/{topic-id}/complain")

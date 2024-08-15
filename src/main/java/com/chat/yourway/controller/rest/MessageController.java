@@ -33,12 +33,8 @@ public class MessageController {
     private final MessageService messageService;
     private final LastMessagesService lastMessageService;
 
-    @Operation(summary = "Send message to topic",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = SUCCESSFULLY_REPORTED_MESSAGE,
-                            content = @Content),
+    @Operation(summary = "Send message to topic", responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REPORTED_MESSAGE),
                     @ApiResponse(responseCode = "400", description = INVALID_VALUE),
                     @ApiResponse(
                             responseCode = "403",
@@ -59,18 +55,11 @@ public class MessageController {
 
     @Operation(summary = "Send message to private",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = SUCCESSFULLY_REPORTED_MESSAGE,
-                            content = @Content),
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REPORTED_MESSAGE),
                     @ApiResponse(responseCode = "400", description = INVALID_VALUE),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = TOPIC_NOT_ACCESS,
+                    @ApiResponse(responseCode = "403", description = TOPIC_NOT_ACCESS,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
@@ -83,18 +72,11 @@ public class MessageController {
 
     @Operation(summary = "Get messages by topic",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = SUCCESSFULLY_REPORTED_MESSAGE,
-                            content = @Content),
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REPORTED_MESSAGE),
                     @ApiResponse(responseCode = "400", description = INVALID_VALUE),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = TOPIC_NOT_ACCESS,
+                    @ApiResponse(responseCode = "403", description = TOPIC_NOT_ACCESS,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
@@ -113,10 +95,8 @@ public class MessageController {
         return messageService.findAllByTopicId(topicId, pageable);
     }
 
-    @Operation(summary = "Make report to message",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REPORTED_MESSAGE,
-                            content = @Content),
+    @Operation(summary = "Make report to message", responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REPORTED_MESSAGE),
                     @ApiResponse(responseCode = "400", description = MESSAGE_HAS_ALREADY_REPORTED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "404", description = MESSAGE_NOT_FOUND,

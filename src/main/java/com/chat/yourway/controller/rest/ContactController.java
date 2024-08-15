@@ -1,6 +1,5 @@
 package com.chat.yourway.controller.rest;
 
-import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
 import com.chat.yourway.dto.response.ContactProfileResponseDto;
 import com.chat.yourway.dto.response.ContactResponseDto;
@@ -9,7 +8,6 @@ import com.chat.yourway.service.ContactOnlineService;
 import com.chat.yourway.service.ContactService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,9 +30,7 @@ public class ContactController {
     private final ContactService contactService;
     private final ContactOnlineService contactOnlineService;
 
-    @Operation(
-            summary = "Edit contact profile",
-            responses = {
+    @Operation(summary = "Edit contact profile", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_UPDATED_CONTACT_PROFILE),
                     @ApiResponse(
                             responseCode = "404",
@@ -44,28 +40,14 @@ public class ContactController {
                             responseCode = "403",
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-            },
-            requestBody =
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content =
-                    @Content(
-                            schema = @Schema(implementation = EditContactProfileRequestDto.class),
-                            examples =
-                            @ExampleObject(
-                                    value = OpenApiExamples.EDIT_CONTACT_PROFILE,
-                                    description = "Edit Contact profile"))))
-    @PatchMapping(
-            path = "/profile",
-            consumes = APPLICATION_JSON_VALUE,
-            produces = APPLICATION_JSON_VALUE)
+            })
+    @PatchMapping(path = "/profile", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public void editContactProfile(
             @Valid @RequestBody EditContactProfileRequestDto editContactProfileRequestDto) {
         contactService.updateContactProfile(editContactProfileRequestDto);
     }
 
-    @Operation(
-            summary = "Get contact profile",
-            responses = {
+    @Operation(summary = "Get contact profile", responses = {
                     @ApiResponse(
                             responseCode = "200",
                             description = SUCCESSFULLY_RECEIVED_CONTACT_PROFILE,
@@ -84,9 +66,7 @@ public class ContactController {
         return contactService.getContactProfile();
     }
 
-    @Operation(
-            summary = "Prohibit sending private message",
-            responses = {
+    @Operation(summary = "Prohibit sending private message", responses = {
                     @ApiResponse(
                             responseCode = "200",
                             description = SUCCESSFULLY_PROHIBITED_SENDING_PRIVATE_MESSAGES),
@@ -104,9 +84,7 @@ public class ContactController {
         contactService.prohibitSendingPrivateMessages();
     }
 
-    @Operation(
-            summary = "Permit sending private message",
-            responses = {
+    @Operation(summary = "Permit sending private message", responses = {
                     @ApiResponse(
                             responseCode = "200",
                             description = SUCCESSFULLY_PERMITTED_SENDING_PRIVATE_MESSAGES),
@@ -114,9 +92,7 @@ public class ContactController {
                             responseCode = "403",
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = CONTACT_NOT_FOUND,
+                    @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @PatchMapping(path = "/message/send/permit")
@@ -124,13 +100,9 @@ public class ContactController {
         contactService.permitSendingPrivateMessages();
     }
 
-    @Operation(
-            summary = "Find all online contacts by topic id",
-            responses = {
+    @Operation(summary = "Find all online contacts by topic id", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/online/{topic-id}", produces = APPLICATION_JSON_VALUE)
@@ -138,13 +110,9 @@ public class ContactController {
         return contactOnlineService.getOnlineUsersByTopicId(topicId);
     }
 
-    @Operation(
-            summary = "Find all online contacts",
-            responses = {
+    @Operation(summary = "Find all online contacts", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = CONTACT_UNAUTHORIZED,
+                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @GetMapping(path = "/online", produces = APPLICATION_JSON_VALUE)

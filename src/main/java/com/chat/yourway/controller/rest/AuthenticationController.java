@@ -1,6 +1,5 @@
 package com.chat.yourway.controller.rest;
 
-import com.chat.yourway.config.openapi.OpenApiExamples;
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
@@ -10,7 +9,6 @@ import com.chat.yourway.service.ActivateAccountService;
 import com.chat.yourway.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,11 +44,8 @@ public class AuthenticationController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-            },
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(schema = @Schema(implementation = ContactRequestDto.class),
-                            examples = @ExampleObject(value = OpenApiExamples.NEW_CONTACT,
-                                    description = "New Contact for registration"))))
+                }
+            )
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public AuthResponseDto register(@Valid @RequestBody ContactRequestDto request,
@@ -66,11 +61,7 @@ public class AuthenticationController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-            },
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(schema = @Schema(implementation = AuthRequestDto.class),
-                            examples = @ExampleObject(value = OpenApiExamples.LOGIN,
-                                    description = "Login credentials"))))
+            })
     @PostMapping(path = "/login", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public AuthResponseDto authenticate(@Valid @RequestBody AuthRequestDto request) {
         return authService.authenticate(request);
