@@ -24,6 +24,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class ChangePasswordController {
 
     private final ChangePasswordService changePasswordService;
+    private static final String PASSWORD = "/password";
+    private static final String PASSWORD_EMAIL = "/password/email";
+    private static final String PASSWORD_RESTORE = "/password/restore";
 
     @Operation(summary = "Change to new password",
             responses = {
@@ -32,7 +35,7 @@ public class ChangePasswordController {
                     @ApiResponse(responseCode = "400", description = INVALID_OLD_PASSWORD,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = "/password", consumes = APPLICATION_JSON_VALUE)
+    @PatchMapping(path = PASSWORD, consumes = APPLICATION_JSON_VALUE)
     public void changePassword(@Valid @RequestBody ChangePasswordDto request) {
         changePasswordService.changePassword(request);
     }
@@ -44,7 +47,7 @@ public class ChangePasswordController {
                     @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = "/password/email", produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = PASSWORD_EMAIL, produces = APPLICATION_JSON_VALUE)
     public void sendRequestToRestorePassword(@RequestParam String email,
                                              @RequestHeader(HttpHeaders.REFERER) String clientHost) {
         changePasswordService.sendEmailToRestorePassword(email, clientHost);
@@ -57,7 +60,7 @@ public class ChangePasswordController {
                     @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = "/password/restore", consumes = APPLICATION_JSON_VALUE)
+    @PatchMapping(path = PASSWORD_RESTORE, consumes = APPLICATION_JSON_VALUE)
     public void restorePassword(@Valid @RequestBody RestorePasswordDto restorePasswordDto) {
         changePasswordService.restorePassword(restorePasswordDto);
     }

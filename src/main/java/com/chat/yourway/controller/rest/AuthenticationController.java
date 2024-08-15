@@ -35,9 +35,13 @@ public class AuthenticationController {
     private final AuthenticationService authService;
     private final ActivateAccountService activateAccountService;
     private final LogoutService logoutService;
+    private static final String REGISTER = "/register";
+    private static final String LOGIN = "/login";
+    private static final String REFRESH = "/refresh";
+    private static final String ACTIVATE = "/activate";
+    private static final String LOGOUT = "/logout";
 
-    @Operation(summary = "Registration a new contact",
-            responses = {
+    @Operation(summary = "Registration a new contact", responses = {
                     @ApiResponse(responseCode = "201", description = SUCCESSFULLY_REGISTERED,
                             content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
                     @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
@@ -47,14 +51,13 @@ public class AuthenticationController {
                 }
             )
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(path = REGISTER, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public AuthResponseDto register(@Valid @RequestBody ContactRequestDto request,
                                     @RequestHeader(HttpHeaders.REFERER) String clientHost) {
         return authService.register(request, clientHost);
     }
 
-    @Operation(summary = "Authorization",
-            responses = {
+    @Operation(summary = "Authorization", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_AUTHORIZATION,
                             content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
                     @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
@@ -62,13 +65,12 @@ public class AuthenticationController {
                     @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = "/login", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(path = LOGIN, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public AuthResponseDto authenticate(@Valid @RequestBody AuthRequestDto request) {
         return authService.authenticate(request);
     }
 
-    @Operation(summary = "Refresh token",
-            responses = {
+    @Operation(summary = "Refresh token", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REFRESHED_TOKEN,
                             content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
                     @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
@@ -76,34 +78,28 @@ public class AuthenticationController {
                     @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = "/refresh", produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = REFRESH, produces = APPLICATION_JSON_VALUE)
     public AuthResponseDto refreshToken(HttpServletRequest request) {
         return authService.refreshToken(request);
     }
 
-    @Operation(summary = "Activate account",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT,
-                            content = @Content),
+    @Operation(summary = "Activate account", responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT),
                     @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = "/activate", produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = ACTIVATE, produces = APPLICATION_JSON_VALUE)
     public void activateAccount(@RequestParam(name = "Email token") UUID token) {
         activateAccountService.activateAccount(token);
     }
 
-    @Operation(summary = "Logout",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_LOGGED_OUT,
-                            content = @Content),
+    @Operation(summary = "Logout", responses = {
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_LOGGED_OUT),
                     @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping("/logout")
-    public void logout(HttpServletRequest request, HttpServletResponse response,
-                       Authentication auth) {
+    @PostMapping(LOGOUT)
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
         logoutService.logout(request, response, auth);
     }
-
 }
