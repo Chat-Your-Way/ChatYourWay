@@ -1,6 +1,6 @@
 package com.chat.yourway.listener;
 
-import com.chat.yourway.config.websocket.WebsocketProperties;
+import com.chat.yourway.config.websocket.WebSocketProperties;
 import com.chat.yourway.service.ContactOnlineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class StompSubscriptionListener {
 
-    private final WebsocketProperties properties;
+    private final WebSocketProperties webSocketProperties;
     private final ContactOnlineService contactOnlineService;
 
     private static final String SLASH = "/";
@@ -79,7 +79,7 @@ public class StompSubscriptionListener {
     }
 
     private String getTopicDestination() {
-        return properties.getTopicPrefix() + SLASH;
+        return webSocketProperties.getTopicPrefix() + SLASH;
     }
 
 

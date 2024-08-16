@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "socket")
 @Getter
 @Setter
-public class WebsocketProperties {
+public class WebSocketProperties {
 
   private String[] destPrefixes;
   private String appPrefix;

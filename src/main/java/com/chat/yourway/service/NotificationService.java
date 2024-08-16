@@ -1,6 +1,6 @@
 package com.chat.yourway.service;
 
-import com.chat.yourway.config.websocket.WebsocketProperties;
+import com.chat.yourway.config.websocket.WebSocketProperties;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.dto.response.notification.ContactResponseDto;
@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 public class NotificationService {
 
-    private final WebsocketProperties properties;
+    private final WebSocketProperties webSocketProperties;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final MessageMapper messageMapper;
     private final TopicMapper topicMapper;
@@ -92,14 +92,14 @@ public class NotificationService {
     }
 
     private String toNotifyMessageDestination() {
-        return properties.getNotifyPrefix() + "/messages";
+        return webSocketProperties.getNotifyPrefix() + "/messages";
     }
 
     private String toNotifyTopicsDestination() {
-        return properties.getNotifyPrefix() + "/topics";
+        return webSocketProperties.getNotifyPrefix() + "/topics";
     }
 
     private String toNotifyContactsDestination() {
-        return properties.getNotifyPrefix() + "/contacts";
+        return webSocketProperties.getNotifyPrefix() + "/contacts";
     }
 }
