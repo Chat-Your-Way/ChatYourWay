@@ -20,17 +20,12 @@ public class EmailMessageFactoryService {
     EmailMessageType emailMessageType = emailMessageInfoDto.emailMessageType();
     String link = generateLink(path, uuidToken, emailMessageType);
     log.info("Generated link: {}", link);
-    String messageBody = String.format(emailMessageType.getMessageBody(),
-        emailMessageInfoDto.username(), link);
+    String messageBody = String.format(emailMessageType.getMessageBody(), emailMessageInfoDto.username(), link);
 
-    return new EmailMessageDto(emailMessageInfoDto.email(), emailMessageType.getSubject(),
-        messageBody);
+    return new EmailMessageDto(emailMessageInfoDto.email(), emailMessageType.getSubject(), messageBody);
   }
 
   private String generateLink(String path, UUID uuidToken, EmailMessageType emailMessageType) {
-    return path +
-        emailMessageType.getEmailType() +
-        TOKEN_PARAMETER +
-        uuidToken;
+    return path + emailMessageType.getEmailType() + TOKEN_PARAMETER + uuidToken;
   }
 }
