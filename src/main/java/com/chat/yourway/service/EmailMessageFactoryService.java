@@ -26,6 +26,6 @@ public class EmailMessageFactoryService {
   }
 
   private String generateLink(String path, UUID uuidToken, EmailMessageType emailMessageType) {
-    return path + emailMessageType.getEmailType() + TOKEN_PARAMETER + uuidToken;
+    return path + "/" + emailMessageType.getEmailType() + TOKEN_PARAMETER + uuidToken;
   }
 }
