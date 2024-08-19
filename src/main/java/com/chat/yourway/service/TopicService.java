@@ -18,6 +18,7 @@ import com.chat.yourway.repository.jpa.TagRepository;
 import com.chat.yourway.repository.jpa.TopicRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.Context;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,14 +104,14 @@ public class TopicService {
         List<Topic> topics = topicRepository.findPrivateTopics(contact);
         log.trace("All private topics was found");
 
-        return topicMapper.toListInfoPrivateResponseDto(topics, contact);
+        return toListInfoPrivateResponseDto(topics, contact);
     }
 
     public List<TopicResponseDto> findTopicsByTagName(String tagName) {
         log.trace("Started findTopicsByTagName");
         List<Topic> topics = topicRepository.findAllByTagName(tagName);
         log.trace("All Topics by tag name was found");
-        return topicMapper.toListResponseDto(topics, contactService.getCurrentContact());
+        return toListResponseDto(topics, contactService.getCurrentContact());
     }
 
     @Transactional
@@ -160,7 +161,7 @@ public class TopicService {
 
     @Transactional(readOnly = true)
     public List<TopicResponseDto> findTopicsByTopicName(String topicName) {
-        return topicMapper.toListResponseDto(topicRepository.findAllByName(topicName), contactService.getCurrentContact());
+        return toListResponseDto(topicRepository.findAllByName(topicName), contactService.getCurrentContact());
     }
 
     public String generatePrivateName(String sendTo, String email) {
@@ -169,7 +170,7 @@ public class TopicService {
 
     public List<PublicTopicInfoResponseDto> findAllFavouriteTopics() {
         Contact contact = contactService.getCurrentContact();
-        return topicMapper.toListInfoResponseDto(contact.getFavoriteTopics(), contact);
+        return toListInfoResponseDto(contact.getFavoriteTopics(), contact);
     }
 
     public List<PublicTopicInfoResponseDto> findPopularPublicTopics() {
@@ -243,6 +244,24 @@ public class TopicService {
             throw new TopicNotFoundException("Topic not found");
         }
         return topic.getCreatedBy().equals(contact);
+    }
+
+    private List<PublicTopicInfoResponseDto> toListInfoResponseDto(Set<Topic> topics, @Context Contact me) {
+        return topics.stream()
+                .map(topic -> topicMapper.toInfoPublicResponseDto(topic, me))
+                .toList();
+    }
+
+    private List<PrivateTopicInfoResponseDto> toListInfoPrivateResponseDto(List<Topic> topics, @Context Contact me) {
+        return topics.stream()
+                .map(topic -> topicMapper.toInfoPrivateResponseDto(topic, me))
+                .toList();
+    }
+
+    public List<TopicResponseDto> toListResponseDto(List<Topic> topics, @Context Contact me) {
+        return topics.stream()
+                .map(topic -> topicMapper.toResponseDto(topic, me))
+                .toList();
     }
 
 

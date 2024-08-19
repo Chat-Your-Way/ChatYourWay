@@ -2,7 +2,6 @@ package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.MessageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
-import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.exception.MessageNotFoundException;
 import com.chat.yourway.exception.MessagePermissionDeniedException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;

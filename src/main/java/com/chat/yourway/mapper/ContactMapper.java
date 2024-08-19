@@ -8,8 +8,6 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ContactMapper {
-
     ContactResponseDto toResponseDto(Contact contact);
-
     List<ContactResponseDto> toListResponseDto(List<Contact> contact);
 }
