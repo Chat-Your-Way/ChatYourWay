@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+import static com.chat.yourway.utils.Constants.SLASH;
+
 @Service
 @Slf4j
 public class EmailMessageFactoryService {
@@ -26,6 +28,6 @@ public class EmailMessageFactoryService {
   }
 
   private String generateLink(String path, UUID uuidToken, EmailMessageType emailMessageType) {
-    return path + "/" + emailMessageType.getEmailType() + TOKEN_PARAMETER + uuidToken;
+    return path + SLASH + emailMessageType.getEmailType() + TOKEN_PARAMETER + uuidToken;
   }
 }

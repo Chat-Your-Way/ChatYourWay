@@ -40,6 +40,7 @@ public class TopicService {
     private final ContactOnlineService contactOnlineService;
     private final NotificationService notificationService;
 
+    @Transactional
     public TopicResponseDto create(TopicRequestDto topicRequestDto) {
         log.trace("Started create topic: {}}", topicRequestDto);
         validateName(topicRequestDto.getTopicName());
@@ -51,11 +52,13 @@ public class TopicService {
             .topicSubscribers(List.of(creatorContact))
             .tags(addUniqTags(topicRequestDto.getTags()))
             .build();
+
         save(topic);
         log.trace("Topic name: {} was saved", topic.getName());
         return topicMapper.toResponseDto(topic, creatorContact);
     }
 
+    @Transactional
     public TopicResponseDto update(UUID topicId, TopicRequestDto topicRequestDto) {
         log.trace("Started update topic: {}", topicRequestDto);
         validateName(topicRequestDto.getTopicName());
@@ -67,7 +70,7 @@ public class TopicService {
         topic.setTags(addUniqTags(topicRequestDto.getTags()));
         Topic updatedTopic = save(topic);
 
-        log.trace("Topic name: {} was saved", topic.getName());
+        log.trace("Topic name: {} was updated", topic.getName());
         return topicMapper.toResponseDto(updatedTopic, contact);
     }
 
@@ -203,8 +206,7 @@ public class TopicService {
             .orElseThrow(
                 () -> {
                     log.warn("Topic id: {} wasn't found", topicId);
-                    return new TopicNotFoundException(
-                        String.format("Topic id: %s wasn't found", topicId));
+                    return new TopicNotFoundException(String.format("Topic id: %s wasn't found", topicId));
                 });
     }
 
@@ -214,16 +216,14 @@ public class TopicService {
             .orElseThrow(
                 () -> {
                     log.warn("Topic name: {} wasn't found", name);
-                    return new TopicNotFoundException(
-                        String.format("Topic name: %s wasn't found", name));
+                    return new TopicNotFoundException(String.format("Topic name: %s wasn't found", name));
                 });
     }
 
     private void validateName(String topicName) {
         if (isTopicNameExists(topicName)) {
             log.warn("Topic name: [{}] already in use", topicName);
-            throw new ValueNotUniqException(
-                String.format("Topic name: %s already in use", topicName));
+            throw new ValueNotUniqException(String.format("Topic name: %s already in use", topicName));
         }
     }
 
@@ -234,8 +234,7 @@ public class TopicService {
     private void validateCreator(Contact contact, Topic topic) {
         if (!isCreator(contact, topic)) {
             log.warn("Email: {} wasn't the topic creator", contact.getEmail());
-            throw new TopicAccessException(
-                String.format("Email: %s wasn't the topic creator", contact.getEmail()));
+            throw new TopicAccessException(String.format("Email: %s wasn't the topic creator", contact.getEmail()));
         }
     }
 

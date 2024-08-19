@@ -9,7 +9,6 @@ import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
-import com.chat.yourway.model.Role;
 import com.chat.yourway.repository.jpa.ContactRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.chat.yourway.model.Role.USER;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +29,8 @@ public class ContactService {
     private final MyPasswordEncoder myPasswordEncoder;
 
     @Transactional
-    public Contact save(Contact contact) {
-        return contactRepository.save(contact);
+    public void save(Contact contact) {
+        contactRepository.save(contact);
     }
 
     @Transactional
@@ -42,16 +43,18 @@ public class ContactService {
                     String.format("Email [%s] already in use", contactRequestDto.getEmail()));
         }
 
-        Contact contact = contactRepository.save(
-                Contact.builder()
+        Contact contact = (Contact.builder()
                         .nickname(contactRequestDto.getNickname())
                         .avatarId(contactRequestDto.getAvatarId())
                         .email(contactRequestDto.getEmail())
                         .password(myPasswordEncoder.encode(contactRequestDto.getPassword()))
                         .isActive(false)
-                        .role(Role.USER)
+                        .role(USER)
                         .isPermittedSendingPrivateMessage(true)
-                        .build());
+                        .build()
+        );
+
+        contactRepository.save(contact);
 
         log.info("New contact with email [{}] was created", contactRequestDto.getEmail());
         return contact;

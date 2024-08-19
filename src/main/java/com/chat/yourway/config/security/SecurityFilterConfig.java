@@ -14,6 +14,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
+import static com.chat.yourway.utils.Constants.WHITELIST_URLS;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -23,26 +25,6 @@ public class SecurityFilterConfig {
   private final AuthenticationProvider authenticationProvider;
   private final LogoutHandler logoutHandler;
   private final SecurityCorsConfig securityCorsConfig;
-
-  private static final String[] WHITELIST_URLS = {
-      //OpenApi
-      "/v2/api-docs", "/v3/api-docs", "/v3/api-docs/**", "/swagger-resources",
-      "/swagger-resources/**",
-      "/configuration/ui", "/configuration/security", "/swagger-ui/**", "/webjars/**",
-      "/swagger-ui.html",
-
-      //Authentication
-      "/auth/**",
-
-      //WebSocket
-      "/ws/**", "/chat/**",
-
-      //Other
-      "/*",
-
-      //Change password
-      "/change/password/**"
-  };
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {

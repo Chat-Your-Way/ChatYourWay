@@ -16,6 +16,9 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.chat.yourway.utils.Constants.SLASH;
+import static com.chat.yourway.utils.Constants.UUID_REGEX_PATTERN;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -23,9 +26,6 @@ public class StompSubscriptionListener {
 
     private final WebSocketProperties webSocketProperties;
     private final ContactOnlineService contactOnlineService;
-
-    private static final String SLASH = "/";
-    private static final String UUID_REGEX_PATTERN = "\\b[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\\b";
 
     @EventListener
     public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {

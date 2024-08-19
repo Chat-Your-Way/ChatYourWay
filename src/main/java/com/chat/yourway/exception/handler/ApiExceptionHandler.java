@@ -47,13 +47,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-@ApiResponse(
-    responseCode = "ErrorCode",
-    description = "Error response",
-    content =
-    @Content(
-        schema = @Schema(implementation = ApiErrorResponseDto.class),
-        mediaType = MediaType.APPLICATION_JSON_VALUE))
+@ApiResponse(responseCode = "ErrorCode", description = "Error response", content =
+    @Content(schema = @Schema(implementation = ApiErrorResponseDto.class),
+                  mediaType = MediaType.APPLICATION_JSON_VALUE)
+)
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
