@@ -33,6 +33,7 @@ public class ContactOnlineService {
                 .id(contactEmail)
                 .timestamp(LocalDateTime.now())
                 .topicId(topicId)
+                .typingStatus(true)
                 .build();
         contactOnlineRedisRepository.save(contactOnline);
         notificationService.contactChangeStatus(getOnlineContacts(), contactService.findByEmail(contactEmail), contactOnline);
