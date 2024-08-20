@@ -20,7 +20,6 @@ public class EmailToken {
   private UUID token;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "message_type")
   private EmailMessageType messageType;
 
   @OneToOne
