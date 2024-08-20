@@ -34,7 +34,8 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
             nativeQuery = true)
     void saveReportFromContactToMessage(String email, UUID messageId);
 
-    Page<Message> findAllByTopicId(UUID topic_id, Pageable pageable);
+    @Query("SELECT m FROM Message m WHERE m.topic = :topicId ORDER BY m.timestamp DESC")
+    Page<Message> findAllByTopicId(@Param("topicId") UUID topic_id, Pageable pageable);
 
     @Query(value = """
             SELECT COUNT(*)

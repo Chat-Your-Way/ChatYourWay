@@ -106,7 +106,7 @@ public class MessageService {
         }
 
         Page<Message> messages = messageRepository.findAllByTopicId(topicId, pageable);
-        return messages.map(m -> messageMapper.toResponseDto(m, contact));
+        return messages.map(message -> messageMapper.toResponseDto(message, contact));
     }
 
     @Transactional
@@ -121,14 +121,13 @@ public class MessageService {
     }
 
     private void validateSubscription(Topic topic, Contact contact) {
-        log.trace("Validating subscription of contact email: {} to topic ID: {}",
-                contact.getEmail(), topic.getId());
+        log.trace("Validating subscription of contact email: {} to topic ID: {}", contact.getEmail(), topic.getId());
         if (!topicSubscriberService.hasContactSubscribedToTopic(topic, contact)) {
-            log.warn("Contact email: {} wasn't subscribed to the topic id: {}", contact.getEmail(),
-                    topic.getId());
+            log.warn("Contact email: {} wasn't subscribed to the topic id: {}", contact.getEmail(), topic.getId());
             throw new TopicSubscriberNotFoundException(
                     String.format("Contact email: %s wasn't subscribed to the topic id: %s",
-                            contact.getEmail(), topic.getId()));
+                            contact.getEmail(), topic.getId())
+            );
         }
     }
 }

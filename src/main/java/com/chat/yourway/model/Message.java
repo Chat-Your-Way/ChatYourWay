@@ -21,7 +21,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "timestamp", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime timestamp;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -41,12 +41,4 @@ public class Message {
         this.content = content;
         this.timestamp = LocalDateTime.now();
     }
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(
-//            schema = "chat",
-//            name = "contact_report_messages",
-//            joinColumns = @JoinColumn(name = "message_id"),
-//            inverseJoinColumns = @JoinColumn(name = "contact_id")
-//    )
-//    private Set<Contact> reportContacts = new HashSet<>();
 }

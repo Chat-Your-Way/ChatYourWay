@@ -82,12 +82,16 @@ public class MessageController {
             })
     @GetMapping(path = TOPIC_ID)
     public Page<MessageResponseDto> getMessagesByTopic(
-            @Parameter(description = "Number of page (1..N)", required = true,
-                    schema = @Schema(type = "integer", defaultValue = "1")
-            ) @RequestParam(defaultValue = "1") @Positive int page,
-            @Parameter(description = "The size of the page to be returned", required = true,
-                    schema = @Schema(type = "integer", defaultValue = "12")
-            ) @RequestParam(defaultValue = "30") @Positive int size, @PathVariable UUID topicId) {
+            @Parameter(description = "Number of page (1..N)",
+                        required = true,
+                        schema = @Schema(type = "integer", defaultValue = "1")
+            )
+            @RequestParam(defaultValue = "1") @Positive int page,
+            @Parameter(description = "The size of the page to be returned",
+                        required = true,
+                        schema = @Schema(type = "integer", defaultValue = "12")
+            )
+            @RequestParam(defaultValue = "30") @Positive int size, @PathVariable UUID topicId) {
         Pageable pageable = PageRequest.of(page - 1, size, Direction.ASC, "timestamp");
         return messageService.findAllByTopicId(topicId, pageable);
     }
