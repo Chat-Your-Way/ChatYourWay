@@ -29,15 +29,14 @@ public class Topic {
   private String name;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", referencedColumnName = "id", nullable = false)
-  private Contact createdBy;
+  @JoinColumn(name = "contact_nickname", referencedColumnName = "nickname", nullable = false)
+  private Contact contact;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "scope", nullable = false, length = 50)
+  @Column(nullable = false, length = 50)
   private TopicScope scope;
 
-
-  @Column(name = "created_at", nullable = false)
+  @Column(nullable = false)
   @CreationTimestamp
   private LocalDateTime createdAt;
 

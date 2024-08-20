@@ -22,26 +22,25 @@ public class Contact implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "nickname", nullable = false)
+    @Column(nullable = false)
     private String nickname;
 
-    @Column(name = "avatar_id", nullable = false)
+    @Column(nullable = false)
     private Byte avatarId;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false, length = 2048)
+    @Column(nullable = false, length = 2048)
     private String password;
 
-    @Column(name = "is_active", nullable = false)
+    @Column(nullable = false)
     private boolean isActive;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     private Role role;
 
-    @Column(name = "is_permitted_sending_private_message")
     private boolean isPermittedSendingPrivateMessage;
 
     @ManyToMany

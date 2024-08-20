@@ -49,7 +49,7 @@ public class TopicService {
         Topic topic = Topic.builder()
             .name(topicRequestDto.getTopicName())
             .scope(TopicScope.PUBLIC)
-            .createdBy(creatorContact)
+            .contact(creatorContact)
             .topicSubscribers(List.of(creatorContact))
             .tags(addUniqTags(topicRequestDto.getTags()))
             .build();
@@ -182,7 +182,7 @@ public class TopicService {
         return topicRepository.findPrivateTopic(sendToContact, sendFromContact).orElseGet(
             () -> {
                 Topic newPrivateTopic = Topic.builder()
-                    .createdBy(sendToContact)
+                    .contact(sendToContact)
                     .name(generatePrivateName(sendToContact.getEmail(), sendFromContact.getEmail()))
                     .scope(TopicScope.PRIVATE)
                     .topicSubscribers(List.of(sendToContact, sendFromContact))
@@ -244,7 +244,7 @@ public class TopicService {
         if (topic == null) {
             throw new TopicNotFoundException("Topic not found");
         }
-        return topic.getCreatedBy().equals(contact);
+        return topic.getContact().equals(contact);
     }
 
     private List<PublicTopicInfoResponseDto> toListInfoResponseDto(Set<Topic> topics, @Context Contact me) {

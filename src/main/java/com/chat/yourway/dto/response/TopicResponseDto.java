@@ -30,7 +30,7 @@ public class TopicResponseDto {
 
   private TopicScope scope;
 
-  private ContactResponseDto createdBy;
+  private ContactResponseDto contact;
 
   @Schema(description = "Created time")
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
