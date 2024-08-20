@@ -35,12 +35,15 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Validated
 public class TopicController {
 
+    private final TopicService topicService;
+    private final TopicSubscriberService topicSubscriberService;
+
     private static final String CREATE = "/create";
     private static final String UPDATE_ID = "/update/{id}";
-    private static final String NAME = "/{name}";
-    private static final String ALL = "/all";
-    private static final String PRIVATE = "/private";
-    private static final String ID = "/{id}";
+    private static final String TOPIC_GET_ID = "/{id}";
+    private static final String TOPIC_ALL = "/all";
+    private static final String TOPIC_PRIVATE = "/private";
+    private static final String DELETE_TOPIC_ID = "/{id}";
     private static final String SUBSCRIBE_TOPIC_ID = "/subscribe/{topicId}";
     private static final String UNSUBSCRIBE_TOPIC_ID = "/unsubscribe/{topicId}";
     private static final String SUBSCRIBERS_TOPIC_ID = "/subscribers/{topicId}";
@@ -51,8 +54,6 @@ public class TopicController {
     private static final String FAVOURITE = "/favourite";
     private static final String FILE_PATH = "/popular/public";
     private static final String TOPIC_ID_COMPLAIN = "/{topic-id}/complain";
-    private final TopicService topicService;
-    private final TopicSubscriberService topicSubscriberService;
 
     @Operation(summary = "Create new public topic", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_CREATED_TOPIC),
@@ -82,16 +83,16 @@ public class TopicController {
         return topicService.update(id, topicRequestDto);
     }
 
-    @Operation(summary = "Find topic by name", responses = {
+    @Operation(summary = "Find topic by id", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC),
                     @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = NAME, produces = APPLICATION_JSON_VALUE)
-    public TopicResponseDto findByName(@PathVariable String name) {
-        return topicService.findByName(name);
+    @GetMapping(path = TOPIC_GET_ID, produces = APPLICATION_JSON_VALUE)
+    public TopicResponseDto findById(@PathVariable UUID id) {
+        return topicService.findById(id);
     }
 
     @Operation(summary = "Find all public topics", responses = {
@@ -99,7 +100,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = ALL, produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = TOPIC_ALL, produces = APPLICATION_JSON_VALUE)
     public List<PublicTopicInfoResponseDto> findAllPublic() {
         return topicService.findAllPublic();
     }
@@ -109,7 +110,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = PRIVATE, produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = TOPIC_PRIVATE, produces = APPLICATION_JSON_VALUE)
     public List<PrivateTopicInfoResponseDto> findAllPrivate() {
         return topicService.findAllPrivate();
     }
@@ -121,7 +122,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @DeleteMapping(path = ID, produces = APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = DELETE_TOPIC_ID, produces = APPLICATION_JSON_VALUE)
     public void delete(@PathVariable UUID id) {
         topicService.delete(id);
     }
