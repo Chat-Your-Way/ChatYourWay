@@ -24,7 +24,7 @@ public class PublicTopicInfoResponseDto {
   @Schema(description = "New Topic name", example = "My programming topic")
   private String name;
 
-  private ContactResponseDto createdBy;
+  private ContactResponseDto contact;
 
   @Schema(description = "Created time")
   private LocalDateTime createdAt;
