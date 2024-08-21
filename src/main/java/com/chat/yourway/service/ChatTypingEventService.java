@@ -16,7 +16,21 @@ public class ChatTypingEventService {
 
     public void updateTypingEvent(Boolean isTyping, String email) {
         log.info("Start updateTypingEvent isTyping={}, email={}", isTyping, email);
+
         ContactOnline contactOnline = contactOnlineService.getContactOnline(email);
+
+        contactOnline = getOnline(isTyping, email, contactOnline);
+
+        contactOnline = contactOnlineService.save(contactOnline);
+
+        notificationService.contactChangeStatus(
+                contactOnlineService.getOnlineContacts(),
+                contactService.findByEmail(email),
+                contactOnline
+        );
+    }
+
+    private ContactOnline getOnline(Boolean isTyping, String email, ContactOnline contactOnline) {
         if (contactOnline != null) {
             contactOnline.setTypingStatus(isTyping);
         } else {
@@ -24,10 +38,6 @@ public class ChatTypingEventService {
             contactOnline.setId(email);
             contactOnline.setTypingStatus(isTyping);
         }
-        contactOnline = contactOnlineService.save(contactOnline);
-        notificationService.contactChangeStatus(
-                contactOnlineService.getOnlineContacts(),
-                contactService.findByEmail(email),
-                contactOnline);
+        return contactOnline;
     }
 }
