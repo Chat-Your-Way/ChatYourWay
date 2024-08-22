@@ -2,7 +2,7 @@ create SCHEMA IF NOT EXISTS chat;
 
 create TABLE IF NOT EXISTS chat.contacts (
     id            uuid          PRIMARY KEY,
-	nickname      VARCHAR(255)  NOT NULL,
+	nickname      VARCHAR(255)  NOT NULL UNIQUE,
     password      VARCHAR(2048) NOT NULL,
 	email 		  VARCHAR(255) 	NOT NULL UNIQUE,
 	role 		  VARCHAR(50) 	NOT NULL DEFAULT 'USER',
