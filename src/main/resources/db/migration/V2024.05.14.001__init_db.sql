@@ -11,7 +11,7 @@ create TABLE IF NOT EXISTS chat.contacts (
     is_permitted_sending_private_message BOOLEAN NOT NULL DEFAULT TRUE
 );
 create index idx_contacts_email on chat.contacts (email);
-create index idx_contacts_email on chat.contacts (nickname);
+create index idx_contacts_nickname on chat.contacts (nickname);
 
 create TABLE IF NOT EXISTS chat.email_tokens (
     token       	uuid		NOT NULL PRIMARY KEY,
