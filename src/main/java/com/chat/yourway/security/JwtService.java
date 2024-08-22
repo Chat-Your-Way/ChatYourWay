@@ -32,11 +32,11 @@ public class JwtService {
   }
 
   public String generateAccessToken(UserDetails userDetails) {
-    return generateAccessToken(new HashMap<>(), userDetails);
+    return generateAccessTokenBuild(new HashMap<>(), userDetails);
   }
 
   public String generateRefreshToken(UserDetails userDetails) {
-    return buildToken(new HashMap<>(), userDetails, jwtProperties.getRefreshExpiration());
+    return generateRefreshTokenBuild(new HashMap<>(), userDetails);
   }
 
   public String extractToken(HttpServletRequest request) {
@@ -50,8 +50,7 @@ public class JwtService {
 
     if (isNotValidTokenType(token, tokenTypePrefix)) {
       log.warn("Invalid token type, token type should be [{}]", tokenType);
-      throw new InvalidTokenException(
-          "Invalid token type, token type should be [" + tokenType + "]");
+      throw new InvalidTokenException("Invalid token type, token type should be [" + tokenType + "]");
     }
     return token.substring(tokenTypePrefix.length());
   }
@@ -64,8 +63,12 @@ public class JwtService {
     return claimsResolver.apply(extractAllClaims(token));
   }
 
-  private String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+  private String generateAccessTokenBuild(Map<String, Object> extraClaims, UserDetails userDetails) {
     return buildToken(extraClaims, userDetails, jwtProperties.getAccessExpiration());
+  }
+
+  private String generateRefreshTokenBuild(Map<String, Object> extraClaims, UserDetails userDetails) {
+    return buildToken(extraClaims, userDetails, jwtProperties.getRefreshExpiration());
   }
 
   private boolean isNotValidTokenType(String token, String tokenTypePrefix) {
@@ -73,8 +76,7 @@ public class JwtService {
   }
 
   private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
-    return Jwts
-        .builder()
+    return Jwts.builder()
         .setClaims(extraClaims)
         .setSubject(userDetails.getUsername())
         .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -92,8 +94,7 @@ public class JwtService {
   }
 
   private Claims extractAllClaims(String token) {
-    return Jwts
-        .parserBuilder()
+    return Jwts.parserBuilder()
         .setSigningKey(getSigningKey())
         .build()
         .parseClaimsJws(token)
