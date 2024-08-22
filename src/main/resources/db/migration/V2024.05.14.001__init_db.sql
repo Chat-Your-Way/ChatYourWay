@@ -6,7 +6,7 @@ create TABLE IF NOT EXISTS chat.contacts (
     password      VARCHAR(2048) NOT NULL,
 	email 		  VARCHAR(255) 	NOT NULL UNIQUE,
 	role 		  VARCHAR(50) 	NOT NULL DEFAULT 'USER',
-	avatar_id     smallint NOT NULL DEFAULT 1,
+	avatar_id     smallint      NOT NULL DEFAULT 1,
     is_active     BOOLEAN       NOT NULL DEFAULT TRUE,
     is_permitted_sending_private_message BOOLEAN NOT NULL DEFAULT TRUE
 );
