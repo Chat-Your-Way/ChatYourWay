@@ -165,7 +165,7 @@ public class TopicService {
         return toListResponseDto(topicRepository.findAllByName(topicName), contactService.getCurrentContact());
     }
 
-    public String generatePrivateName(String sendTo, String email) {
+    private String generatePrivateName(String sendTo, String email) {
         return UUID.randomUUID().toString();
     }
 
@@ -175,7 +175,9 @@ public class TopicService {
     }
 
     public List<PublicTopicInfoResponseDto> findPopularPublicTopics() {
-        return topicMapper.toListInfoResponseDto(topicRepository.findPopularPublicTopics(), contactService.getCurrentContact());
+        return topicMapper.toListInfoResponseDto(
+                topicRepository.findPopularPublicTopics(), contactService.getCurrentContact()
+        );
     }
 
     public Topic getPrivateTopic(Contact sendToContact, Contact sendFromContact) {

@@ -85,8 +85,7 @@ public class AuthenticationService {
     }
 
     private void saveContactToken(String email, String jwtToken) {
-        var token =
-                Token.builder()
+        var token = Token.builder()
                         .email(email)
                         .token(jwtToken)
                         .tokenType(BEARER)

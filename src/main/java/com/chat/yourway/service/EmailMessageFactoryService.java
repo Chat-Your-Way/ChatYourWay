@@ -9,13 +9,11 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 import static com.chat.yourway.utils.Constants.SLASH;
+import static com.chat.yourway.utils.Constants.TOKEN_PARAMETER;
 
 @Service
 @Slf4j
 public class EmailMessageFactoryService {
-
-  public static final String TOKEN_PARAMETER = "?token=";
-
   public EmailMessageDto generateEmailMessage(EmailMessageInfoDto emailMessageInfoDto) {
     String path = emailMessageInfoDto.path();
     UUID uuidToken = emailMessageInfoDto.uuidToken();

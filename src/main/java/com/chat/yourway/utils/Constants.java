@@ -40,4 +40,5 @@ public class Constants {
     public static final String SLASH = "/";
     public static final String UUID_REGEX_PATTERN =
             "\\b[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\\b";
+    public static final String TOKEN_PARAMETER = "?token=";
 }

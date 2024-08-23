@@ -14,7 +14,6 @@ import com.chat.yourway.repository.jpa.MessageRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,9 +33,6 @@ public class MessageService {
     private final ContactService contactService;
     private final NotificationService notificationService;
     private final ContactOnlineService contactOnlineService;
-
-    @Value("${message.max.amount.reports}")
-    private Byte maxAmountReports;
 
     @Transactional
     public MessageResponseDto sendToTopic(UUID topicId, MessageRequestDto message) {
@@ -90,7 +86,7 @@ public class MessageService {
 
         if (!messageRepository.existsById(messageId)) {
             throw new MessageNotFoundException();
-        } else if (messageRepository.getCountReportsByMessageId(messageId) >= maxAmountReports) {
+        } else if (messageRepository.getCountReportsByMessageId(messageId) >= 2) {
             messageRepository.deleteById(messageId);
         } else {
             messageRepository.saveReportFromContactToMessage(contact.getEmail(), messageId);

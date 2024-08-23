@@ -18,7 +18,6 @@ import java.util.UUID;
 public class TopicSubscriberService {
 
     private final TopicRepository topicRepository;
-
     private final ContactService contactService;
     private final TopicService topicService;
     private final ContactMapper contactMapper;
