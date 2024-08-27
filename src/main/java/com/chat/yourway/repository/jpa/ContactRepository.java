@@ -19,16 +19,13 @@ public interface ContactRepository extends JpaRepository<Contact, Integer> {
   @Query("UPDATE Contact c set c.password = :password where c.email = :email")
   void changePasswordByEmail(String password, String email);
 
-
   boolean existsByEmailIgnoreCase(String email);
 
   @Modifying
-  @Query(
-          nativeQuery = true,
-          value =
-                  "UPDATE chat.contacts "
-                          + "SET is_permitted_sending_private_message = :isPermittedSendingPrivateMessage "
-                          + "WHERE email = :contactEmail")
+  @Query(nativeQuery = true, value = """
+                UPDATE chat.contacts SET is_permitted_sending_private_message = :isPermittedSendingPrivateMessage
+                          WHERE email = :contactEmail
+                          """)
   void updatePermissionSendingPrivateMessageByContactEmail(
           @Param("contactEmail") String contactEmail,
           @Param("isPermittedSendingPrivateMessage") boolean isPermittedSendingPrivateMessage);

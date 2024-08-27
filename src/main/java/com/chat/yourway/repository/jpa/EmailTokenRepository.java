@@ -7,5 +7,4 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface EmailTokenRepository extends JpaRepository<EmailToken, UUID> {
-}
+public interface EmailTokenRepository extends JpaRepository<EmailToken, UUID> { }

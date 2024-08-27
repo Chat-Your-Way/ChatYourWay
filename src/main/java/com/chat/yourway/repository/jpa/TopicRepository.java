@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.chat.yourway.model.TopicScope;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,9 +40,9 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
 
   @Query(value = """
     SELECT t FROM Topic t JOIN FETCH t.topicSubscribers s
-    WHERE t.scope = 'PRIVATE'
-      AND EXISTS (SELECT 1 FROM t.topicSubscribers sub WHERE sub = :contact1)
-      AND EXISTS (SELECT 1 FROM t.topicSubscribers sub WHERE sub = :contact2)
+        WHERE t.scope = 'PRIVATE'
+          AND EXISTS (SELECT 1 FROM t.topicSubscribers sub WHERE sub = :contact1)
+          AND EXISTS (SELECT 1 FROM t.topicSubscribers sub WHERE sub = :contact2)
   """)
   Optional<Topic> findPrivateTopic(@Param("contact1") Contact contact1, @Param("contact2") Contact contact2);
 
@@ -49,14 +50,15 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
 
   @Query(value = """
     SELECT t FROM Topic t JOIN FETCH t.topicSubscribers s
-    WHERE t.scope = 'PRIVATE'
-      AND EXISTS (SELECT 1 FROM t.topicSubscribers sub WHERE sub = :contact)
-  """)
+            WHERE t.scope = 'PRIVATE'
+                AND EXISTS (SELECT 1 FROM t.topicSubscribers sub WHERE sub = :contact)
+    """)
   List<Topic> findPrivateTopics(@Param("contact") Contact contact);
 
   @Query(nativeQuery = true, value =
           """
-                  SELECT t.*, COUNT(DISTINCT ts.contact_id) AS ts_count, COUNT(DISTINCT m.id) AS m_count FROM chat.topics t
+                  SELECT t.*, COUNT(DISTINCT ts.contact_id) AS ts_count, 
+                  COUNT(DISTINCT m.id) AS m_count FROM chat.topics t
                   JOIN chat.topic_contacts ts ON t.id = ts.topic_id
                   JOIN chat.topic_messages m ON t.id = m.topic_id
                   WHERE t.scope = 'PUBLIC'
