@@ -1,5 +1,6 @@
 package com.chat.yourway.service;
 
+import com.chat.yourway.config.security.MyPasswordEncoder;
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.dto.request.RestorePasswordDto;
@@ -10,7 +11,6 @@ import com.chat.yourway.model.email.EmailToken;
 import com.chat.yourway.repository.jpa.EmailTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ChangePasswordService {
 
-    private final PasswordEncoder passwordEncoder;
+    private final MyPasswordEncoder myPasswordEncoder;
     private final ContactService contactService;
     private final EmailTokenRepository emailTokenRepository;
     private final EmailMessageFactoryService emailMessageFactoryService;
@@ -57,7 +57,7 @@ public class ChangePasswordService {
         var emailToken = emailTokenRepository.findById(restorePasswordDto.getEmailToken())
                 .orElseThrow(EmailTokenNotFoundException::new);
         var contact = emailToken.getContact();
-        var newEncodedPassword = passwordEncoder.encode(restorePasswordDto.getNewPassword());
+        var newEncodedPassword = myPasswordEncoder.encode(restorePasswordDto.getNewPassword());
 
         contact.setPassword(newEncodedPassword);
         emailTokenRepository.delete(emailToken);
