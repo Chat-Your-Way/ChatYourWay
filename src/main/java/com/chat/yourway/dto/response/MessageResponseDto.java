@@ -21,7 +21,7 @@ public class MessageResponseDto {
 
   private UUID id;
   private UUID topicId;
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
   private LocalDateTime timestamp;
   private ContactResponseDto sender;
   private String content;
