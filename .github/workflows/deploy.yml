@@ -1,8 +1,9 @@
 name: Build CI
 
 on:
-  pull_request:
-    branches: ['dev_v4']
+  push:
+    branches: 
+      - dev_v4
 
 permissions:
   contents: read
