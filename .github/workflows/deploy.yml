@@ -3,7 +3,7 @@ name: Build CI
 on:
   push:
     branches: 
-      - dev_v4
+      - v3
 
 permissions:
   contents: read
