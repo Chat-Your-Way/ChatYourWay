@@ -170,8 +170,7 @@ public class TopicController {
             })
     @GetMapping(path = ALL_TAG, produces = APPLICATION_JSON_VALUE)
     public List<TopicResponseDto> findAllByTegName(@PathVariable String tag) {
-        String decodedTag = URLDecoder.decode(tag, UTF_8);
-        return topicService.findTopicsByTagName(decodedTag);
+        return topicService.findTopicsByTagName(URLDecoder.decode(tag, UTF_8));
     }
 
     @Operation(summary = "Find all topics by topic name", responses = {
@@ -185,8 +184,7 @@ public class TopicController {
     public List<TopicResponseDto> findAllByTopicName(
             @Pattern(regexp = "^[a-zA-Z0-9а-яА-ЯІіЇї]*$", message = SEARCH_TOPIC_VALIDATION)
             @RequestParam String topicName) {
-        String decodeTopicName = URLDecoder.decode(topicName, UTF_8);
-        return topicService.findTopicsByTopicName(decodeTopicName);
+        return topicService.findTopicsByTopicName(URLDecoder.decode(topicName, UTF_8));
     }
 
     @Operation(summary = "Add topic to favourite", responses = {
