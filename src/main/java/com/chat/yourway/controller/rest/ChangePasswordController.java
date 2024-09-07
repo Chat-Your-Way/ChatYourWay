@@ -40,8 +40,7 @@ public class ChangePasswordController {
         changePasswordService.changePassword(request);
     }
 
-    @Operation(summary = "Send email to restore password",
-            responses = {
+    @Operation(summary = "Send email to restore password", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_SEND_REQUEST_RESTORE_PASSWORD,
                             content = @Content),
                     @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
@@ -53,8 +52,7 @@ public class ChangePasswordController {
         changePasswordService.sendEmailToRestorePassword(email, clientHost);
     }
 
-    @Operation(summary = "Restore password",
-            responses = {
+    @Operation(summary = "Restore password", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_RESTORED_PASSWORD,
                             content = @Content),
                     @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,

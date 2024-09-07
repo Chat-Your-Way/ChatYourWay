@@ -108,8 +108,7 @@ public class MessageController {
         messageService.reportMessageById(id);
     }
 
-    @Operation(summary = "Mark a message as read",
-            responses = {
+    @Operation(summary = "Mark a message as read", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY,
                             content = @Content),
                     @ApiResponse(responseCode = "400", description = MESSAGE_HAS_ALREADY_REPORTED,

@@ -8,6 +8,4 @@ public record EmailMessageInfoDto(String username,
                                   String email,
                                   UUID uuidToken,
                                   String path,
-                                  EmailMessageType emailMessageType) {
-
-}
+                                  EmailMessageType emailMessageType) { }

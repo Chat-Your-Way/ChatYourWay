@@ -6,11 +6,10 @@ import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.repository.redis.TokenRedisRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,9 +33,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   private final HandlerExceptionResolver handlerExceptionResolver;
 
   @Override
+  @SneakyThrows
   protected void doFilterInternal(@NonNull HttpServletRequest request,
       @NonNull HttpServletResponse response,
-      @NonNull FilterChain filterChain) throws ServletException, IOException {
+      @NonNull FilterChain filterChain) {
 
     if (isNotAuthorizationHeader(request) && isNotTokenParameter(request)) {
       log.warn("Request without authorization. Header or parameter does not contain {}", AUTHORIZATION);
@@ -75,8 +75,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   }
 
   private void setAuthentication(UserDetails userDetails, HttpServletRequest request) {
-    var authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
-        userDetails.getAuthorities());
+    var authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
     SecurityContextHolder.getContext().setAuthentication(authToken);
   }
@@ -88,5 +87,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   private boolean isNotTokenParameter(HttpServletRequest request) {
     return request.getParameter(AUTHORIZATION) == null;
   }
-
 }

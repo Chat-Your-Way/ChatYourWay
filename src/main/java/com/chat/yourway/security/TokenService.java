@@ -20,20 +20,24 @@ public class TokenService {
   }
 
   public Token findByToken(String token) {
-    return tokenRedisRepository.findByToken(token)
-        .orElseThrow(() -> new TokenNotFoundException("Token wasn't found in repository"));
+    return tokenRedisRepository.findByToken(token).orElseThrow(
+            () -> new TokenNotFoundException("Token wasn't found in repository")
+    );
   }
 
   public void revokeAllContactTokens(Contact contact) {
     var validUserTokens = tokenRedisRepository.findAllByEmail(contact.getEmail());
+
     if (validUserTokens.isEmpty()) {
       return;
     }
+
     validUserTokens.forEach(token -> {
-      token.setExpired(true);
-      token.setRevoked(true);
-    });
+        token.setExpired(true);
+        token.setRevoked(true);
+      }
+    );
+
     tokenRedisRepository.saveAll(validUserTokens);
   }
-
 }
