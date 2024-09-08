@@ -1,6 +1,8 @@
 package com.chat.yourway.exception;
 
-public class PasswordsAreNotEqualException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
+
+public class PasswordsAreNotEqualException extends BaseRuntimeException {
   public PasswordsAreNotEqualException() {
     super("Passwords are not equal.");
   }

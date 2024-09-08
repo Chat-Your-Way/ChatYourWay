@@ -1,6 +1,8 @@
 package com.chat.yourway.exception;
 
-public class MessageNotFoundException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
+
+public class MessageNotFoundException extends BaseRuntimeException {
   public MessageNotFoundException() {
     super("Message is not found.");
   }

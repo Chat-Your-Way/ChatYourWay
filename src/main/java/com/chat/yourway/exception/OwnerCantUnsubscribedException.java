@@ -1,6 +1,8 @@
 package com.chat.yourway.exception;
 
-public class OwnerCantUnsubscribedException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
+
+public class OwnerCantUnsubscribedException extends BaseRuntimeException {
 
   public OwnerCantUnsubscribedException(String message) {
     super(message);

@@ -1,6 +1,8 @@
 package com.chat.yourway.exception;
 
-public class ContactNotFoundException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
+
+public class ContactNotFoundException extends BaseRuntimeException {
     public ContactNotFoundException(String message) {
         super(message);
     }

@@ -28,8 +28,7 @@ public class ChangePasswordController {
     private static final String PASSWORD_EMAIL = "/password/email";
     private static final String PASSWORD_RESTORE = "/password/restore";
 
-    @Operation(summary = "Change to new password",
-            responses = {
+    @Operation(summary = "Change to new password", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_CHANGING_PASSWORD,
                             content = @Content),
                     @ApiResponse(responseCode = "400", description = INVALID_OLD_PASSWORD,

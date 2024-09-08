@@ -1,6 +1,8 @@
 package com.chat.yourway.exception;
 
-public class MessageHasAlreadyReportedException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
+
+public class MessageHasAlreadyReportedException extends BaseRuntimeException {
   public MessageHasAlreadyReportedException() {
     super("Message has already reported.");
   }
