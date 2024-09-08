@@ -67,8 +67,7 @@ public class MessageController {
         return messageService.sendToContact(sendToEmail, message);
     }
 
-    @Operation(summary = "Get messages by topic",
-            responses = {
+    @Operation(summary = "Get messages by topic", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_REPORTED_MESSAGE),
                     @ApiResponse(responseCode = "400", description = INVALID_VALUE),
                     @ApiResponse(responseCode = "403", description = TOPIC_NOT_ACCESS,
