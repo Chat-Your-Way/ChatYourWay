@@ -16,7 +16,7 @@ public class ChatController {
         this.messagingTemplate = messagingTemplate;
     }
 
-    @MessageMapping("/topic/public/{topicId}")
+    @MessageMapping("/app/topic/public/{topicId}")
     public void sendMessage(@DestinationVariable String topicId, MessageResponseDto message) {
 
         messagingTemplate.convertAndSend("/topic/public/" + topicId, message);
