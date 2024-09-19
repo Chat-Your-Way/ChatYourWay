@@ -2,7 +2,6 @@ package com.chat.yourway.controller.websocket;
 
 
 import com.chat.yourway.dto.request.MessageRequestDto;
-import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +25,10 @@ public class ChatController {
 
         log.info("Received message for topic ID: {}", topicId);
 
-        MessageResponseDto savedMessage = messageService.sendToTopic(topicId, message);
+        messageService.sendToTopic(topicId, message);
         log.info("Message was saved in DB");
 
         messagingTemplate.convertAndSend("/topic/public/" + topicId, message);
         log.info("Message sent to topic ID: {}", topicId) ;
-
     }
 }
