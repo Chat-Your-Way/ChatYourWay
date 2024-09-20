@@ -153,6 +153,7 @@ public class ContactService {
                 email, isPermittedSendingPrivateMessage);
     }
 
+    @Transactional
     public void addUnreadMessageToTopicSubscribers(Contact excludeСontact, Message message) {
         List<Contact> topicSubscribers = message.getTopic().getTopicSubscribers()
                 .stream()
@@ -164,11 +165,13 @@ public class ContactService {
         }
     }
 
+    @Transactional
     public void deleteUnreadMessage(Contact contact, Message message) {
         contact.getUnreadMessages().remove(message);
         save(contact);
     }
 
+    @Transactional
     public Contact getCurrentContact() {
         try {
             Contact principal = (Contact) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

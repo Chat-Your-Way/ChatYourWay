@@ -272,8 +272,7 @@ public class TopicService {
         if (!contactService.isEmailExists(sendTo)) {
             log.error("Private topic cannot be created, recipient email={} does not exist", sendTo);
             throw new ContactEmailNotExist(String.format(
-                "Private topic cannot be created because recipient email: %s does not exist",
-                sendTo));
+                "Private topic cannot be created because recipient email: %s does not exist", sendTo));
         }
     }
 }
