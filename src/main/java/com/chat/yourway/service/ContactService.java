@@ -108,6 +108,7 @@ public class ContactService {
         return contactRepository.existsByEmailIgnoreCase(email);
     }
 
+    @Transactional
     public ContactProfileResponseDto getContactProfile() {
         Contact contact = getCurrentContact();
         log.trace("Started get contact profile by email [{}]", contact.getEmail());
@@ -154,10 +155,10 @@ public class ContactService {
     }
 
     @Transactional
-    public void addUnreadMessageToTopicSubscribers(Contact excludeСontact, Message message) {
+    public void addUnreadMessageToTopicSubscribers(Contact contact, Message message) {
         List<Contact> topicSubscribers = message.getTopic().getTopicSubscribers()
                 .stream()
-                .filter(c -> !c.equals(excludeСontact))
+                .filter(c -> !c.equals(contact))
                 .toList();
         for (Contact topicSubscriber : topicSubscribers) {
             topicSubscriber.getUnreadMessages().add(message);
