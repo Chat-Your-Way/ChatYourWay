@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.chat.yourway.model.TopicScope;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -35,8 +34,7 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
   Optional<Topic> findByName(@Param("name") String name);
 
   @Query(value = "SELECT t FROM Topic t Where t.id = :id and t.scope != 'DELETED'")
-  @Override
-  Optional<Topic> findById(UUID id);
+  Optional<Topic> findById(@Param("id") UUID id);
 
   @Query(value = """
     SELECT t FROM Topic t JOIN FETCH t.topicSubscribers s
