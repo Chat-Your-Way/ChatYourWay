@@ -2,6 +2,7 @@ package com.chat.yourway.controller.websocket;
 
 
 import com.chat.yourway.dto.request.MessageRequestDto;
+import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
