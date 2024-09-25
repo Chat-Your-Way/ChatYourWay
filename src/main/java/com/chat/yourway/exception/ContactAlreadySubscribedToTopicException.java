@@ -1,7 +1,8 @@
 package com.chat.yourway.exception;
 
-public class ContactAlreadySubscribedToTopicException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
 
+public class ContactAlreadySubscribedToTopicException extends BaseRuntimeException {
   public ContactAlreadySubscribedToTopicException(String message) {
     super(message);
   }

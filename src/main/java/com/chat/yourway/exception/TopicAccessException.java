@@ -1,6 +1,8 @@
 package com.chat.yourway.exception;
 
-public class TopicAccessException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
+
+public class TopicAccessException extends BaseRuntimeException {
     public TopicAccessException(String message) {
         super(message);
     }

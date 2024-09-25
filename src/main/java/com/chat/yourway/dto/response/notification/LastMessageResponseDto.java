@@ -15,8 +15,6 @@ import lombok.ToString;
 @ToString
 public class LastMessageResponseDto {
 
-    private static final int MAX_LENGTH = 20;
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime timestamp;
     private String sentFrom;
@@ -26,20 +24,10 @@ public class LastMessageResponseDto {
     public LastMessageResponseDto(LocalDateTime timestamp,
                                   String sentFrom,
                                   String lastMessage,
-                                  UUID topicId
-    ) {
+                                  UUID topicId) {
         this.timestamp = timestamp;
         this.sentFrom = sentFrom;
         this.lastMessage = lastMessage;
         this.topicId = topicId;
     }
-
-    public void setLastMessage(String lastMessage) {
-        if (lastMessage.length() <= MAX_LENGTH) {
-            this.lastMessage = lastMessage;
-        } else {
-            this.lastMessage = lastMessage.substring(0, MAX_LENGTH) + "...";
-        }
-    }
-
 }

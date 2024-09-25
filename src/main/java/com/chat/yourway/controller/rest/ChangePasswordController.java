@@ -28,8 +28,7 @@ public class ChangePasswordController {
     private static final String PASSWORD_EMAIL = "/password/email";
     private static final String PASSWORD_RESTORE = "/password/restore";
 
-    @Operation(summary = "Change to new password",
-            responses = {
+    @Operation(summary = "Change to new password", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_CHANGING_PASSWORD,
                             content = @Content),
                     @ApiResponse(responseCode = "400", description = INVALID_OLD_PASSWORD,
@@ -40,8 +39,7 @@ public class ChangePasswordController {
         changePasswordService.changePassword(request);
     }
 
-    @Operation(summary = "Send email to restore password",
-            responses = {
+    @Operation(summary = "Send email to restore password", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_SEND_REQUEST_RESTORE_PASSWORD,
                             content = @Content),
                     @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
@@ -53,8 +51,7 @@ public class ChangePasswordController {
         changePasswordService.sendEmailToRestorePassword(email, clientHost);
     }
 
-    @Operation(summary = "Restore password",
-            responses = {
+    @Operation(summary = "Restore password", responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_RESTORED_PASSWORD,
                             content = @Content),
                     @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,

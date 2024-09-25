@@ -40,7 +40,8 @@ public class ContactService {
         if (isEmailExists(contactRequestDto.getEmail())) {
             log.warn("Email [{}] already in use", contactRequestDto.getEmail());
             throw new ValueNotUniqException(
-                    String.format("Email [%s] already in use", contactRequestDto.getEmail()));
+                    String.format("Email [%s] already in use", contactRequestDto.getEmail())
+            );
         }
 
         Contact contact = (Contact.builder()
@@ -68,7 +69,8 @@ public class ContactService {
                 .orElseThrow(() -> {
                     log.warn("Email [{}] wasn't found", email);
                     return new ContactNotFoundException(String.format("Email [%s] wasn't found", email));
-                });
+                    }
+                );
 
         log.info("Contact was found by email [{}]", email);
         return contact;
@@ -108,6 +110,7 @@ public class ContactService {
         return contactRepository.existsByEmailIgnoreCase(email);
     }
 
+    @Transactional
     public ContactProfileResponseDto getContactProfile() {
         Contact contact = getCurrentContact();
         log.trace("Started get contact profile by email [{}]", contact.getEmail());
@@ -143,20 +146,21 @@ public class ContactService {
         log.info("Prohibited sending private messages by email [{}]", contact.getEmail());
     }
 
-    private void changePermissionSendingPrivateMessages(String email, boolean isPermittedSendingPrivateMessage) {
+    private void changePermissionSendingPrivateMessages(String email, boolean messageByContactEmail) {
         if (!contactRepository.existsByEmailIgnoreCase(email)) {
             throw new ContactNotFoundException(
-                    String.format("Contact with email [%s] is not found.", email));
+                    String.format("Contact with email [%s] is not found.", email)
+            );
         }
 
-        contactRepository.updatePermissionSendingPrivateMessageByContactEmail(
-                email, isPermittedSendingPrivateMessage);
+        contactRepository.updatePermissionSendingPrivateMessageByContactEmail(email, messageByContactEmail);
     }
 
-    public void addUnreadMessageToTopicSubscribers(Contact excludeСontact, Message message) {
+    @Transactional
+    public void addUnreadMessageToTopicSubscribers(Contact contact, Message message) {
         List<Contact> topicSubscribers = message.getTopic().getTopicSubscribers()
                 .stream()
-                .filter(c -> !c.equals(excludeСontact))
+                .filter(c -> !c.equals(contact))
                 .toList();
         for (Contact topicSubscriber : topicSubscribers) {
             topicSubscriber.getUnreadMessages().add(message);
@@ -164,11 +168,13 @@ public class ContactService {
         }
     }
 
+    @Transactional
     public void deleteUnreadMessage(Contact contact, Message message) {
         contact.getUnreadMessages().remove(message);
         save(contact);
     }
 
+    @Transactional
     public Contact getCurrentContact() {
         try {
             Contact principal = (Contact) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

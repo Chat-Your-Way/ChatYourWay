@@ -13,7 +13,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 @ControllerAdvice
-public class WebsocketExceptionHandler {
+public class WebSocketExceptionHandler {
 
   @MessageExceptionHandler({
       TopicNotFoundException.class,

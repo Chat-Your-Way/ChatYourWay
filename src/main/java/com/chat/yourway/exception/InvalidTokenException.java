@@ -1,6 +1,8 @@
 package com.chat.yourway.exception;
 
-public class InvalidTokenException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
+
+public class InvalidTokenException extends BaseRuntimeException {
 
   public InvalidTokenException(String message) {
     super(message);

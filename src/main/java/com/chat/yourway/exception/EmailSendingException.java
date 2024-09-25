@@ -1,6 +1,8 @@
 package com.chat.yourway.exception;
 
-public class EmailSendingException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
+
+public class EmailSendingException extends BaseRuntimeException {
   public EmailSendingException(String message) {
     super(message);
   }

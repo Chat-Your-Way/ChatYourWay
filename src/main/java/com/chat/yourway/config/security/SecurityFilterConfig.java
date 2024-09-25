@@ -33,7 +33,6 @@ public class SecurityFilterConfig {
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(WHITELIST_URLS).permitAll()
-            .requestMatchers("/demo-controller").hasAuthority("USER")
             .anyRequest().authenticated()
         )
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -1,6 +1,8 @@
 package com.chat.yourway.exception;
 
-public class TopicSubscriberNotFoundException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
+
+public class TopicSubscriberNotFoundException extends BaseRuntimeException {
 
   public TopicSubscriberNotFoundException(String message) {
     super(message);

@@ -41,6 +41,7 @@ public class JwtService {
 
   public String extractToken(HttpServletRequest request) {
     String token = request.getHeader(AUTHORIZATION);
+
     if (token == null) {
       token = request.getParameter(AUTHORIZATION);
     }

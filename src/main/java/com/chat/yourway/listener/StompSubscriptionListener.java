@@ -45,7 +45,6 @@ public class StompSubscriptionListener {
         String email = getEmail(event);
 
         if (isTopicDestination(destination)) {
-            UUID topicId = getTopicId(event);
             contactOnlineService.setUserOnline(email);
             log.info("Contact [{}] unsubscribe from [{}]", email, destination);
         }

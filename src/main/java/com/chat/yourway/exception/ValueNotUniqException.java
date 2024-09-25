@@ -1,6 +1,8 @@
 package com.chat.yourway.exception;
 
-public class ValueNotUniqException extends RuntimeException {
+import com.chat.yourway.exception.handler.BaseRuntimeException;
+
+public class ValueNotUniqException extends BaseRuntimeException {
   public ValueNotUniqException(String message) {
     super(message);
   }
