@@ -22,14 +22,16 @@ public class ChatController {
     private final MessageService messageService;
 
     @MessageMapping("/app/topic/public/{topicId}")
-    public void sendMessage(@DestinationVariable UUID topicId, MessageRequestDto message) {
+    public MessageResponseDto sendMessage(@DestinationVariable UUID topicId, MessageRequestDto message) {
 
         log.info("Received message for topic ID: {}", topicId);
 
-        messageService.sendToTopic(topicId, message);
+        MessageResponseDto sendMessage =  messageService.sendToTopic(topicId, message);
         log.info("Message was saved in DB");
 
         messagingTemplate.convertAndSend("/topic/public/" + topicId, message);
         log.info("Message sent to topic ID: {}", topicId) ;
+
+        return sendMessage;
     }
 }
