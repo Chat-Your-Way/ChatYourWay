@@ -32,7 +32,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping("/topics")
 @RequiredArgsConstructor
 @Tag(name = "Topic")
-@Validated
 public class TopicController {
 
     private final TopicService topicService;
