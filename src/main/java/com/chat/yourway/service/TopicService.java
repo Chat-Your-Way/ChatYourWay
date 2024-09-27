@@ -165,10 +165,6 @@ public class TopicService {
         return toListResponseDto(topicRepository.findAllByName(topicName), contactService.getCurrentContact());
     }
 
-    private String generatePrivateName(String sendTo, String email) {
-        return UUID.randomUUID().toString();
-    }
-
     public List<PublicTopicInfoResponseDto> findAllFavouriteTopics() {
         Contact contact = contactService.getCurrentContact();
         return toListInfoResponseDto(contact.getFavoriteTopics(), contact);
@@ -185,7 +181,7 @@ public class TopicService {
             () -> {
                 Topic newPrivateTopic = Topic.builder()
                     .contact(sendToContact)
-                    .name(generatePrivateName(sendToContact.getEmail(), sendFromContact.getEmail()))
+                    .name(sendToContact.getNickname())
                     .scope(TopicScope.PRIVATE)
                     .topicSubscribers(List.of(sendToContact, sendFromContact))
                     .build();
