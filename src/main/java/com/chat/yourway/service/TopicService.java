@@ -202,7 +202,7 @@ public class TopicService {
 
     public Topic getTopic(UUID topicId) {
         return topicRepository
-            .findById(topicId)
+            .findByIdAndScopeNotDeleted(topicId)
             .orElseThrow(
                 () -> {
                     log.warn("Topic id: {} wasn't found", topicId);

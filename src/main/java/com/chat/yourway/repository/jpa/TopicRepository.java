@@ -34,7 +34,7 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
   Optional<Topic> findByName(@Param("name") String name);
 
   @Query(value = "SELECT t FROM Topic t Where t.id = :id and t.scope != 'DELETED'")
-  Optional<Topic> findById(@Param("id") UUID id);
+  Optional<Topic> findByIdAndScopeNotDeleted(@Param("id") UUID id);
 
   @Query(value = """
     SELECT t FROM Topic t JOIN FETCH t.topicSubscribers s
