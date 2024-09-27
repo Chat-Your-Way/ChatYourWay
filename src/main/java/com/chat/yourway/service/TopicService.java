@@ -128,7 +128,7 @@ public class TopicService {
             contactService.save(subscriber);
         });
         topic.setScope(TopicScope.DELETED);
-        topic.setTopicSubscribers(Collections.EMPTY_LIST);
+        topic.setTopicSubscribers(Collections.emptyList());
         topicRepository.save(topic);
         log.trace("Deleted Topic: {}", id);
     }
