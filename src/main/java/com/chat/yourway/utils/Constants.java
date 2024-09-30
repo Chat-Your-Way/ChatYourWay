@@ -12,7 +12,7 @@ public class Constants {
     public static final Pattern EMAIL_PATTERN = Pattern.compile("[A-Za-z0-9.\\-_]+@[A-Za-z]+\\.[A-Za-z]{2,3}");
     public static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9а-яА-ЯІіЇї!@#$%^&*_\\-+=~?]{4,20}$");
     public static final int MIN_PASSWORD_LENGTH = 4;
-    public static final int MAX_PASSWORD_LENGTH = 12;
+    public static final int MAX_PASSWORD_LENGTH = 20;
     public static final Pattern PASSWORD_SPECIAL_SYMBOLS_PATTERN = Pattern.compile(".*[!@#$%^&*_\\-+=~?].*");
     public static final Pattern PASSWORD_UPPER_CASE_PATTERN = Pattern.compile(".*[A-Z].*");
     public static final Pattern PASSWORD_DIGIT_PATTERN = Pattern.compile(".*\\d.*");
