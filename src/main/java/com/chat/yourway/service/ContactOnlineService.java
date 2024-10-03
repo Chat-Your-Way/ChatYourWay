@@ -47,8 +47,8 @@ public class ContactOnlineService {
     public List<ContactResponseDto> getOnlineUsersByTopicId(UUID topicId) {
         //TODO додати перевірку на приватний топік. якщо це id чужого прив.топіку, то ексепшен
         List<Contact> result = new ArrayList<>();
-        List<ContactOnline> contactOnlines = contactOnlineRedisRepository.findAllByTopicId(topicId);
-        for (ContactOnline contactOnline : contactOnlines) {
+        List<ContactOnline> allByTopicId = contactOnlineRedisRepository.findAllByTopicId(topicId);
+        for (ContactOnline contactOnline : allByTopicId) {
             result.add(contactService.findByEmail(contactOnline.getId()));
         }
         return contactMapper.toListResponseDto(result);
