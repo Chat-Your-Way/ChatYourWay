@@ -3,6 +3,7 @@ package com.chat.yourway.dto.response;
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -29,7 +30,7 @@ public class PublicTopicInfoResponseDto {
   @Schema(description = "Created time")
   private LocalDateTime createdAt;
 
-  private long unreadMessageCount;
+  private List<MessageResponseDto> unreadMessages;
 
   private LastMessageResponseDto lastMessage;
 }

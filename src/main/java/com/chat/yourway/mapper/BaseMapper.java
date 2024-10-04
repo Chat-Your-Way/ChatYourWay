@@ -1,6 +1,7 @@
 package com.chat.yourway.mapper;
 
 import com.chat.yourway.dto.response.ContactResponseDto;
+import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Named("BaseMapper")
 @Component
@@ -21,12 +23,8 @@ import java.util.Set;
 public class BaseMapper {
 
     private final ContactMapper contactMapper;
+    private final MessageMapper messageMapper;
     private final LastMessagesService lastMessagesService;
-
-    @Named("isMyMessage")
-    public boolean isMyMessage(Message message, @Context Contact me) {
-        return message.getSender().equals(me);
-    }
 
     @Named("getNamePrivateTopic")
     public String getNamePrivateTopic(Topic topic, @Context Contact me) {
@@ -46,12 +44,13 @@ public class BaseMapper {
         return optionalContact.map(contactMapper::toResponseDto).orElse(null);
     }
 
-    @Named("getUnreadMessageCount")
-    public long getUnreadMessageCount(Topic topic, @Context Contact contact) {
+    @Named("getUnreadMessages")
+    public List<MessageResponseDto> getUnreadMessages(Topic topic, @Context Contact contact) {
         Set<Message> unreadMessages = contact.getUnreadMessages();
         return unreadMessages.stream()
                 .filter(m -> m.getTopic().getId().equals(topic.getId()))
-                .count();
+                .map(messageMapper::toMessageResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Named("getLastMessage")

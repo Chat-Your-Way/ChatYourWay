@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -25,7 +26,7 @@ public class PrivateTopicInfoResponseDto {
   @Schema(description = "Created time")
   private LocalDateTime createdAt;
 
-  private long unreadMessageCount;
+  private List<MessageResponseDto> unreadMessages;
 
   private LastMessageResponseDto lastMessage;
 }

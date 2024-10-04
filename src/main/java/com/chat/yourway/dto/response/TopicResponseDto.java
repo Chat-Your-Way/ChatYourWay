@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -42,7 +43,7 @@ public class TopicResponseDto {
   @ArraySchema(schema = @Schema(description = "TopicSubscribers"))
   private Set<ContactResponseDto> topicSubscribers;
 
-  private long unreadMessageCount;
+  private List<MessageResponseDto> unreadMessages;
 
   private LastMessageResponseDto lastMessage;
 }
