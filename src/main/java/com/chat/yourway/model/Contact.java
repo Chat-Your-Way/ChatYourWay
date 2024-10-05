@@ -38,7 +38,6 @@ public class Contact implements UserDetails {
     private boolean isActive;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
     private Role role;
 
     private boolean isPermittedSendingPrivateMessage;

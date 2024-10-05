@@ -44,7 +44,7 @@ public class ContactService {
             );
         }
 
-        Contact contact = (Contact.builder()
+        Contact contact = Contact.builder()
                         .nickname(contactRequestDto.getNickname())
                         .avatarId(contactRequestDto.getAvatarId())
                         .email(contactRequestDto.getEmail())
@@ -52,8 +52,7 @@ public class ContactService {
                         .isActive(false)
                         .role(USER)
                         .isPermittedSendingPrivateMessage(true)
-                        .build()
-        );
+                        .build();
 
         contactRepository.save(contact);
 
