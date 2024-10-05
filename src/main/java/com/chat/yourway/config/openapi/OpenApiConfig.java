@@ -27,6 +27,10 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 @Server(
                         description = "PROD ENV",
                         url = "https://chat.imperiaholoda.com.ua"
+                ),
+                @Server(
+                        description = "current version",
+                        url = "https://service-max.it:8080"
                 )
         },
         security = {
@@ -43,6 +47,4 @@ import io.swagger.v3.oas.annotations.servers.Server;
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER
 )
-public class OpenApiConfig {
-
-}
+public class OpenApiConfig { }
