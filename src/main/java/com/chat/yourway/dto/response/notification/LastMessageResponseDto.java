@@ -4,30 +4,22 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.*;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @ToString
 public class LastMessageResponseDto {
-
+    private UUID messagesId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime timestamp;
     private String sentFrom;
     private String lastMessage;
     private UUID topicId;
-
-    public LastMessageResponseDto(LocalDateTime timestamp,
-                                  String sentFrom,
-                                  String lastMessage,
-                                  UUID topicId) {
-        this.timestamp = timestamp;
-        this.sentFrom = sentFrom;
-        this.lastMessage = lastMessage;
-        this.topicId = topicId;
-    }
 }
