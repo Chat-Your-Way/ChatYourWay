@@ -46,7 +46,7 @@ public class BaseMapper {
 
     @Named("getUnreadMessages")
     public List<MessageResponseDto> getUnreadMessages(Topic topic, @Context Contact contact) {
-        Set<Message> unreadMessages = contact.getUnreadMessages();
+        final var unreadMessages = contact.getUnreadMessages();
         return unreadMessages.stream()
                 .filter(m -> m.getTopic().getId().equals(topic.getId()))
                 .map(messageMapper::toMessageResponseDto)
