@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class LastMessagesService {
 
     private final MessageRepository messageRepository;
