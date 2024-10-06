@@ -257,7 +257,7 @@ public class TopicService {
                 .toList();
     }
 
-    public List<TopicResponseDto> toListResponseDto(List<Topic> topics, @Context Contact me) {
+    private List<TopicResponseDto> toListResponseDto(List<Topic> topics, @Context Contact me) {
         return topics.stream()
                 .map(topic -> topicMapper.toResponseDto(topic, me))
                 .toList();

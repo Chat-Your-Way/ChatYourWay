@@ -54,7 +54,7 @@ public class Contact implements UserDetails {
     @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY)
     private List<Message> messages;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             schema = "chat",
             name = "unread_messages",
