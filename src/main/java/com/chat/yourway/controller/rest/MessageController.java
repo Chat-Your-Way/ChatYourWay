@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 import static com.chat.yourway.config.openapi.OpenApiMessages.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Tag(name = "Message")
 @RestController
@@ -45,7 +46,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(TOPIC_ID)
+    @PostMapping(value = TOPIC_ID, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public MessageResponseDto sendToPublicTopic(@PathVariable UUID topicId,
                                                 @Valid @RequestBody MessageRequestDto message) {
         return messageService.sendToTopic(topicId, message);
@@ -61,7 +62,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(PRIVATE_SEND_TO_EMAIL)
+    @PostMapping(value = PRIVATE_SEND_TO_EMAIL, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public MessageResponseDto sendToPrivateContact(@PathVariable String sendToEmail,
                                                    @Valid @RequestBody MessageRequestDto message) {
         return messageService.sendToContact(sendToEmail, message);
@@ -79,7 +80,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = TOPIC_ID)
+    @GetMapping(path = TOPIC_ID, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public Page<MessageResponseDto> getMessagesByTopic(
             @Parameter(description = "Number of page (1..N)",
                         required = true,
@@ -102,7 +103,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = MESSAGE_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(ID_REPORT)
+    @PostMapping(value = ID_REPORT, consumes = APPLICATION_JSON_VALUE)
     public void reportMessage(@PathVariable UUID id) {
         messageService.reportMessageById(id);
     }
@@ -115,7 +116,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = MESSAGE_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(ID_READ)
+    @PostMapping(value = ID_READ, consumes = APPLICATION_JSON_VALUE)
     public void readMessage(@PathVariable UUID id) {
         messageService.readMessage(id);
     }

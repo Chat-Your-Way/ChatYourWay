@@ -78,7 +78,7 @@ public class AuthenticationController {
                     @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = REFRESH, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = REFRESH, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public AuthResponseDto refreshToken(HttpServletRequest request) {
         return authService.refreshToken(request);
     }
@@ -88,7 +88,7 @@ public class AuthenticationController {
                     @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = ACTIVATE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = ACTIVATE, consumes = APPLICATION_JSON_VALUE)
     public void activateAccount(@RequestParam(name = "Email token") UUID token) {
         activateAccountService.activateAccount(token);
     }
@@ -98,7 +98,7 @@ public class AuthenticationController {
                     @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(LOGOUT)
+    @PostMapping(value = LOGOUT, consumes = APPLICATION_JSON_VALUE)
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
         logoutService.logout(request, response, auth);
     }

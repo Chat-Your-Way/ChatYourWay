@@ -43,7 +43,7 @@ public class ContactController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = PROFILE, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PatchMapping(path = PROFILE, consumes = APPLICATION_JSON_VALUE)
     public void editContactProfile(
             @Valid @RequestBody EditContactProfileRequestDto editContactProfileRequestDto) {
         contactService.updateContactProfile(editContactProfileRequestDto);
@@ -69,7 +69,7 @@ public class ContactController {
                     @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = MESSAGE_SEND_PROHIBIT)
+    @PatchMapping(path = MESSAGE_SEND_PROHIBIT, consumes = APPLICATION_JSON_VALUE)
     public void prohibitSendingPrivateMessages() {
         contactService.prohibitSendingPrivateMessages();
     }
@@ -81,7 +81,7 @@ public class ContactController {
                     @ApiResponse(responseCode = "404", description = CONTACT_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = MESSAGE_SEND_PERMIT)
+    @PatchMapping(path = MESSAGE_SEND_PERMIT, consumes = APPLICATION_JSON_VALUE)
     public void permitSendingPrivateMessages() {
         contactService.permitSendingPrivateMessages();
     }
@@ -91,7 +91,7 @@ public class ContactController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = ONLINE_TOPIC_ID, produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = ONLINE_TOPIC_ID, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public List<ContactResponseDto> findAllOnlineContactsByTopicId(@PathVariable("topic-id") UUID topicId) {
         return contactOnlineService.getOnlineUsersByTopicId(topicId);
     }

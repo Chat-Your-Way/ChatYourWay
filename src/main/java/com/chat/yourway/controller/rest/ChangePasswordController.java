@@ -45,7 +45,7 @@ public class ChangePasswordController {
                     @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = PASSWORD_EMAIL, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = PASSWORD_EMAIL, consumes = APPLICATION_JSON_VALUE)
     public void sendRequestToRestorePassword(@RequestParam String email,
                                              @RequestHeader(HttpHeaders.REFERER) String clientHost) {
         changePasswordService.sendEmailToRestorePassword(email, clientHost);
