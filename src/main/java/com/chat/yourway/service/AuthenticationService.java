@@ -4,6 +4,7 @@ import static com.chat.yourway.model.token.TokenType.*;
 
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
+import com.chat.yourway.dto.request.EmailRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.exception.InvalidCredentialsException;
 import com.chat.yourway.exception.InvalidTokenException;
@@ -62,6 +63,12 @@ public class AuthenticationService {
 
         log.info("Contact {} authenticated", contact.getEmail());
         return AuthResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+    }
+
+    public void activeAccountEmailCodeLink(EmailRequestDto emailRequestDto, String clientHost) {
+        var contact = contactService.findByEmail(emailRequestDto.email());
+
+        activateAccountService.sendVerifyEmail(contact, clientHost);
     }
 
     @Transactional

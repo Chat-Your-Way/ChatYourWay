@@ -2,6 +2,7 @@ package com.chat.yourway.controller.rest;
 
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
+import com.chat.yourway.dto.request.EmailRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.security.LogoutService;
@@ -36,6 +37,7 @@ public class AuthenticationController {
     private final ActivateAccountService activateAccountService;
     private final LogoutService logoutService;
     private static final String REGISTER = "/register";
+    private static final String ACTIVE_SEND_TOKEN = "/resend/email";
     private static final String LOGIN = "/login";
     private static final String REFRESH = "/refresh";
     private static final String ACTIVATE = "/activate";
@@ -91,6 +93,15 @@ public class AuthenticationController {
     @PostMapping(path = ACTIVATE, consumes = APPLICATION_JSON_VALUE)
     public void activateAccount(@RequestParam(name = "Email token") UUID token) {
         activateAccountService.activateAccount(token);
+    }
+
+    @Operation(summary = "Resend email", responses = {
+            @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT)
+    })
+    @PostMapping(path = ACTIVE_SEND_TOKEN, consumes = APPLICATION_JSON_VALUE)
+    public void activeAccountSend(@RequestBody EmailRequestDto email,
+                                  @RequestHeader(HttpHeaders.REFERER) String clientHost) {
+        authService.activeAccountEmailCodeLink(email, clientHost);
     }
 
     @Operation(summary = "Logout", responses = {
