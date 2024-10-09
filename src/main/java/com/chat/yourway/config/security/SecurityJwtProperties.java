@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
 @Getter
 @Setter
 @Component
@@ -12,6 +14,6 @@ import org.springframework.stereotype.Component;
 public class SecurityJwtProperties {
   private String tokenType;
   private String secretKey;
-  private long accessExpiration;
-  private long refreshExpiration;
+  private Duration accessExpiration;
+  private Duration refreshExpiration;
 }

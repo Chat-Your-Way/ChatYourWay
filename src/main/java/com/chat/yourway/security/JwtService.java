@@ -65,11 +65,11 @@ public class JwtService {
   }
 
   private String generateAccessTokenBuild(Map<String, Object> extraClaims, UserDetails userDetails) {
-    return buildToken(extraClaims, userDetails, jwtProperties.getAccessExpiration());
+    return buildToken(extraClaims, userDetails, jwtProperties.getAccessExpiration().toMillis());
   }
 
   private String generateRefreshTokenBuild(Map<String, Object> extraClaims, UserDetails userDetails) {
-    return buildToken(extraClaims, userDetails, jwtProperties.getRefreshExpiration());
+    return buildToken(extraClaims, userDetails, jwtProperties.getRefreshExpiration().toMillis());
   }
 
   private boolean isNotValidTokenType(String token, String tokenTypePrefix) {
