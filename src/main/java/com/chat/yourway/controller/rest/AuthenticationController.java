@@ -53,10 +53,10 @@ public class AuthenticationController {
                 }
             )
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(path = REGISTER, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-    public AuthResponseDto register(@Valid @RequestBody ContactRequestDto request,
+    @PostMapping(path = REGISTER, consumes = APPLICATION_JSON_VALUE)
+    public void register(@Valid @RequestBody ContactRequestDto request,
                                     @RequestHeader(HttpHeaders.REFERER) String clientHost) {
-        return authService.register(request, clientHost);
+        authService.register(request, clientHost);
     }
 
     @Operation(summary = "Authorization", responses = {

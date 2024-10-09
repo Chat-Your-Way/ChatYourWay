@@ -32,19 +32,14 @@ public class AuthenticationService {
     private final AuthenticationManager authManager;
 
     @Transactional
-    public AuthResponseDto register(ContactRequestDto contactRequestDto, String clientHost) {
+    public void register(ContactRequestDto contactRequestDto, String clientHost) {
         log.trace("Started registration contact email: {}", contactRequestDto.getEmail());
 
         var contact = contactService.create(contactRequestDto);
-        activateAccountService.sendVerifyEmail(contact, clientHost);
 
-        var accessToken = jwtService.generateAccessToken(contact);
-        var refreshToken = jwtService.generateRefreshToken(contact);
-
-        saveContactToken(contact.getEmail(), accessToken);
         log.info("Saved registered contact {} to repository", contact.getEmail());
 
-        return AuthResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+        activateAccountService.sendVerifyEmail(contact, clientHost);
     }
 
     @Transactional
