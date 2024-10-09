@@ -44,8 +44,7 @@ public class AuthenticationController {
     private static final String LOGOUT = "/logout";
 
     @Operation(summary = "Registration a new contact", responses = {
-                    @ApiResponse(responseCode = "201", description = SUCCESSFULLY_REGISTERED,
-                            content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
+                    @ApiResponse(responseCode = "201", description = SUCCESSFULLY_REGISTERED),
                     @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
