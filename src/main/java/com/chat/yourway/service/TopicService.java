@@ -2,6 +2,7 @@ package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.TagRequestDto;
 import com.chat.yourway.dto.request.TopicRequestDto;
+import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.dto.response.PrivateTopicInfoResponseDto;
 import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
@@ -34,12 +35,13 @@ import static java.util.stream.Collectors.toSet;
 @Slf4j
 public class TopicService {
 
-    private final TopicRepository topicRepository;
-    private final TagRepository tagRepository;
-    private final TopicMapper topicMapper;
-    private final ContactService contactService;
+    private final TopicSubscriberService topicSubscriberService;
     private final ContactOnlineService contactOnlineService;
     private final NotificationService notificationService;
+    private final TopicRepository topicRepository;
+    private final ContactService contactService;
+    private final TagRepository tagRepository;
+    private final TopicMapper topicMapper;
 
     @Transactional
     public TopicResponseDto create(TopicRequestDto topicRequestDto) {
@@ -208,6 +210,30 @@ public class TopicService {
                     log.warn("Topic id: {} wasn't found", topicId);
                     return new TopicNotFoundException(String.format("Topic id: %s wasn't found", topicId));
                 });
+    }
+
+    public void subscribeToTopic(UUID topicId) {
+        topicSubscriberService.subscribeToTopicById(topicId);
+    }
+
+    public void unsubscribeFromTopic(UUID topicId) {
+        topicSubscriberService.unsubscribeFromTopicById(topicId);
+    }
+
+    public List<ContactResponseDto> findAllSubscribersByTopicId(UUID topicId) {
+        return topicSubscriberService.findAllSubscribersByTopicId(topicId);
+    }
+
+    public void addTopicToFavourite( UUID topicId) {
+        topicSubscriberService.addTopicToFavourite(topicId);
+    }
+
+    public void removeTopicFromFavourite(UUID topicId) {
+        topicSubscriberService.removeTopicFromFavourite(topicId);
+    }
+
+    public void complainTopic(UUID topicId) {
+        topicSubscriberService.complainTopic(topicId);
     }
 
     private Topic getTopicByName(String name) {

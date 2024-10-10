@@ -10,26 +10,32 @@ import com.chat.yourway.exception.InvalidCredentialsException;
 import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.model.token.Token;
 import com.chat.yourway.security.JwtService;
+import com.chat.yourway.security.LogoutService;
 import com.chat.yourway.security.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationService {
 
-    private final ContactService contactService;
-    private final JwtService jwtService;
-    private final TokenService tokenService;
     private final ActivateAccountService activateAccountService;
     private final AuthenticationManager authManager;
+    private final ContactService contactService;
+    private final LogoutService logoutService;
+    private final TokenService tokenService;
+    private final JwtService jwtService;
 
     @Transactional
     public void register(ContactRequestDto contactRequestDto, String clientHost) {
@@ -84,6 +90,14 @@ public class AuthenticationService {
 
         log.info("Refreshed access token for contact email: {}", email);
         return AuthResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+    }
+
+    public void activateAccount(UUID token) {
+        activateAccountService.activateAccount(token);
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
+        logoutService.logout(request, response, auth);
     }
 
     private void saveContactToken(String email, String jwtToken) {

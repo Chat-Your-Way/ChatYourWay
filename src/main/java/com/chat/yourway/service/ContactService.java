@@ -4,6 +4,7 @@ import com.chat.yourway.config.security.MyPasswordEncoder;
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.request.EditContactProfileRequestDto;
 import com.chat.yourway.dto.response.ContactProfileResponseDto;
+import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.exception.PasswordsAreNotEqualException;
 import com.chat.yourway.exception.ValueNotUniqException;
@@ -15,8 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.chat.yourway.model.Role.USER;
 
@@ -25,12 +28,21 @@ import static com.chat.yourway.model.Role.USER;
 @Slf4j
 public class ContactService {
 
+    private final ContactOnlineService contactOnlineService;
     private final ContactRepository contactRepository;
     private final MyPasswordEncoder myPasswordEncoder;
 
     @Transactional
     public void save(Contact contact) {
         contactRepository.save(contact);
+    }
+
+    public List<ContactResponseDto> findAllOnlineContacts() {
+        return contactOnlineService.getOnlineContactsDto();
+    }
+
+    public List<ContactResponseDto> findAllOnlineContactsByTopicId(UUID topicId) {
+        return contactOnlineService.getOnlineUsersByTopicId(topicId);
     }
 
     @Transactional

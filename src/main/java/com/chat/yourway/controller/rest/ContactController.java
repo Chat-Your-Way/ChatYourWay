@@ -4,7 +4,6 @@ import com.chat.yourway.dto.request.EditContactProfileRequestDto;
 import com.chat.yourway.dto.response.ContactProfileResponseDto;
 import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
-import com.chat.yourway.service.ContactOnlineService;
 import com.chat.yourway.service.ContactService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,7 +27,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class ContactController {
 
     private final ContactService contactService;
-    private final ContactOnlineService contactOnlineService;
     private static final String PROFILE = "/profile";
     private static final String GET_PROFILE = "/profile";
     private static final String MESSAGE_SEND_PROHIBIT = "/message/send/prohibit";
@@ -93,7 +91,7 @@ public class ContactController {
             })
     @GetMapping(path = ONLINE_TOPIC_ID, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public List<ContactResponseDto> findAllOnlineContactsByTopicId(@PathVariable("topic-id") UUID topicId) {
-        return contactOnlineService.getOnlineUsersByTopicId(topicId);
+        return contactService.findAllOnlineContactsByTopicId(topicId);
     }
 
     @Operation(summary = "Find all online contacts", responses = {
@@ -103,6 +101,6 @@ public class ContactController {
             })
     @GetMapping(path = ONLINE, produces = APPLICATION_JSON_VALUE)
     public List<ContactResponseDto> findAllOnlineContacts() {
-        return contactOnlineService.getOnlineContactsDto();
+        return contactService.findAllOnlineContacts();
     }
 }

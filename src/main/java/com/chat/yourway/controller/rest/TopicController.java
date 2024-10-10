@@ -7,7 +7,6 @@ import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.service.TopicService;
-import com.chat.yourway.service.TopicSubscriberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +16,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
@@ -35,7 +33,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class TopicController {
 
     private final TopicService topicService;
-    private final TopicSubscriberService topicSubscriberService;
 
     private static final String CREATE = "/create";
     private static final String UPDATE_ID = "/update/{id}";
@@ -135,7 +132,7 @@ public class TopicController {
             })
     @PostMapping(path = SUBSCRIBE_TOPIC_ID, consumes = APPLICATION_JSON_VALUE)
     public void subscribeToTopic(@PathVariable UUID topicId) {
-        topicSubscriberService.subscribeToTopicById(topicId);
+        topicService.subscribeToTopic(topicId);
     }
 
     @Operation(summary = "Unsubscribe from the topic", responses = {
@@ -149,7 +146,7 @@ public class TopicController {
             })
     @PatchMapping(path = UNSUBSCRIBE_TOPIC_ID, consumes = APPLICATION_JSON_VALUE)
     public void unsubscribeFromTopic(@PathVariable UUID topicId) {
-        topicSubscriberService.unsubscribeFromTopicById(topicId);
+        topicService.unsubscribeFromTopic(topicId);
     }
 
     @Operation(summary = "Find all subscribers to topic by topicId", responses = {
@@ -159,7 +156,7 @@ public class TopicController {
             })
     @GetMapping(path = SUBSCRIBERS_TOPIC_ID, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public List<ContactResponseDto> findAllSubscribersByTopicId(@PathVariable UUID topicId) {
-        return topicSubscriberService.findAllSubscribersByTopicId(topicId);
+        return topicService.findAllSubscribersByTopicId(topicId);
     }
 
     @Operation(summary = "Find all topics by tag name", responses = {
@@ -196,7 +193,7 @@ public class TopicController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping(path = TOPIC_ID_FAVOURITE_ADD, consumes = APPLICATION_JSON_VALUE)
     public void addToFavouriteTopic(@PathVariable("topic-id") UUID topicId) {
-        topicSubscriberService.addTopicToFavourite(topicId);
+        topicService.addTopicToFavourite(topicId);
     }
 
     @Operation(summary = "Remove topic from favourite", responses = {
@@ -209,7 +206,7 @@ public class TopicController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping(path = TOPIC_ID_FAVOURITE_REMOVE, consumes = APPLICATION_JSON_VALUE)
     public void removeToFavouriteTopic(@PathVariable("topic-id") UUID topicId) {
-        topicSubscriberService.removeTopicFromFavourite(topicId);
+        topicService.removeTopicFromFavourite(topicId);
     }
 
     @Operation(summary = "Find all favourite topics of contact", responses = {
@@ -242,6 +239,6 @@ public class TopicController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping(value = TOPIC_ID_COMPLAIN, consumes = APPLICATION_JSON_VALUE)
     public void complainTopic(@PathVariable("topic-id") UUID topicId) {
-        topicSubscriberService.complainTopic(topicId);
+        topicService.complainTopic(topicId);
     }
 }

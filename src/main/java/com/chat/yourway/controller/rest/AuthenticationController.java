@@ -5,8 +5,6 @@ import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.request.EmailRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
-import com.chat.yourway.security.LogoutService;
-import com.chat.yourway.service.ActivateAccountService;
 import com.chat.yourway.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,8 +32,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AuthenticationController {
 
     private final AuthenticationService authService;
-    private final ActivateAccountService activateAccountService;
-    private final LogoutService logoutService;
     private static final String REGISTER = "/register";
     private static final String ACTIVE_SEND_TOKEN = "/resend/email";
     private static final String LOGIN = "/login";
@@ -91,7 +87,7 @@ public class AuthenticationController {
             })
     @PostMapping(path = ACTIVATE, consumes = APPLICATION_JSON_VALUE)
     public void activateAccount(@RequestParam(name = "Email token") UUID token) {
-        activateAccountService.activateAccount(token);
+        authService.activateAccount(token);
     }
 
     @Operation(summary = "Resend email", responses = {
@@ -110,6 +106,6 @@ public class AuthenticationController {
             })
     @PostMapping(value = LOGOUT, consumes = APPLICATION_JSON_VALUE)
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
-        logoutService.logout(request, response, auth);
+        authService.logout(request, response, auth);
     }
 }
