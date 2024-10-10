@@ -33,7 +33,6 @@ public class Topic {
   private Contact contact;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false, length = 50)
   private TopicScope scope;
 
   @Column(nullable = false)
