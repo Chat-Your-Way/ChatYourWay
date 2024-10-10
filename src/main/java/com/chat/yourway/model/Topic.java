@@ -35,11 +35,10 @@ public class Topic {
   @Enumerated(EnumType.STRING)
   private TopicScope scope;
 
-  @Column(nullable = false)
   @CreationTimestamp
   private LocalDateTime createdAt;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
       schema = "chat",
       name = "topic_tags",
@@ -47,7 +46,7 @@ public class Topic {
       inverseJoinColumns = @JoinColumn(name = "tag_id"))
   private Set<Tag> tags;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
           schema = "chat",
           name = "topic_contacts",
@@ -55,7 +54,7 @@ public class Topic {
           inverseJoinColumns = @JoinColumn(name = "contact_id"))
   private List<Contact> topicSubscribers = new ArrayList<>();
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
           schema = "chat",
           name = "topic_complaints",

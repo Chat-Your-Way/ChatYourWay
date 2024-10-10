@@ -31,7 +31,7 @@ public class Contact implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 2048)
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
@@ -64,8 +64,8 @@ public class Contact implements UserDetails {
     private List<Message> unreadMessages;
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+    public Collection<Role> getAuthorities() {
+        return List.of(Role.valueOf(role.name()));
     }
 
     @Override
