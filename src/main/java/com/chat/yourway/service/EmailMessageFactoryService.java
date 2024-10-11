@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static com.chat.yourway.utils.Constants.SLASH;
 import static com.chat.yourway.utils.Constants.TOKEN_PARAMETER;
 
 @Service
