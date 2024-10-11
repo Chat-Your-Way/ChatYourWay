@@ -14,12 +14,16 @@ import static com.chat.yourway.utils.Constants.TOKEN_PARAMETER;
 @Slf4j
 public class EmailMessageFactoryService {
   public EmailMessageDto generateEmailMessage(EmailMessageInfoDto emailMessageInfoDto) {
-    String path = emailMessageInfoDto.path();
-    UUID uuidToken = emailMessageInfoDto.uuidToken();
-    EmailMessageType emailMessageType = emailMessageInfoDto.emailMessageType();
-    String link = generateLink(path, uuidToken, emailMessageType);
+    final var path = emailMessageInfoDto.path();
+    final var uuidToken = emailMessageInfoDto.uuidToken();
+    final var emailMessageType = emailMessageInfoDto.emailMessageType();
+    final var link = generateLink(path, uuidToken, emailMessageType);
+
     log.info("Generated link: {}", link);
-    String messageBody = String.format(emailMessageType.getMessageBody(), emailMessageInfoDto.username(), link);
+
+    final var messageBody = String.format(
+            emailMessageType.getMessageBody(), emailMessageInfoDto.username(), link
+    );
 
     return new EmailMessageDto(emailMessageInfoDto.email(), emailMessageType.getSubject(), messageBody);
   }
