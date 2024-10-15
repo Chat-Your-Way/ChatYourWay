@@ -11,12 +11,11 @@ import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
 import com.chat.yourway.repository.jpa.ContactRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,13 +23,20 @@ import java.util.UUID;
 import static com.chat.yourway.model.Role.USER;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class ContactService {
 
     private final ContactOnlineService contactOnlineService;
     private final ContactRepository contactRepository;
     private final MyPasswordEncoder myPasswordEncoder;
+
+    public ContactService(@Lazy ContactOnlineService contactOnlineService,
+                          ContactRepository contactRepository,
+                          MyPasswordEncoder myPasswordEncoder) {
+        this.contactOnlineService = contactOnlineService;
+        this.contactRepository = contactRepository;
+        this.myPasswordEncoder = myPasswordEncoder;
+    }
 
     @Transactional
     public void save(Contact contact) {

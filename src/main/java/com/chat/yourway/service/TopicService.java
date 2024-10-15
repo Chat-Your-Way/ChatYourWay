@@ -20,6 +20,7 @@ import com.chat.yourway.repository.jpa.TopicRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Context;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,6 @@ import java.util.UUID;
 import static java.util.stream.Collectors.toSet;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class TopicService {
 
@@ -42,6 +42,22 @@ public class TopicService {
     private final ContactService contactService;
     private final TagRepository tagRepository;
     private final TopicMapper topicMapper;
+
+    public TopicService(ContactOnlineService contactOnlineService,
+                        @Lazy TopicSubscriberService topicSubscriberService,
+                        NotificationService notificationService,
+                        TopicRepository topicRepository,
+                        ContactService contactService,
+                        TagRepository tagRepository,
+                        TopicMapper topicMapper) {
+        this.contactOnlineService = contactOnlineService;
+        this.topicSubscriberService = topicSubscriberService;
+        this.notificationService = notificationService;
+        this.topicRepository = topicRepository;
+        this.contactService = contactService;
+        this.tagRepository = tagRepository;
+        this.topicMapper = topicMapper;
+    }
 
     @Transactional
     public TopicResponseDto create(TopicRequestDto topicRequestDto) {
