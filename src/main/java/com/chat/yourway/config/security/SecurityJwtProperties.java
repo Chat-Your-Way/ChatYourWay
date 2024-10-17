@@ -12,7 +12,6 @@ import java.time.Duration;
 @Component
 @ConfigurationProperties(prefix = "security.jwt")
 public class SecurityJwtProperties {
-  private String tokenType;
   private String secretKey;
   private Duration accessExpiration;
   private Duration refreshExpiration;

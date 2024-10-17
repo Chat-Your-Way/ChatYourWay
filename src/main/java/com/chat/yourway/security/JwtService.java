@@ -1,5 +1,6 @@
 package com.chat.yourway.security;
 
+import static com.chat.yourway.utils.Constants.BEARER;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.chat.yourway.config.security.SecurityJwtProperties;
@@ -40,20 +41,17 @@ public class JwtService {
   }
 
   public String extractToken(HttpServletRequest request) {
-    String token = request.getHeader(AUTHORIZATION);
+    var token = request.getHeader(AUTHORIZATION);
 
     if (token == null) {
       token = request.getParameter(AUTHORIZATION);
     }
 
-    final String tokenType = jwtProperties.getTokenType();
-    final String tokenTypePrefix = tokenType + " ";
-
-    if (isNotValidTokenType(token, tokenTypePrefix)) {
-      log.warn("Invalid token type, token type should be [{}]", tokenType);
-      throw new InvalidTokenException("Invalid token type, token type should be [" + tokenType + "]");
+    if (isNotValidTokenType(token)) {
+      log.warn("Invalid token type, token type should be [{}]", BEARER);
+      throw new InvalidTokenException("Invalid token type, token type should be [" + BEARER + "]");
     }
-    return token.substring(tokenTypePrefix.length());
+    return token.substring(BEARER.length());
   }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -72,8 +70,8 @@ public class JwtService {
     return buildToken(extraClaims, userDetails, jwtProperties.getRefreshExpiration().toMillis());
   }
 
-  private boolean isNotValidTokenType(String token, String tokenTypePrefix) {
-    return token == null || !token.startsWith(tokenTypePrefix);
+  private boolean isNotValidTokenType(String token) {
+    return token == null || !token.startsWith(BEARER);
   }
 
   private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
@@ -82,7 +80,7 @@ public class JwtService {
         .setSubject(userDetails.getUsername())
         .setIssuedAt(new Date(System.currentTimeMillis()))
         .setExpiration(new Date(System.currentTimeMillis() + expiration))
-        .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+        .signWith(getSigningKey())
         .compact();
   }
 
