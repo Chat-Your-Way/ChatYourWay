@@ -4,6 +4,7 @@ import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.request.EmailRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
+import com.chat.yourway.dto.response.RegistrationResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,7 +41,8 @@ public class AuthenticationController {
     private static final String LOGOUT = "/logout";
 
     @Operation(summary = "Registration a new contact", responses = {
-                    @ApiResponse(responseCode = "201", description = SUCCESSFULLY_REGISTERED),
+                    @ApiResponse(responseCode = "201", description = SUCCESSFULLY_REGISTERED,
+                            content = @Content(schema = @Schema(implementation = RegistrationResponseDto.class))),
                     @ApiResponse(responseCode = "409", description = VALUE_NOT_UNIQUE,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
@@ -48,10 +50,10 @@ public class AuthenticationController {
                 }
             )
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(path = REGISTER, consumes = APPLICATION_JSON_VALUE)
-    public void register(@Valid @RequestBody ContactRequestDto request,
-                                    @RequestHeader(HttpHeaders.REFERER) String clientHost) {
-        authService.register(request, clientHost);
+    @PostMapping(path = REGISTER, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    public RegistrationResponseDto register(@Valid @RequestBody ContactRequestDto request,
+                                            @RequestHeader(HttpHeaders.REFERER) String clientHost) {
+        return authService.register(request, clientHost);
     }
 
     @Operation(summary = "Authorization", responses = {

@@ -6,6 +6,7 @@ import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.request.EmailRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
+import com.chat.yourway.dto.response.RegistrationResponseDto;
 import com.chat.yourway.exception.InvalidCredentialsException;
 import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.model.token.Token;
@@ -38,7 +39,8 @@ public class AuthenticationService {
     private final JwtService jwtService;
 
     @Transactional
-    public void register(ContactRequestDto contactRequestDto, String clientHost) {
+    public RegistrationResponseDto register(ContactRequestDto contactRequestDto, String clientHost) {
+        final var status = RegistrationResponseDto.builder().registerStatus("success full").build();
         log.trace("Started registration contact email: {}", contactRequestDto.getEmail());
 
         var contact = contactService.create(contactRequestDto);
@@ -46,6 +48,7 @@ public class AuthenticationService {
         log.info("Saved registered contact {} to repository", contact.getEmail());
 
         activateAccountService.sendVerifyEmail(contact, clientHost);
+        return status;
     }
 
     @Transactional
