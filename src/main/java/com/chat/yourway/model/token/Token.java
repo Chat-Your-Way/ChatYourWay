@@ -16,14 +16,12 @@ import org.springframework.data.redis.core.index.Indexed;
 @Setter
 @RedisHash("Token")
 public class Token {
-
   @Id
   @Indexed
   public String email;
   @Indexed
   public String token;
-  public TokenType tokenType;
+  public String tokenType;
   public boolean revoked;
   public boolean expired;
-
 }

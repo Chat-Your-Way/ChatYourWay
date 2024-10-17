@@ -35,8 +35,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   @Override
   @SneakyThrows
   protected void doFilterInternal(@NonNull HttpServletRequest request,
-      @NonNull HttpServletResponse response,
-      @NonNull FilterChain filterChain) {
+                                  @NonNull HttpServletResponse response,
+                                  @NonNull FilterChain filterChain) {
 
     if (isNotAuthorizationHeader(request) && isNotTokenParameter(request)) {
       log.warn("Request without authorization. Header or parameter does not contain {}", AUTHORIZATION);

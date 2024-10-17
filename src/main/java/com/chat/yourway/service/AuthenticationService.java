@@ -1,7 +1,5 @@
 package com.chat.yourway.service;
 
-import static com.chat.yourway.model.token.TokenType.*;
-
 import com.chat.yourway.dto.request.AuthRequestDto;
 import com.chat.yourway.dto.request.ContactRequestDto;
 import com.chat.yourway.dto.request.EmailRequestDto;
@@ -107,7 +105,7 @@ public class AuthenticationService {
         var token = Token.builder()
                         .email(email)
                         .token(jwtToken)
-                        .tokenType(BEARER)
+                        .tokenType("BEARER")
                         .expired(false)
                         .revoked(false)
                         .build();
