@@ -17,7 +17,6 @@ import com.chat.yourway.model.Topic;
 import com.chat.yourway.model.TopicScope;
 import com.chat.yourway.repository.jpa.TagRepository;
 import com.chat.yourway.repository.jpa.TopicRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Context;
 import org.springframework.context.annotation.Lazy;
