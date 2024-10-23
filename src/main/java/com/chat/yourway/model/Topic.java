@@ -38,7 +38,7 @@ public class Topic {
   @CreationTimestamp
   private LocalDateTime createdAt;
 
-  @ManyToMany(fetch = FetchType.LAZY)
+  @ManyToMany
   @JoinTable(
       schema = "chat",
       name = "topic_tags",
@@ -46,7 +46,7 @@ public class Topic {
       inverseJoinColumns = @JoinColumn(name = "tag_id"))
   private Set<Tag> tags;
 
-  @ManyToMany(fetch = FetchType.LAZY)
+  @ManyToMany
   @JoinTable(
           schema = "chat",
           name = "topic_contacts",
@@ -54,7 +54,7 @@ public class Topic {
           inverseJoinColumns = @JoinColumn(name = "contact_id"))
   private List<Contact> topicSubscribers = new ArrayList<>();
 
-  @ManyToMany(fetch = FetchType.LAZY)
+  @ManyToMany
   @JoinTable(
           schema = "chat",
           name = "topic_complaints",
