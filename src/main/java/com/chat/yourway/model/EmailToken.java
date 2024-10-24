@@ -1,6 +1,6 @@
-package com.chat.yourway.model.email;
+package com.chat.yourway.model;
 
-import com.chat.yourway.model.Contact;
+import com.chat.yourway.model.enums.EmailMessageType;
 import jakarta.persistence.*;
 import lombok.*;
 

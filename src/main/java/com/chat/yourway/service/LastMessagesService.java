@@ -1,10 +1,9 @@
 package com.chat.yourway.service;
 
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
-import com.chat.yourway.model.TopicScope;
+import com.chat.yourway.model.enums.TopicScope;
 import com.chat.yourway.repository.jpa.MessageRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

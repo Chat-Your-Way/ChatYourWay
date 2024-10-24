@@ -1,14 +1,13 @@
 package com.chat.yourway.repository.jpa;
 
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
-import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import com.chat.yourway.model.TopicScope;
+import com.chat.yourway.model.enums.TopicScope;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -9,7 +9,7 @@ import com.chat.yourway.mapper.MessageMapper;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
 import com.chat.yourway.model.Topic;
-import com.chat.yourway.model.TopicScope;
+import com.chat.yourway.model.enums.TopicScope;
 import com.chat.yourway.repository.jpa.MessageRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

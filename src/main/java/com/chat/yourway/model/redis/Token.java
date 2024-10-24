@@ -1,4 +1,4 @@
-package com.chat.yourway.model.token;
+package com.chat.yourway.model.redis;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

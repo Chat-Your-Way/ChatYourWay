@@ -2,7 +2,7 @@ package com.chat.yourway.service;
 
 import com.chat.yourway.dto.common.EmailMessageDto;
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
-import com.chat.yourway.model.email.EmailMessageType;
+import com.chat.yourway.model.enums.EmailMessageType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

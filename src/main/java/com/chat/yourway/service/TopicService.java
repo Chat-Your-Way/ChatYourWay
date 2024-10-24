@@ -14,7 +14,7 @@ import com.chat.yourway.mapper.TopicMapper;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Tag;
 import com.chat.yourway.model.Topic;
-import com.chat.yourway.model.TopicScope;
+import com.chat.yourway.model.enums.TopicScope;
 import com.chat.yourway.repository.jpa.TagRepository;
 import com.chat.yourway.repository.jpa.TopicRepository;
 import lombok.extern.slf4j.Slf4j;

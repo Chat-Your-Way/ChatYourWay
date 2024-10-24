@@ -1,6 +1,6 @@
 package com.chat.yourway.dto.common;
 
-import com.chat.yourway.model.email.EmailMessageType;
+import com.chat.yourway.model.enums.EmailMessageType;
 
 import java.util.UUID;
 

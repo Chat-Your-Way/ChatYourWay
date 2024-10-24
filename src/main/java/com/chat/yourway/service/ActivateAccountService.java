@@ -3,7 +3,7 @@ package com.chat.yourway.service;
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
 import com.chat.yourway.exception.EmailTokenNotFoundException;
 import com.chat.yourway.model.Contact;
-import com.chat.yourway.model.email.EmailToken;
+import com.chat.yourway.model.EmailToken;
 import com.chat.yourway.repository.jpa.EmailTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-import static com.chat.yourway.model.email.EmailMessageType.ACTIVATE;
+import static com.chat.yourway.model.enums.EmailMessageType.ACTIVATE;
 
 @Service
 @RequiredArgsConstructor

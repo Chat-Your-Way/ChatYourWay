@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-import static com.chat.yourway.model.Role.USER;
+import static com.chat.yourway.model.enums.Role.USER;
 
 @Service
 @Slf4j

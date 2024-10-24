@@ -1,4 +1,4 @@
-package com.chat.yourway.model;
+package com.chat.yourway.model.enums;
 
 import org.springframework.security.core.GrantedAuthority;
 

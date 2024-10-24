@@ -1,7 +1,7 @@
 package com.chat.yourway.dto.response;
 
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
-import com.chat.yourway.model.TopicScope;
+import com.chat.yourway.model.enums.TopicScope;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;

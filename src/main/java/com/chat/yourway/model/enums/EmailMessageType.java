@@ -1,4 +1,4 @@
-package com.chat.yourway.model.email;
+package com.chat.yourway.model.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

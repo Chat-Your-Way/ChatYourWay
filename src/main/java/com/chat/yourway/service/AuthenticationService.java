@@ -7,7 +7,7 @@ import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.dto.response.RegistrationResponseDto;
 import com.chat.yourway.exception.InvalidCredentialsException;
 import com.chat.yourway.exception.InvalidTokenException;
-import com.chat.yourway.model.token.Token;
+import com.chat.yourway.model.redis.Token;
 import com.chat.yourway.security.JwtService;
 import com.chat.yourway.security.LogoutService;
 import com.chat.yourway.security.TokenService;

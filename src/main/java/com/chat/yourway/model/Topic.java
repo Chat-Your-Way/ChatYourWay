@@ -1,5 +1,6 @@
 package com.chat.yourway.model;
 
+import com.chat.yourway.model.enums.TopicScope;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
