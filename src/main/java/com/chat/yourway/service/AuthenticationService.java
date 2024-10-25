@@ -93,8 +93,8 @@ public class AuthenticationService {
         return AuthResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 
-    public void activateAccount(UUID token) {
-        activateAccountService.activateAccount(token);
+    public void activateAccount() {
+        activateAccountService.activateAccount();
     }
 
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {

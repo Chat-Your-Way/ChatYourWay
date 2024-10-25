@@ -88,8 +88,8 @@ public class AuthenticationController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @PostMapping(path = ACTIVATE, consumes = APPLICATION_JSON_VALUE)
-    public void activateAccount(@RequestParam(name = "Email token") UUID token) {
-        authService.activateAccount(token);
+    public void activateAccount() {
+        authService.activateAccount();
     }
 
     @Operation(summary = "Resend email", responses = {

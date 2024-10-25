@@ -25,20 +25,12 @@ public class ActivateAccountService {
     private final ContactService contactService;
 
     @Transactional
-    public void activateAccount(UUID token) {
-        log.trace("Started activateAccount by email token");
+    public void activateAccount() {
+        log.trace("Started activateAccount by email");
 
-        EmailToken emailToken = emailTokenRepository.findById(token)
-                .orElseThrow(() -> {
-                    log.warn("Current email token does not exist in repository");
-                    return new EmailTokenNotFoundException();
-                });
-
-        Contact contact = emailToken.getContact();
+        final var contact = contactService.getCurrentContact();
         contact.setActive(true);
         contactService.save(contact);
-
-        emailTokenRepository.delete(emailToken);
 
         log.info("Account is activate for contact email [{}]", contact.getEmail());
     }
