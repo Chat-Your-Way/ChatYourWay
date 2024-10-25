@@ -7,7 +7,6 @@ import com.chat.yourway.config.security.SecurityJwtProperties;
 import com.chat.yourway.exception.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +39,10 @@ public class JwtService {
     return generateRefreshTokenBuild(new HashMap<>(), userDetails);
   }
 
+  public String generateEmailToken(UserDetails userDetails) {
+    return generateEmailTokenBuild(new HashMap<>(), userDetails);
+  }
+
   public String extractToken(HttpServletRequest request) {
     var token = request.getHeader(AUTHORIZATION);
 
@@ -68,6 +71,10 @@ public class JwtService {
 
   private String generateRefreshTokenBuild(Map<String, Object> extraClaims, UserDetails userDetails) {
     return buildToken(extraClaims, userDetails, jwtProperties.getRefreshExpiration().toMillis());
+  }
+
+  private String generateEmailTokenBuild(Map<String, Object> extraClaims, UserDetails userDetails) {
+    return buildToken(extraClaims, userDetails, jwtProperties.getEmailExpiration().toMillis());
   }
 
   private boolean isNotValidTokenType(String token) {

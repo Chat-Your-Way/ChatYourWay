@@ -15,4 +15,5 @@ public class SecurityJwtProperties {
   private String secretKey;
   private Duration accessExpiration;
   private Duration refreshExpiration;
+  private Duration emailExpiration;
 }
