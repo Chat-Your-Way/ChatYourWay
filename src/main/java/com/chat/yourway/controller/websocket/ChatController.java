@@ -26,12 +26,11 @@ public class ChatController {
 
         log.info("Received message for topic ID: {}", topicId);
 
-        MessageResponseDto sendMessage =  messageService.sendToTopic(topicId, message);
         log.info("Message was saved in DB");
 
         messagingTemplate.convertAndSend("/topic/public/" + topicId, message);
         log.info("Message sent to topic ID: {}", topicId) ;
 
-        return sendMessage;
+        return messageService.sendToTopic(topicId, message);
     }
 }
