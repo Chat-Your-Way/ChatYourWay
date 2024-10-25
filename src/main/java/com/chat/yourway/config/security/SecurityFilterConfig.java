@@ -2,6 +2,7 @@ package com.chat.yourway.config.security;
 
 import com.chat.yourway.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -27,7 +28,8 @@ public class SecurityFilterConfig {
   private final SecurityCorsConfig securityCorsConfig;
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+  @SneakyThrows
+  public SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
     return httpSecurity
         .cors(cors -> securityCorsConfig.corsConfigurationSource())
         .csrf(AbstractHttpConfigurer::disable)
