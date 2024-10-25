@@ -42,9 +42,9 @@ public class ChangePasswordService {
 
         emailTokenRepository.save(emailToken);
 
-        var emailMessageInfo = new EmailMessageInfoDto(contact.getNickname(),
+        var emailMessageInfo = new EmailMessageInfoDto(
+                contact.getNickname(),
                 contact.getEmail(),
-                emailToken.getToken(),
                 clientHost,
                 EmailMessageType.RESTORE_PASSWORD);
         var emailMessage = emailMessageFactoryService.generateEmailMessage(emailMessageInfo);
