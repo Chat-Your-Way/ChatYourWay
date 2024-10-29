@@ -29,8 +29,7 @@ public class ChangePasswordController {
     private static final String PASSWORD_RESTORE = "/password/restore";
 
     @Operation(summary = "Change to new password", responses = {
-                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_CHANGING_PASSWORD,
-                            content = @Content),
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_CHANGING_PASSWORD),
                     @ApiResponse(responseCode = "400", description = INVALID_OLD_PASSWORD,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
@@ -40,8 +39,7 @@ public class ChangePasswordController {
     }
 
     @Operation(summary = "Send email to restore password", responses = {
-                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_SEND_REQUEST_RESTORE_PASSWORD,
-                            content = @Content),
+                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_SEND_REQUEST_RESTORE_PASSWORD),
                     @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
