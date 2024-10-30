@@ -20,16 +20,14 @@ public class StompConnectionListener {
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
-        String email = getUserEmailFromEvent(event);
-        contactOnlineService.setUserOnline(email);
-        log.info("Contact [{}] is connected", email);
+        contactOnlineService.setUserOnline(getUserEmailFromEvent(event));
+        log.info("Contact [{}] is connected", getUserEmailFromEvent(event));
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        String email = getUserEmailFromEvent(event);
-        contactOnlineService.setUserOffline(email);
-        log.info("Contact [{}] is disconnected", email);
+        contactOnlineService.setUserOffline(getUserEmailFromEvent(event));
+        log.info("Contact [{}] is disconnected", getUserEmailFromEvent(event));
     }
 
     private String getUserEmailFromEvent(AbstractSubProtocolEvent event) {
