@@ -20,14 +20,12 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
   @Query("SELECT t FROM Topic t left join fetch t.tags tag where t.scope != 'DELETED' and tag.name=:tagName")
   List<Topic> findAllByTagName(@Param("tagName") String tagName);
 
-  @Query(
-      value =
+  @Query(value =
           """
               SELECT *
               FROM chat.topics t
               WHERE t.scope != 'DELETED' and to_tsvector('english', t.topic_name) @@ to_tsquery('english', :query)
-              """,
-      nativeQuery = true)
+              """, nativeQuery = true)
   List<Topic> findAllByName(@Param("query") String query);
 
   @Query(value = "SELECT t FROM Topic t Where t.name = :name and t.scope != 'DELETED'")
