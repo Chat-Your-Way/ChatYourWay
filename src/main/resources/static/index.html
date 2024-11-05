@@ -34,10 +34,9 @@
   <br/>
 
   <h2>Log Text</h2>
-  <textarea rows="30" cols="100" id="logtext">
 
-  </textarea>
-
+  <label for="logtext"></label>
+  <textarea rows="30" cols="100" id="logtext"></textarea>
 
 </div>
 
@@ -140,7 +139,7 @@ function updateAccessToken() {
 
 
   function refreshTokenAndReconnect() {
-    updateAccessToken().then(newAccessToken => {
+    updateAccessToken().then(() => {
         if (stompClient) {
             stompClient.disconnect(() => {
                 console.log('Disconnected from WebSocket');
@@ -201,26 +200,24 @@ function updateAccessToken() {
     if (topicId.trim() === '') {
       console.log('topicId is empty');
       stompClient.subscribe(subToTopicDest, function (messages) {
-        let parseMessage = JSON.parse(messages.body);
+        JSON.parse(messages.body);
       });
     } else {
       stompClient.subscribe(subToTopicDest + topicId, function (messages) {
-        let parseMessage = JSON.parse(messages.body);
+        JSON.parse(messages.body);
       });
     }
   }
 
   function addToLog(destination, object) {
-    let logtextElement = document.getElementById('logtext');
+    let logTextElement = document.getElementById('logText');
+    let formattedDateTimeNow = new Date().toLocaleString();
 
-    let now = new Date();
-    let formattedDateTime = now.toLocaleString();
+    logTextElement.append(formattedDateTimeNow + ' ' + destination + '\n');
+    logTextElement.append('\n' + JSON.stringify(object, null, 2) + '\n');
+    logTextElement.append('=================================================================== \n');
 
-    logtextElement.append(formattedDateTime + ' ' + destination + '\n');
-    logtextElement.append('\n' + JSON.stringify(object, null, 2) + '\n');
-    logtextElement.append('=================================================================== \n');
-
-    logtextElement.scrollTop = logtextElement.scrollHeight;
+    logTextElement.scrollTop = logTextElement.scrollHeight;
   }
 
 
