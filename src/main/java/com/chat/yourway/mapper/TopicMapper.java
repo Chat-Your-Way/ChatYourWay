@@ -13,16 +13,16 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", uses = BaseMapper.class)
 public interface TopicMapper {
-    @Mapping(target = "unreadMessages", source = ".", qualifiedByName = {"BaseMapper", "getUnreadMessages"})
-    @Mapping(target = "lastMessage", source = ".", qualifiedByName = {"BaseMapper", "getLastMessage"})
+    @Mapping(target = "unreadMessages", source = "topic", qualifiedByName = {"BaseMapper", "getUnreadMessages"})
+    @Mapping(target = "lastMessage", source = "topic", qualifiedByName = {"BaseMapper", "getLastMessage"})
     TopicResponseDto toResponseDto(Topic topic, @Context Contact me);
-    @Mapping(target = "name", source = ".", qualifiedByName = {"BaseMapper", "getNamePrivateTopic"})
-    @Mapping(target = "contact", source = ".", qualifiedByName = {"BaseMapper", "getContactPrivateTopic"})
-    @Mapping(target = "unreadMessages", source = ".", qualifiedByName = {"BaseMapper", "getUnreadMessages"})
-    @Mapping(target = "lastMessage", source = ".", qualifiedByName = {"BaseMapper", "getLastMessage"})
+    @Mapping(target = "name", source = "topic", qualifiedByName = {"BaseMapper", "getNamePrivateTopic"})
+    @Mapping(target = "contact", source = "topic", qualifiedByName = {"BaseMapper", "getContactPrivateTopic"})
+    @Mapping(target = "unreadMessages", source = "topic", qualifiedByName = {"BaseMapper", "getUnreadMessages"})
+    @Mapping(target = "lastMessage", source = "topic", qualifiedByName = {"BaseMapper", "getLastMessage"})
     PrivateTopicInfoResponseDto toInfoPrivateResponseDto(Topic topic, @Context Contact me);
-    @Mapping(target = "unreadMessages", source = ".", qualifiedByName = {"BaseMapper", "getUnreadMessages"})
-    @Mapping(target = "lastMessage", source = ".", qualifiedByName = {"BaseMapper", "getLastMessage"})
+    @Mapping(target = "unreadMessages", source = "topic", qualifiedByName = {"BaseMapper", "getUnreadMessages"})
+    @Mapping(target = "lastMessage", source = "topic", qualifiedByName = {"BaseMapper", "getLastMessage"})
     PublicTopicInfoResponseDto toInfoPublicResponseDto(Topic topic, @Context Contact me);
     List<PublicTopicInfoResponseDto> toListInfoResponseDto(List<Topic> topics, @Context Contact me);
 }
