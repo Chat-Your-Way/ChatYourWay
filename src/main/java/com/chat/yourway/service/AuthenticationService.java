@@ -38,7 +38,6 @@ public class AuthenticationService {
 
     @Transactional
     public RegistrationResponseDto register(ContactRequestDto contactRequestDto, String clientHost) {
-        final var status = RegistrationResponseDto.builder().registerStatus("success full").build();
         log.trace("Started registration contact email: {}", contactRequestDto.getEmail());
 
         var contact = contactService.create(contactRequestDto);
@@ -46,7 +45,7 @@ public class AuthenticationService {
         log.info("Saved registered contact {} to repository", contact.getEmail());
 
         activateAccountService.sendVerifyEmail(contact, clientHost);
-        return status;
+        return RegistrationResponseDto.builder().registerStatus("success full").build();
     }
 
     @Transactional
