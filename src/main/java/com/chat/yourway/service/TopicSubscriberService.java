@@ -43,8 +43,7 @@ public class TopicSubscriberService {
     }
 
     public List<ContactResponseDto> findAllSubscribersByTopicId(UUID id) {
-        Topic topic = topicService.getTopic(id);
-        return topic.getTopicSubscribers().stream()
+        return topicService.getTopic(id).getTopicSubscribers().stream()
                 .map(contactMapper::toResponseDto)
                 .toList();
     }

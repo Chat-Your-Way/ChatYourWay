@@ -4,7 +4,6 @@ import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.notification.LastMessageResponseDto;
 import com.chat.yourway.model.Contact;
-import com.chat.yourway.model.Message;
 import com.chat.yourway.model.Topic;
 import com.chat.yourway.service.LastMessagesService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Named("BaseMapper")
