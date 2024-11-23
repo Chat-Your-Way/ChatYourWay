@@ -9,6 +9,7 @@ target/
 .classpath
 .factorypath
 .project
+.env
 .settings
 .springBeans
 .sts4-cache
@@ -33,4 +34,3 @@ build/
 .vscode/
 
 logs/*
-.env
